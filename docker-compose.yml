@@ -1,0 +1,17 @@
+include:
+  - services/jellyfin.yml
+  - services/jellyfin-proxy.yml
+  - services/gluetun.yml
+  - services/qbittorrent.yml
+  - services/sonarr.yml
+  - services/radarr.yml
+  - services/radarr-extra.yml
+  - services/prowlarr.yml
+  - services/flaresolverr.yml
+  - services/jellyseerr.yml
+  - services/homepage.yml
+  - services/sabnzbd.yml
+
+networks:
+  movieseer:
+    driver: bridge
