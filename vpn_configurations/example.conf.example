@@ -1,0 +1,14 @@
+# WireGuard configuration file
+# Download these from your VPN provider (e.g. Mullvad > Wireguard configuration generator)
+# Place .conf files in this directory and reference them in gluetun.yml
+
+[Interface]
+# Device name is assigned by your VPN provider
+PrivateKey = your_wireguard_private_key_here
+Address = 10.x.x.x/32,fc00:bbbb:bbbb:bb01::x:xxxx/128
+DNS = 10.64.0.1
+
+[Peer]
+PublicKey = your_wireguard_public_key_here
+AllowedIPs = 0.0.0.0/0,::0/0
+Endpoint = your.vpn.endpoint.ip:51820
