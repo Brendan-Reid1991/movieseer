@@ -1,0 +1,15 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped
+    volumes:
+      - ./config/jellyfin:/config
+      - ./config/jellyfin/cache:/cache
+      - ${DATA_PATH}:/media
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true

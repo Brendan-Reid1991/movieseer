@@ -1,0 +1,22 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - ../vpn_configurations/active.env
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+    ports:
+      - "${QBITTORRENT_PORT}:8080"
+      - "${TORRENT_PORT}:6881/tcp"
+      - "${TORRENT_PORT}:6881/udp"
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true

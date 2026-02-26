@@ -1,0 +1,19 @@
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${SONARR_PORT}:8989"
+    volumes:
+      - ./config/sonarr:/config
+      - ${DATA_PATH}:/data
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true

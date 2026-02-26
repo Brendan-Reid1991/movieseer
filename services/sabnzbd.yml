@@ -1,0 +1,19 @@
+services:
+  sabnzbd:
+    image: linuxserver/sabnzbd
+    container_name: sabnzbd
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${SABNZBD_PORT}:8080"
+    volumes:
+      - ./config/sabnzbd:/config
+      - ${DATA_PATH}:/data
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true

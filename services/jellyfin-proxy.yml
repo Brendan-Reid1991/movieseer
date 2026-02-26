@@ -1,0 +1,17 @@
+services:
+  jellyfin-proxy:
+    build: ../scripts/jellyfin-proxy
+    container_name: jellyfin-proxy
+    restart: unless-stopped
+    ports:
+      - "${JELLYFIN_PORT}:8096"
+    volumes:
+      - ${DATA_PATH}:/media
+    networks:
+      - movieseer
+    depends_on:
+      - jellyfin
+
+networks:
+  movieseer:
+    external: true

@@ -1,0 +1,12 @@
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    network_mode: "service:gluetun"
+    volumes:
+      - ./config/qbittorrent:/config
+      - ${DATA_PATH}:/data

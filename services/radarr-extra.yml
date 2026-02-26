@@ -1,0 +1,19 @@
+services:
+  radarr-extra:
+    image: linuxserver/radarr
+    container_name: radarr-extra
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${RADARR_EXTRA_PORT}:7878"
+    volumes:
+      - ./config/radarr-extra:/config
+      - ${DATA_PATH}:/data
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true
