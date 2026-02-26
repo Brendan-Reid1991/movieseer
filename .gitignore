@@ -1,0 +1,7 @@
+.*/
+*/*.env
+*.conf
+.DS_Store
+.env
+**/cache
+services/config/
