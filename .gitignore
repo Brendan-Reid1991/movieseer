@@ -5,3 +5,5 @@
 .env
 **/cache
 services/config/
+test-data/
+.env.test

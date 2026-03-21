@@ -11,9 +11,13 @@ services:
     volumes:
       - ./config/sabnzbd:/config
       - ${DATA_PATH}:/data
+      - sabnzbd_incomplete:/data/downloads/usenet/incomplete
     networks:
       - movieseer
 
 networks:
   movieseer:
     external: true
+
+volumes:
+  sabnzbd_incomplete:
