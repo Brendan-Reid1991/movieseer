@@ -7,10 +7,9 @@ include:
   - services/flaresolverr.yml
   - services/jellyseerr.yml
   - services/jellyfin.yml
-  - services/homepage.yml
   - services/sabnzbd.yml
   - services/ntfy.yml
-  - services/pipeline-status.yml
+  - services/movieseer.yml
 
 networks:
   movieseer:
