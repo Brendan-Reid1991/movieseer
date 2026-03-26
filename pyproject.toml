@@ -8,6 +8,7 @@ authors = [{ name = "Brendan Reid" }]
 license = { text = "MIT" }
 dependencies = [
   "httpx>=0.27",
+  "pydantic>=2.0",
   "fastapi>=0.111",
   "docker>=7.0",
   "uvicorn>=0.34",
