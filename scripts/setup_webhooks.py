@@ -51,13 +51,17 @@ def upsert_notification(base_url: str, api_key: str, payload: dict, label: str):
         payload["id"] = existing["id"]
         r = httpx.put(
             f"{base_url}/api/v3/notification/{existing['id']}",
-            headers=headers, json=payload, timeout=10,
+            headers=headers,
+            json=payload,
+            timeout=10,
         )
         print(f"  {label}: updated '{NOTIFICATION_NAME}' (id={existing['id']})")
     else:
         r = httpx.post(
             f"{base_url}/api/v3/notification",
-            headers=headers, json=payload, timeout=10,
+            headers=headers,
+            json=payload,
+            timeout=10,
         )
         print(f"  {label}: created '{NOTIFICATION_NAME}'")
 
@@ -66,7 +70,8 @@ def upsert_notification(base_url: str, api_key: str, payload: dict, label: str):
 
 def configure_radarr():
     upsert_notification(
-        RADARR_HOST, RADARR_API_KEY,
+        RADARR_HOST,
+        RADARR_API_KEY,
         {
             "name": NOTIFICATION_NAME,
             "onGrab": True,
@@ -97,7 +102,8 @@ def configure_radarr():
 
 def configure_sonarr():
     upsert_notification(
-        SONARR_HOST, SONARR_API_KEY,
+        SONARR_HOST,
+        SONARR_API_KEY,
         {
             "name": NOTIFICATION_NAME,
             "onGrab": True,

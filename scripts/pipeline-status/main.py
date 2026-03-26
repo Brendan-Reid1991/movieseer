@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
-from aggregator import Aggregator
 import notifier
+from aggregator import Aggregator
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 aggregator = Aggregator()

@@ -1,5 +1,6 @@
-import httpx
 import os
+
+import httpx
 
 NTFY_URL = os.getenv("NTFY_URL", "http://ntfy:80")
 NTFY_TOPIC = os.getenv("NTFY_TOPIC", "movieseer")
@@ -38,19 +39,36 @@ async def handle_radarr(payload: dict):
         await _send(body, f"Grabbed: {label}", priority="low", tags="arrow_down")
 
     elif event == "Download":
-        await _send("Download complete, imported to library.", f"Available: {label}", priority="default", tags="white_check_mark")
+        await _send(
+            "Download complete, imported to library.",
+            f"Available: {label}",
+            priority="default",
+            tags="white_check_mark",
+        )
 
     elif event == "DownloadFailure":
         msg = payload.get("message", "")
-        await _send(msg or "Download failed.", f"Download failed: {label}", priority="high", tags="x")
+        await _send(
+            msg or "Download failed.",
+            f"Download failed: {label}",
+            priority="high",
+            tags="x",
+        )
 
     elif event == "ImportFailure":
         msg = payload.get("message", "")
-        await _send(msg or "Import failed.", f"Import failed: {label}", priority="high", tags="x")
+        await _send(
+            msg or "Import failed.", f"Import failed: {label}", priority="high", tags="x"
+        )
 
     elif event == "ManualInteractionRequired":
         msg = payload.get("message", "")
-        await _send(msg or "Manual action needed.", f"Action required: {label}", priority="urgent", tags="warning")
+        await _send(
+            msg or "Manual action needed.",
+            f"Action required: {label}",
+            priority="urgent",
+            tags="warning",
+        )
 
     elif event == "Health":
         msg = payload.get("message", "")
@@ -78,19 +96,36 @@ async def handle_sonarr(payload: dict):
         await _send(body, f"Grabbed: {label}", priority="low", tags="arrow_down")
 
     elif event == "Download":
-        await _send("Episode imported to library.", f"Available: {label}", priority="default", tags="white_check_mark")
+        await _send(
+            "Episode imported to library.",
+            f"Available: {label}",
+            priority="default",
+            tags="white_check_mark",
+        )
 
     elif event == "DownloadFailure":
         msg = payload.get("message", "")
-        await _send(msg or "Download failed.", f"Download failed: {label}", priority="high", tags="x")
+        await _send(
+            msg or "Download failed.",
+            f"Download failed: {label}",
+            priority="high",
+            tags="x",
+        )
 
     elif event == "ImportFailure":
         msg = payload.get("message", "")
-        await _send(msg or "Import failed.", f"Import failed: {label}", priority="high", tags="x")
+        await _send(
+            msg or "Import failed.", f"Import failed: {label}", priority="high", tags="x"
+        )
 
     elif event == "ManualInteractionRequired":
         msg = payload.get("message", "")
-        await _send(msg or "Manual action needed.", f"Action required: {label}", priority="urgent", tags="warning")
+        await _send(
+            msg or "Manual action needed.",
+            f"Action required: {label}",
+            priority="urgent",
+            tags="warning",
+        )
 
     elif event == "Health":
         msg = payload.get("message", "")

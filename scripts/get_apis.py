@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
-from pathlib import Path
-from collections.abc import Collection, Callable
-from functools import wraps
-from itertools import chain
+import argparse
+import json
 import os
 import xml.etree.ElementTree as ET
+from collections.abc import Callable, Collection
 from configparser import ConfigParser
-import json
-from glob import glob
-
-import argparse
+from functools import wraps
+from itertools import chain
+from pathlib import Path
 
 if not (containing_folder := Path(__file__).parent).parts[-1] == "scripts":
     raise ValueError(f"Script {__file__} is expected to be in a folder 'scripts/'.")
@@ -22,6 +20,7 @@ XML_FIELDS = {"ApiKey"}
 INI_FIELDS = {("misc", "api_key")}
 JSON_FIELDS = {("main", "apiKey")}
 
+
 def parse_script_arguments() -> list[str]:
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--exclude", default=None)
@@ -29,7 +28,13 @@ def parse_script_arguments() -> list[str]:
 
     return [args.exclude] if args.exclude else []
 
-CONFIG_PATTERNS: set[str] = {"config.xml", lambda service: f"{service}.ini", "settings.json"}
+
+CONFIG_PATTERNS: set[str] = {
+    "config.xml",
+    lambda service: f"{service}.ini",
+    "settings.json",
+}
+
 
 def main():
     # exclude = parse_script_arguments()
@@ -39,7 +44,6 @@ def main():
             continue
         subdir = CONFIG_DIR / service
         candidates = chain.from_iterable(subdir.glob("*" + ext) for ext in EXTS)
-
 
 
 def capture_api(function: Callable[[Path], Collection[str]]) -> Callable[[Path], str]:
@@ -77,9 +81,10 @@ def parse_ini(filepath: Path) -> Collection[str]:
         if parser.has_option(section, field)
     ]
 
+
 @capture_api
 def parse_json(filepath: Path) -> Collection[str]:
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         content = json.load(f)
     return [content[section][field] for section, field in JSON_FIELDS]
 
