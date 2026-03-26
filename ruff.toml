@@ -4,4 +4,10 @@ fix = true
 
 [lint]
 select = ["E", "F", "I", "B", "UP", "N", "S", "TCH", "RUF"]
-exclude = ["tests/*"]
+exclude = [
+    "tests/*", 
+    "scripts/*", 
+    "docs/*", 
+    "vpn_configurations/*", 
+    "services/*"
+]
