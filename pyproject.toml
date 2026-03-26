@@ -3,7 +3,7 @@ name = "movieseer"
 version = "0.1.0"
 description = "An in-house media server using the *arr stack, Jellyfin and a bespoke dashboard."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [{ name = "Brendan Reid" }]
 license = { text = "MIT" }
 dependencies = [
@@ -14,7 +14,7 @@ dependencies = [
   "uvicorn>=0.34",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pytest>=8.3",
   "pytest-cov>=5.0",
