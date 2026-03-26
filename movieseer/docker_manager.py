@@ -11,6 +11,7 @@ true ``force-recreate`` but covers the common case of picking up a new image.
 """
 
 import logging
+from datetime import UTC
 from typing import Any
 
 import docker
@@ -149,10 +150,10 @@ def _format_uptime(started_at: str) -> str:
     try:
         # Docker timestamps use nanosecond precision; truncate to microseconds.
         ts = started_at[:26].rstrip("Z") + "+00:00"
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         start = datetime.fromisoformat(ts)
-        delta = datetime.now(timezone.utc) - start
+        delta = datetime.now(UTC) - start
         total_seconds = int(delta.total_seconds())
 
         days = total_seconds // 86400
