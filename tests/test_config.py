@@ -41,6 +41,7 @@ def _reload_config(env_overrides: dict) -> object:
 
     try:
         import movieseer.config as config
+
         importlib.reload(config)
         return config
     finally:
@@ -53,10 +54,12 @@ class TestDefaults:
     """Config defaults are applied when no env vars are set."""
 
     def test_jellyseerr_url_default(self):
-        cfg = _reload_config({
-            "JELLYSEERR_URL": None,
-            "JELLYSEERR_API_KEY": None,
-        })
+        cfg = _reload_config(
+            {
+                "JELLYSEERR_URL": None,
+                "JELLYSEERR_API_KEY": None,
+            }
+        )
         assert cfg.JELLYSEERR_URL == "http://jellyseerr:5055"
 
     def test_radarr_url_default(self):
@@ -111,11 +114,13 @@ class TestOverrides:
         assert isinstance(cfg.CACHE_TTL, int)
 
     def test_api_keys_default_to_empty_string(self):
-        cfg = _reload_config({
-            "JELLYSEERR_API_KEY": None,
-            "RADARR_API_KEY": None,
-            "SONARR_API_KEY": None,
-        })
+        cfg = _reload_config(
+            {
+                "JELLYSEERR_API_KEY": None,
+                "RADARR_API_KEY": None,
+                "SONARR_API_KEY": None,
+            }
+        )
         assert cfg.JELLYSEERR_API_KEY == ""
         assert cfg.RADARR_API_KEY == ""
         assert cfg.SONARR_API_KEY == ""

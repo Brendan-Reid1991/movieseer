@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 def client():
     """Return a TestClient with a fresh app import."""
     from movieseer.main import app
+
     return TestClient(app)
 
 
@@ -26,14 +27,20 @@ class TestApiConfig:
         assert response.status_code == 200
         data = response.json()
         expected_keys = {
-            "jellyseerr_url", "jellyfin_url", "sonarr_url",
-            "radarr_url", "sabnzbd_url", "qbittorrent_url",
+            "jellyseerr_url",
+            "jellyfin_url",
+            "sonarr_url",
+            "radarr_url",
+            "sabnzbd_url",
+            "qbittorrent_url",
         }
         assert expected_keys == set(data.keys())
 
     def test_urls_constructed_from_host_ip(self, client):
-        with patch("movieseer.main.HOST_IP", "10.0.0.1"), \
-             patch("movieseer.main.JELLYSEERR_PORT", 5055):
+        with (
+            patch("movieseer.main.HOST_IP", "10.0.0.1"),
+            patch("movieseer.main.JELLYSEERR_PORT", 5055),
+        ):
             response = client.get("/api/config")
         assert response.json()["jellyseerr_url"] == "http://10.0.0.1:5055"
 
@@ -61,7 +68,11 @@ class TestApiStatus:
 
     def test_returns_aggregator_data(self, client):
         mock_data = {"requests": [], "system": {}}
-        with patch("movieseer.main.aggregator.get_status", new_callable=AsyncMock, return_value=mock_data):
+        with patch(
+            "movieseer.main.aggregator.get_status",
+            new_callable=AsyncMock,
+            return_value=mock_data,
+        ):
             response = client.get("/api/status")
         assert response.status_code == 200
         assert response.json() == mock_data
@@ -127,7 +138,10 @@ class TestApiContainers:
         assert response.json()["containers"] == mock_containers
 
     def test_docker_error_returns_503(self, client):
-        with patch("movieseer.main.list_containers", side_effect=RuntimeError("socket not found")):
+        with patch(
+            "movieseer.main.list_containers",
+            side_effect=RuntimeError("socket not found"),
+        ):
             response = client.get("/api/containers")
 
         assert response.status_code == 503
@@ -147,7 +161,9 @@ class TestActionRestart:
         assert set(data["restarted"]) == {"sonarr", "radarr"}
 
     def test_docker_error_returns_503(self, client):
-        with patch("movieseer.main.restart_all", side_effect=RuntimeError("socket error")):
+        with patch(
+            "movieseer.main.restart_all", side_effect=RuntimeError("socket error")
+        ):
             response = client.post("/actions/restart")
 
         assert response.status_code == 503
@@ -167,7 +183,9 @@ class TestActionRebuild:
         assert data["rebuilt"] == ["jellyfin"]
 
     def test_docker_error_returns_503(self, client):
-        with patch("movieseer.main.rebuild_all", side_effect=RuntimeError("socket error")):
+        with patch(
+            "movieseer.main.rebuild_all", side_effect=RuntimeError("socket error")
+        ):
             response = client.post("/actions/rebuild")
 
         assert response.status_code == 503
@@ -177,16 +195,20 @@ class TestWebhooks:
     """POST /webhook/radarr and /webhook/sonarr invalidate cache and notify."""
 
     def test_radarr_webhook_returns_ok(self, client):
-        with patch("movieseer.main.aggregator.invalidate_cache"), \
-             patch("movieseer.main.notifier.handle_radarr", new_callable=AsyncMock):
+        with (
+            patch("movieseer.main.aggregator.invalidate_cache"),
+            patch("movieseer.main.handle_radarr", new_callable=AsyncMock),
+        ):
             response = client.post("/webhook/radarr", json={"eventType": "Grab"})
 
         assert response.status_code == 200
         assert response.json() == {"ok": True}
 
     def test_sonarr_webhook_returns_ok(self, client):
-        with patch("movieseer.main.aggregator.invalidate_cache"), \
-             patch("movieseer.main.notifier.handle_sonarr", new_callable=AsyncMock):
+        with (
+            patch("movieseer.main.aggregator.invalidate_cache"),
+            patch("movieseer.main.handle_sonarr", new_callable=AsyncMock),
+        ):
             response = client.post("/webhook/sonarr", json={"eventType": "Download"})
 
         assert response.status_code == 200

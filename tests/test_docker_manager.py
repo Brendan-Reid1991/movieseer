@@ -11,7 +11,12 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from movieseer.docker_manager import _format_uptime, list_containers, restart_all, SELF_NAME
+from movieseer.docker_manager import (
+    _format_uptime,
+    list_containers,
+    restart_all,
+    SELF_NAME,
+)
 
 
 class TestFormatUptime:
@@ -61,7 +66,9 @@ class TestListContainers:
         return container
 
     def test_containers_sorted_alphabetically(self):
-        ts = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
+        ts = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime(
+            "%Y-%m-%dT%H:%M:%S.%f"
+        ) + "Z"
         containers = [
             self._make_container("zebra", "running", ts),
             self._make_container("alpha", "running", ts),
@@ -87,7 +94,9 @@ class TestListContainers:
         assert result[0]["uptime"] == "exited"
 
     def test_running_container_has_uptime_string(self):
-        ts = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z"
+        ts = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(
+            "%Y-%m-%dT%H:%M:%S.%f"
+        ) + "Z"
         containers = [self._make_container("sonarr", "running", ts)]
         mock_client = MagicMock()
         mock_client.containers.list.return_value = containers
