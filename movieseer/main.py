@@ -9,27 +9,41 @@ Defines all HTTP routes:
 
 import logging
 import shutil
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 
-from movieseer import notifier
 from movieseer.aggregator import Aggregator
 from movieseer.config import (
-    JELLYSEERR_URL, JELLYSEERR_API_KEY,
     HOST_IP,
-    JELLYFIN_PORT, JELLYSEERR_PORT, SONARR_PORT,
-    RADARR_PORT, SABNZBD_PORT, QBITTORRENT_PORT,
+    JELLYFIN_PORT,
+    JELLYSEERR_API_KEY,
+    JELLYSEERR_PORT,
+    JELLYSEERR_URL,
     MEDIA_MOUNT,
+    QBITTORRENT_PORT,
+    RADARR_PORT,
+    SABNZBD_PORT,
+    SONARR_PORT,
 )
-from movieseer.docker_manager import list_containers, restart_all, rebuild_all
+from movieseer.docker_manager import list_containers, rebuild_all, restart_all
+from movieseer.notifier import handle_radarr, handle_sonarr
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
 aggregator = Aggregator()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    await aggregator.aclose()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 # ---------------------------------------------------------------------------
@@ -58,12 +72,12 @@ async def api_config():
     """
     base = f"http://{HOST_IP}"
     return {
-        "jellyseerr_url":    f"{base}:{JELLYSEERR_PORT}",
-        "jellyfin_url":      f"{base}:{JELLYFIN_PORT}",
-        "sonarr_url":        f"{base}:{SONARR_PORT}",
-        "radarr_url":        f"{base}:{RADARR_PORT}",
-        "sabnzbd_url":       f"{base}:{SABNZBD_PORT}",
-        "qbittorrent_url":   f"{base}:{QBITTORRENT_PORT}",
+        "jellyseerr_url": f"{base}:{JELLYSEERR_PORT}",
+        "jellyfin_url": f"{base}:{JELLYFIN_PORT}",
+        "sonarr_url": f"{base}:{SONARR_PORT}",
+        "radarr_url": f"{base}:{RADARR_PORT}",
+        "sabnzbd_url": f"{base}:{SABNZBD_PORT}",
+        "qbittorrent_url": f"{base}:{QBITTORRENT_PORT}",
     }
 
 
@@ -88,7 +102,7 @@ async def radarr_webhook(request: Request):
     """
     payload = await request.json()
     aggregator.invalidate_cache()
-    await notifier.handle_radarr(payload)
+    await handle_radarr(payload)
     return {"ok": True}
 
 
@@ -102,7 +116,7 @@ async def sonarr_webhook(request: Request):
     """
     payload = await request.json()
     aggregator.invalidate_cache()
-    await notifier.handle_sonarr(payload)
+    await handle_sonarr(payload)
     return {"ok": True}
 
 
@@ -139,7 +153,9 @@ async def api_search(q: str = Query(..., min_length=1)):
         media_type = item.get("mediaType", "movie")
         tmdb_id = item.get("id")
         poster_path = item.get("posterPath")
-        poster_url = f"https://image.tmdb.org/t/p/w92{poster_path}" if poster_path else None
+        poster_url = (
+            f"https://image.tmdb.org/t/p/w92{poster_path}" if poster_path else None
+        )
 
         if media_type == "tv":
             title = item.get("name") or item.get("originalName", "Unknown")
@@ -150,13 +166,15 @@ async def api_search(q: str = Query(..., min_length=1)):
             year = (item.get("releaseDate") or "")[:4]
             jellyseerr_link = f"{JELLYSEERR_URL}/movie/{tmdb_id}"
 
-        results.append({
-            "title": title,
-            "type": media_type,
-            "year": year,
-            "poster_url": poster_url,
-            "link": jellyseerr_link,
-        })
+        results.append(
+            {
+                "title": title,
+                "type": media_type,
+                "year": year,
+                "poster_url": poster_url,
+                "link": jellyseerr_link,
+            }
+        )
 
     return {"results": results}
 
@@ -203,11 +221,11 @@ async def api_storage():
     """Return disk usage for the media storage path."""
     try:
         total, used, free = shutil.disk_usage(MEDIA_MOUNT)
-        gb = 1024 ** 3
+        gb = 1024**3
         return {
             "total_gb": round(total / gb, 1),
-            "used_gb":  round(used  / gb, 1),
-            "free_gb":  round(free  / gb, 1),
+            "used_gb": round(used / gb, 1),
+            "free_gb": round(free / gb, 1),
         }
     except OSError as exc:
         return JSONResponse(status_code=503, content={"error": str(exc)})
