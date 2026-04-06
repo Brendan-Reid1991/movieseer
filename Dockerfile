@@ -3,6 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY pyproject.toml .
+COPY README.md .
 RUN pip install -e .
 
 COPY movieseer/ ./movieseer/

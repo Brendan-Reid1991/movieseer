@@ -9,6 +9,7 @@ include:
   - services/jellyfin.yml
   - services/sabnzbd.yml
   - services/ntfy.yml
+  - services/plex.yml
   - services/movieseer.yml
 
 networks:

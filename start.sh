@@ -93,6 +93,7 @@ echo "\nWaiting for services to be ready..."
 
 # Jellyfin runs in Docker, exposes /health
 wait_for "Jellyfin"       "http://localhost:${JELLYFIN_PORT}/health"
+wait_for "Plex"           "http://localhost:${PLEX_PORT}/identity"
 # *arr services expose /ping without requiring auth
 wait_for "Sonarr"         "http://localhost:${SONARR_PORT}/ping"
 wait_for "Radarr"         "http://localhost:${RADARR_PORT}/ping"

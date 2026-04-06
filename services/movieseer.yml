@@ -9,6 +9,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${DATA_PATH}:${MEDIA_MOUNT}:ro
+      - ${LOG_PATH}:/var/log/movieseer
     environment:
       - JELLYSEERR_URL=http://jellyseerr:5055
       - JELLYSEERR_API_KEY=${JELLYSEERR_API_KEY}
@@ -27,8 +28,10 @@ services:
       - JELLYFIN_API_KEY=${JELLYFIN_API_KEY}
       - NTFY_URL=http://ntfy:80
       - NTFY_TOPIC=movieseer
+      - LOG_FILE=/var/log/movieseer/app.log
       - HOST_IP=${HOST_IP}
       - JELLYFIN_PORT=${JELLYFIN_PORT}
+      - PLEX_PORT=${PLEX_PORT}
       - JELLYSEERR_PORT=${JELLYSEERR_PORT}
       - SONARR_PORT=${SONARR_PORT}
       - RADARR_PORT=${RADARR_PORT}
