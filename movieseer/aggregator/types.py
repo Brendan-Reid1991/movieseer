@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from movieseer.aggregator.services.prowlarr import ProwlarrStatus
-    from movieseer.aggregator.services.qbittorrent import QbitSummary
+    from movieseer.aggregator.services.qbittorrent import Torrent
     from movieseer.aggregator.services.sabnzbd import Queue
 
 
@@ -13,7 +13,7 @@ class SystemStatus(TypedDict):
 
     prowlarr: ProwlarrStatus | dict[str, str]
     sabnzbd: Queue | dict[str, str]
-    qbittorrent: QbitSummary | dict[str, str]
+    qbittorrent: list[Torrent] | dict[str, str]
 
 
 class _ArrStatusBase(TypedDict):

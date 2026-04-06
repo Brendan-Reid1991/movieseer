@@ -9,15 +9,14 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 
-from movieseer.aggregator.services.arr_models import ArrHistory, ArrQueue
+from movieseer.aggregator.services.arr_models import ArrHistory
 from movieseer.aggregator.services.prowlarr import ProwlarrClient
-from movieseer.aggregator.services.qbittorrent import QBittorrentClient, Torrent
+from movieseer.aggregator.services.qbittorrent import QBittorrentClient
 from movieseer.aggregator.services.radarr import RadarrClient
-from movieseer.aggregator.services.sabnzbd import SABnzbdClient, Slot
+from movieseer.aggregator.services.sabnzbd import SABnzbdClient
 from movieseer.aggregator.services.sonarr import SonarrClient
 from movieseer.aggregator.types import (
     ArrStatus,
-    DownloadInfo,
     HistoryEvent,
     RequestItem,
     StatusResult,
@@ -118,9 +117,17 @@ class Aggregator:
         prowlarr, sabnzbd, qbit = await asyncio.gather(
             self._prowlarr.status(),
             self._sabnzbd.queue(),
-            self._qbit.summary(),
+            self._qbit.torrents(),
             return_exceptions=True,
         )
+        if not isinstance(sabnzbd, Exception):
+            sabnzbd = sabnzbd.model_copy(update={"slots": sabnzbd.slots[:5]})
+        if not isinstance(qbit, Exception):
+            qbit = sorted(
+                [t for t in qbit.values() if "download" in t.state.lower()],
+                key=lambda t: t.progress,
+                reverse=True,
+            )[:5]
         return {
             "prowlarr": prowlarr
             if not isinstance(prowlarr, Exception)
@@ -152,11 +159,9 @@ class Aggregator:
         r.raise_for_status()
         js_requests = r.json().get("results", [])
 
-        radarr_queue, sonarr_queue, sabnzbd_slots, qbit_torrents = await asyncio.gather(
+        radarr_queue, sonarr_queue = await asyncio.gather(
             self._radarr.queue(),
             self._sonarr.queue(),
-            self._sabnzbd.slots(),
-            self._qbit.torrents(),
             return_exceptions=True,
         )
         if isinstance(radarr_queue, Exception):
@@ -165,21 +170,13 @@ class Aggregator:
         if isinstance(sonarr_queue, Exception):
             logger.warning("Sonarr queue fetch failed: %s", sonarr_queue)
             sonarr_queue = []
-        if isinstance(sabnzbd_slots, Exception):
-            logger.warning("SABnzbd slots fetch failed: %s", sabnzbd_slots)
-            sabnzbd_slots = {}
-        if isinstance(qbit_torrents, Exception):
-            logger.warning("qBittorrent fetch failed: %s", qbit_torrents)
-            qbit_torrents = {}
 
         results: list[RequestItem] = []
         js_movie_ids: set[int] = set()
         js_series_ids: set[int] = set()
 
         for req in js_requests:
-            item = await self._build_js_item(
-                req, radarr_queue, sonarr_queue, sabnzbd_slots, qbit_torrents
-            )
+            item = await self._build_js_item(req, radarr_queue, sonarr_queue)
             results.append(item)
             arr_id = req.get("media", {}).get("externalServiceId")
             if arr_id:
@@ -193,8 +190,6 @@ class Aggregator:
             js_series_ids,
             radarr_queue,
             sonarr_queue,
-            sabnzbd_slots,
-            qbit_torrents,
         )
         results.extend(direct)
 
@@ -211,8 +206,6 @@ class Aggregator:
         req: dict[str, object],
         radarr_queue: list,
         sonarr_queue: list,
-        sabnzbd_slots: dict[str, Slot],
-        qbit_torrents: dict[str, Torrent],
     ) -> RequestItem:
         """Build a normalised RequestItem from a single Jellyseerr request."""
         media = req.get("media", {})
@@ -257,9 +250,6 @@ class Aggregator:
             queue_item = next((q for q in radarr_queue if q.movie_id == arr_id), None)
             if queue_item:
                 item["arr"] = self._arr_queue_status(queue_item)
-                item["download"] = self._resolve_download(
-                    queue_item, sabnzbd_slots, qbit_torrents
-                )
                 item["title"] = (
                     queue_item.movie.title if queue_item.movie else None
                 ) or item["title"]
@@ -267,11 +257,11 @@ class Aggregator:
                 try:
                     movie = await self._radarr.movie(arr_id)
                     item["title"] = movie.title or item["title"]
+                    history = await self._radarr.movie_history(arr_id)
+                    item["arr"] = self._arr_history_status(history, media)
+                    item["history"] = self._format_history(history[:5])
                 except Exception as e:
                     logger.warning("Radarr movie lookup failed for id %s: %s", arr_id, e)
-                history = await self._radarr.movie_history(arr_id)
-                item["arr"] = self._arr_history_status(history, media)
-                item["history"] = self._format_history(history[:5])
 
         elif media_type == "tv":
             queue_items = [q for q in sonarr_queue if q.series_id == arr_id]
@@ -281,9 +271,6 @@ class Aggregator:
                     "episodes_queued": len(queue_items),
                     "error": None,
                 }
-                item["download"] = self._resolve_download(
-                    queue_items[0], sabnzbd_slots, qbit_torrents
-                )
                 item["title"] = (
                     queue_items[0].series.title if queue_items[0].series else None
                 ) or item["title"]
@@ -291,13 +278,13 @@ class Aggregator:
                 try:
                     series = await self._sonarr.series(arr_id)
                     item["title"] = series.title or item["title"]
+                    history = await self._sonarr.series_history(arr_id)
+                    item["arr"] = self._arr_history_status(history, media)
+                    item["history"] = self._format_history(history[:5])
                 except Exception as e:
                     logger.warning(
                         "Sonarr series lookup failed for id %s: %s", arr_id, e
                     )
-                history = await self._sonarr.series_history(arr_id)
-                item["arr"] = self._arr_history_status(history, media)
-                item["history"] = self._format_history(history[:5])
 
         return item
 
@@ -309,8 +296,6 @@ class Aggregator:
         js_series_ids: set[int],
         radarr_queue: list,
         sonarr_queue: list,
-        sabnzbd_slots: dict[str, Slot],
-        qbit_torrents: dict[str, Torrent],
     ) -> list[RequestItem]:
         """Fetch items added directly in Radarr/Sonarr with no Jellyseerr request."""
         radarr_hist, sonarr_hist = await asyncio.gather(
@@ -385,9 +370,6 @@ class Aggregator:
 
             if queue_item:
                 item["arr"] = self._arr_queue_status(queue_item)
-                item["download"] = self._resolve_download(
-                    queue_item, sabnzbd_slots, qbit_torrents
-                )
             elif detail.has_file:
                 item["arr"] = {"status": "imported", "error": None}
                 item["history"] = self._format_history(hist_events[:5])
@@ -410,8 +392,8 @@ class Aggregator:
                 continue
             queue_items = [q for q in sonarr_queue if q.series_id == sid]
             hist_events = [e for e in sonarr_hist if e.series_id == sid]
-            ep_total = detail.statistics.episode_count
-            ep_have = detail.statistics.episode_file_count
+            ep_total = detail.statistics.episode_count if detail.statistics else 0
+            ep_have = detail.statistics.episode_file_count if detail.statistics else 0
 
             item = {
                 "id": None,
@@ -433,9 +415,6 @@ class Aggregator:
                     "episodes": f"{ep_have}/{ep_total}" if ep_total else None,
                     "error": None,
                 }
-                item["download"] = self._resolve_download(
-                    queue_items[0], sabnzbd_slots, qbit_torrents
-                )
             elif ep_have > 0:
                 status = (
                     "available" if ep_have >= ep_total and ep_total > 0 else "partial"
@@ -508,51 +487,6 @@ class Aggregator:
         if status == "failed":
             error = latest.data.get("message") or latest.source_title
         return {"status": status, "error": error, "at": latest.date.isoformat()}
-
-    def _resolve_download(
-        self,
-        queue_item: ArrQueue,
-        sabnzbd_slots: dict[str, Slot],
-        qbit_torrents: dict[str, Torrent],
-    ) -> DownloadInfo:
-        """Resolve download progress details for a queued item."""
-        download_id = queue_item.download_id or ""
-        download_client = (queue_item.download_client or "").lower()
-
-        if "sabnzbd" in download_client and download_id in sabnzbd_slots:
-            slot = sabnzbd_slots[download_id]
-            return {
-                "client": "SABnzbd",
-                "name": slot.name,
-                "progress": slot.progress,
-                "status": slot.status.lower(),
-                "eta": slot.eta,
-                "error": None,
-            }
-
-        hash_key = download_id.lower()
-        if hash_key in qbit_torrents:
-            t = qbit_torrents[hash_key]
-            return {
-                "client": "qBittorrent",
-                "name": t.name,
-                "progress": round(t.progress * 100, 1),
-                "status": t.state.lower(),
-                "eta": str(t.eta),
-                "error": None,
-            }
-
-        size = queue_item.size
-        sizeleft = queue_item.sizeleft
-        progress = round((size - sizeleft) / size * 100, 1) if size > 0 else 0.0
-        return {
-            "client": queue_item.download_client or "Unknown",
-            "name": queue_item.title,
-            "progress": progress,
-            "status": queue_item.status.lower(),
-            "eta": "",
-            "error": None,
-        }
 
     def _format_history(self, events: list[ArrHistory]) -> list[HistoryEvent]:
         """Convert arr history events to a simplified format."""

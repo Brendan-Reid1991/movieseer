@@ -54,7 +54,7 @@ class Series(_Base):
     monitored: bool
     runtime: int
     genres: list[str] = Field(default_factory=list)
-    statistics: SeriesStatistics
+    statistics: SeriesStatistics | None = None
 
 
 class SonarrQueue(ArrQueue):

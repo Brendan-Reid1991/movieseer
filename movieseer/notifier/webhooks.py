@@ -1,8 +1,11 @@
+import logging
 from collections.abc import Awaitable
 
 import httpx
 
 from movieseer.config import NTFY_TOPIC, NTFY_URL
+
+logger = logging.getLogger(__name__)
 from movieseer.notifier.types import (
     GrabPayload,
     HealthPayload,
@@ -28,7 +31,7 @@ async def _send_message(
                 },
             )
     except Exception as e:
-        print(f"ntfy send failed: {e}")
+        logger.warning("ntfy send failed: %s", e)
 
 
 def grab(payload: GrabPayload, label: str) -> Awaitable[None]:

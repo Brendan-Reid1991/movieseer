@@ -107,4 +107,4 @@ class ArrHistory(_Base):
     date: datetime
     download_id: str | None = None
     event_type: ArrHistoryEventType
-    data: dict[str, str] = Field(default_factory=dict)
+    data: dict[str, str | None] = Field(default_factory=dict)

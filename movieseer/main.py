@@ -10,6 +10,7 @@ Defines all HTTP routes:
 import logging
 import shutil
 from contextlib import asynccontextmanager
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import httpx
@@ -21,8 +22,11 @@ from movieseer.config import (
     HOST_IP,
     JELLYFIN_PORT,
     JELLYSEERR_API_KEY,
+    PLEX_PORT,
     JELLYSEERR_PORT,
     JELLYSEERR_URL,
+    LOG_FILE,
+    LOG_LEVEL,
     MEDIA_MOUNT,
     QBITTORRENT_PORT,
     RADARR_PORT,
@@ -31,6 +35,22 @@ from movieseer.config import (
 )
 from movieseer.docker_manager import list_containers, rebuild_all, restart_all
 from movieseer.notifier import handle_radarr, handle_sonarr
+
+def _configure_logging() -> None:
+    handlers: list[logging.Handler] = [logging.StreamHandler()]
+    if LOG_FILE:
+        Path(LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
+        handlers.append(
+            RotatingFileHandler(LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5)
+        )
+    logging.basicConfig(
+        level=LOG_LEVEL,
+        format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
+        handlers=handlers,
+    )
+
+
+_configure_logging()
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +94,7 @@ async def api_config():
     return {
         "jellyseerr_url": f"{base}:{JELLYSEERR_PORT}",
         "jellyfin_url": f"{base}:{JELLYFIN_PORT}",
+        "plex_url": f"{base}:{PLEX_PORT}",
         "sonarr_url": f"{base}:{SONARR_PORT}",
         "radarr_url": f"{base}:{RADARR_PORT}",
         "sabnzbd_url": f"{base}:{SABNZBD_PORT}",

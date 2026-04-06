@@ -76,6 +76,7 @@ NTFY_TOPIC: str = os.getenv("NTFY_TOPIC", "movieseer")
 
 HOST_IP: str = os.getenv("HOST_IP", "localhost")
 JELLYFIN_PORT: int = int(os.getenv("JELLYFIN_PORT", "8096"))
+PLEX_PORT: int = int(os.getenv("PLEX_PORT", "32400"))
 JELLYSEERR_PORT: int = int(os.getenv("JELLYSEERR_PORT", "5055"))
 SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
 RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
@@ -93,3 +94,12 @@ CACHE_TTL: int = int(os.getenv("CACHE_TTL", "30"))
 
 HISTORY_WINDOW_DAYS: int = int(os.getenv("HISTORY_WINDOW_DAYS", "7"))
 """How many days back to look when surfacing direct Radarr/Sonarr activity."""
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
+LOG_FILE: str = os.getenv("LOG_FILE", "")
+"""Absolute path for the log file. Empty string disables file logging."""
+
+LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

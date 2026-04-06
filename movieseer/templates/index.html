@@ -222,7 +222,12 @@
       gap: 0.75rem;
     }
 
-    .focus-primary, .focus-secondary {
+    .focus-primary {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .focus-secondary {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
@@ -244,8 +249,9 @@
       border-radius: 10px;
     }
 
-    .btn-focus-browse { background: #1e3a5f; color: #60a5fa; }
-    .btn-focus-stream { background: #e5a00d; color: #000; }
+    .btn-focus-browse   { background: #1e3a5f; color: #60a5fa; }
+    .btn-focus-jellyfin { background: #1a1f3a; color: #a78bfa; }
+    .btn-focus-plex     { background: #e5a00d; color: #000; }
     .btn-manage { justify-content: center; font-size: 0.85rem; }
 
     /* ── Downloads ── */
@@ -416,7 +422,8 @@
         <p class="focus-label">Media</p>
         <div class="focus-primary">
           <a href="#" id="link-jellyseerr" class="btn btn-focus btn-focus-browse">Browse</a>
-          <a href="#" id="link-jellyfin"   class="btn btn-focus btn-focus-stream">Stream</a>
+          <a href="#" id="link-jellyfin"   class="btn btn-focus btn-focus-jellyfin">Jellyfin</a>
+          <a href="#" id="link-plex"       class="btn btn-focus btn-focus-plex">Plex</a>
         </div>
       </div>
       <div>
@@ -556,8 +563,9 @@
       const res  = await fetch('/api/status');
       const data = await res.json();
       const requests = data.requests || [];
-      const sabSlots = data.system?.sabnzbd?.slots || [];
-      renderDownloads(requests, sabSlots);
+      const sabSlots  = data.system?.sabnzbd?.slots || [];
+      const qbitItems = Array.isArray(data.system?.qbittorrent) ? data.system.qbittorrent : [];
+      renderDownloads(sabSlots, qbitItems);
       renderRequests(requests);
       updatePendingCount(requests);
     } catch (e) {
@@ -607,19 +615,23 @@
     `;
   }
 
-  function renderDownloads(requests, sabSlots) {
-    const linked  = requests.filter(r => r.download);
-    const covered = new Set(linked.map(r => r.download.name));
-    const extra   = sabSlots.filter(s => !covered.has(s.name));
-    const body    = document.getElementById('downloads-body');
-
-    if (!linked.length && !extra.length) {
+  function renderDownloads(sabSlots, qbitItems) {
+    const body  = document.getElementById('downloads-body');
+    const items = [
+      ...sabSlots.map(s => ({
+        name: s.filename, progress: s.percentage, eta: s.timeleft,
+        status: s.status, client: 'SABnzbd',
+      })),
+      ...qbitItems.map(t => ({
+        name: t.name, progress: Math.round(t.progress * 1000) / 10,
+        eta: t.eta ? String(t.eta) + 's' : '', status: t.state, client: 'qBittorrent',
+      })),
+    ];
+    if (!items.length) {
       body.innerHTML = '<div class="empty-state">No active downloads.</div>';
       return;
     }
-    body.innerHTML =
-      linked.map(r => downloadItemHtml(r.title, r.download)).join('') +
-      extra.map(s  => downloadItemHtml(s.name, s)).join('');
+    body.innerHTML = items.map(d => downloadItemHtml(d.name, d)).join('');
   }
 
   // ── Requests ──────────────────────────────────────────────────────────────
@@ -702,6 +714,7 @@
       const links = {
         'link-jellyseerr':  cfg.jellyseerr_url,
         'link-jellyfin':    cfg.jellyfin_url,
+        'link-plex':        cfg.plex_url,
         'link-sonarr':      cfg.sonarr_url,
         'link-radarr':      cfg.radarr_url,
         'link-radarr-hdr':  cfg.radarr_url,
@@ -712,9 +725,11 @@
       for (const [id, url] of Object.entries(links)) {
         const el = document.getElementById(id);
         if (el && url) {
-          el.href   = url;
-          el.target = '_blank';
-          el.rel    = 'noopener';
+          el.href = url;
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank', 'noopener,noreferrer');
+          });
         }
       }
     } catch (e) {
