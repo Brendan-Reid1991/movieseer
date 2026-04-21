@@ -1,9 +1,9 @@
 """
 Docker socket integration for Movieseer.
 
-Provides container status listing and service control (restart, rebuild) via
-the Python Docker SDK. All operations exclude the Movieseer container itself
-to prevent self-termination.
+Provides container status listing and service control (restart, rebuild,
+stop, start) via the Python Docker SDK. All bulk operations exclude the
+Movieseer container itself to prevent self-termination.
 
 Rebuild strategy (Option B): pull the latest image for each container, then
 restart. This avoids mounting the compose file or shelling out. It is not a
@@ -19,8 +19,6 @@ import docker.errors
 
 logger = logging.getLogger(__name__)
 
-# The container name to exclude from restart/rebuild operations so Movieseer
-# cannot accidentally terminate itself.
 SELF_NAME = "movieseer"
 
 
@@ -127,6 +125,58 @@ def rebuild_all() -> list[str]:
         rebuilt.append(container.name)
 
     return rebuilt
+
+
+def stop_all() -> list[str]:
+    """
+    Stop every running container, with Movieseer last.
+
+    Returns the names of containers that were stopped.
+    """
+    client = _client()
+    stopped = []
+    self_container = None
+
+    for container in client.containers.list():
+        if container.name == SELF_NAME:
+            self_container = container
+            continue
+        logger.info("Stopping container: %s", container.name)
+        container.stop()
+        stopped.append(container.name)
+
+    if self_container is not None:
+        logger.info("Stopping self: %s", SELF_NAME)
+        self_container.stop()
+        stopped.append(SELF_NAME)
+
+    return stopped
+
+
+def stop_container(name: str) -> None:
+    """Stop a single container by name."""
+    client = _client()
+    try:
+        container = client.containers.get(name)
+    except docker.errors.NotFound:
+        raise ValueError(f"Container {name!r} not found")
+    logger.info("Stopping container: %s", name)
+    container.stop()
+
+
+def start_container(name: str) -> None:
+    """
+    Start a stopped container by name using the Docker SDK.
+
+    Raises ValueError if the container does not exist.
+    """
+    client = _client()
+    try:
+        container = client.containers.get(name)
+    except docker.errors.NotFound:
+        raise ValueError(f"Container {name!r} not found")
+    logger.info("Starting container: %s", name)
+    container.start()
 
 
 def _format_uptime(started_at: str) -> str:

@@ -145,7 +145,7 @@ class Aggregator:
     async def _get_requests(self) -> list[RequestItem]:
         """Build the full list of in-progress media requests.
 
-        Fetches the 20 most recent Jellyseerr requests, enriches each with
+        Fetches the most recent Jellyseerr requests, enriches each with
         Radarr/Sonarr queue and history data, then appends items that were
         added directly in Radarr or Sonarr (i.e. have no Jellyseerr request).
         Results are sorted newest-first by request or activity date.
@@ -153,7 +153,7 @@ class Aggregator:
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.get(
                 f"{JELLYSEERR_URL}/api/v1/request",
-                params={"take": 20, "sort": "added"},
+                params={"take": 10, "sort": "added"},
                 headers={"X-Api-Key": JELLYSEERR_API_KEY},
             )
         r.raise_for_status()
@@ -199,7 +199,7 @@ class Aggregator:
             ),
             reverse=True,
         )
-        return results
+        return results[:10]
 
     async def _build_js_item(
         self,

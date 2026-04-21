@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TypedDict
 
-if TYPE_CHECKING:
-    from movieseer.aggregator.services.prowlarr import ProwlarrStatus
-    from movieseer.aggregator.services.qbittorrent import Torrent
-    from movieseer.aggregator.services.sabnzbd import Queue
+from movieseer.aggregator.services.prowlarr import ProwlarrStatus
+from movieseer.aggregator.services.qbittorrent import Torrent
+from movieseer.aggregator.services.sabnzbd import Queue, ServerStat
 
 
 class SystemStatus(TypedDict):
@@ -64,6 +63,13 @@ class RequestItem(TypedDict):
     arr: ArrStatus | None
     download: DownloadInfo | None
     history: list[HistoryEvent]
+
+
+class InfraStatus(TypedDict):
+    """Response shape for GET /api/infra — indexer and server stats."""
+
+    prowlarr: ProwlarrStatus | dict[str, str]
+    sabnzbd_servers: list[ServerStat] | dict[str, str]
 
 
 class StatusResult(TypedDict):

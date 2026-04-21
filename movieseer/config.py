@@ -53,11 +53,18 @@ QBITTORRENT_USER: str = os.getenv("QBITTORRENT_USER", "")
 QBITTORRENT_PASS: str = os.getenv("QBITTORRENT_PASS", "")
 
 # ---------------------------------------------------------------------------
-# Jellyfin (reserved for future use)
+# Jellyfin
 # ---------------------------------------------------------------------------
 
 JELLYFIN_URL: str = os.getenv("JELLYFIN_URL", "http://jellyfin:8096")
 JELLYFIN_API_KEY: str = os.getenv("JELLYFIN_API_KEY", "")
+
+# ---------------------------------------------------------------------------
+# Plex
+# ---------------------------------------------------------------------------
+
+PLEX_URL: str = os.getenv("PLEX_URL", "http://plex:32400")
+PLEX_TOKEN: str = os.getenv("PLEX_TOKEN", "")
 
 # ---------------------------------------------------------------------------
 # Ntfy (push notifications)
@@ -94,6 +101,19 @@ CACHE_TTL: int = int(os.getenv("CACHE_TTL", "30"))
 
 HISTORY_WINDOW_DAYS: int = int(os.getenv("HISTORY_WINDOW_DAYS", "7"))
 """How many days back to look when surfacing direct Radarr/Sonarr activity."""
+
+# ---------------------------------------------------------------------------
+# Event log
+# ---------------------------------------------------------------------------
+
+EVENT_DB_PATH: str = os.getenv("EVENT_DB_PATH", "/var/log/movieseer/events.db")
+"""Absolute path for the SQLite event log database."""
+
+EVENT_POLL_INTERVAL: int = int(os.getenv("EVENT_POLL_INTERVAL", "30"))
+"""Seconds between event collector poll cycles."""
+
+EVENT_RETENTION_DAYS: int = int(os.getenv("EVENT_RETENTION_DAYS", "7"))
+"""How many days of events to retain in the database. Older rows are pruned on each collector cycle."""
 
 # ---------------------------------------------------------------------------
 # Logging

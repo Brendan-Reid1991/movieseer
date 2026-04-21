@@ -100,6 +100,7 @@ class ArrHistory(_Base):
     exclusively on these fields and accept this type directly.
     """
 
+    id: int
     source_title: str
     languages: list[Language] = Field(default_factory=list)
     quality: Quality

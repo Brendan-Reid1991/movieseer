@@ -12,629 +12,718 @@
       background: #0d0d0d;
       color: #e5e7eb;
       min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    header {
-      background: #111;
-      border-bottom: 1px solid #2a2a2a;
-      padding: 0 2rem;
-      height: 64px;
       display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      flex-direction: column;
     }
 
-    .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #e5a00d;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
+    /* ── Header row 1 ── */
+    .header-row1 {
+      background: #111; border-bottom: 1px solid #222;
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; gap: 1.5rem;
+      position: sticky; top: 0; z-index: 100;
+      flex-shrink: 0;
     }
+    .logo { font-size: 1.25rem; font-weight: 700; color: #e5a00d; letter-spacing: -0.02em; white-space: nowrap; }
 
-    .search-wrap {
-      flex: 1;
-      max-width: 480px;
-      position: relative;
-    }
-
+    .search-wrap { flex: 1; max-width: 480px; position: relative; }
     .search-wrap input {
-      width: 100%;
-      background: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      color: #e5e7eb;
-      font-size: 0.9rem;
-      outline: none;
+      width: 100%; background: #1e1e1e; border: 1px solid #333;
+      border-radius: 8px; padding: 0.45rem 1rem; color: #e5e7eb;
+      font-size: 0.875rem; outline: none;
     }
     .search-wrap input::placeholder { color: #4b5563; }
     .search-wrap input:focus { border-color: #e5a00d; }
-
     .search-results {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      background: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 8px;
-      overflow: hidden;
-      z-index: 200;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+      background: #1e1e1e; border: 1px solid #333; border-radius: 8px;
+      overflow: hidden; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: none;
     }
-
     .search-result {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 0.75rem;
-      cursor: pointer;
-      transition: background 0.1s;
-      text-decoration: none;
-      color: inherit;
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 0.75rem; cursor: pointer;
+      transition: background 0.1s; text-decoration: none; color: inherit;
     }
     .search-result:hover { background: #2a2a2a; }
-    .search-result:not(:last-child) { border-bottom: 1px solid #2a2a2a; }
-
-    .result-poster {
-      width: 36px;
-      height: 54px;
-      background: #2a2a2a;
-      border-radius: 4px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      overflow: hidden;
-    }
+    .result-poster { width: 32px; height: 48px; border-radius: 4px; overflow: hidden; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
     .result-poster img { width: 100%; height: 100%; object-fit: cover; }
-
     .result-info { flex: 1; min-width: 0; }
-    .result-title { font-size: 0.875rem; font-weight: 500; }
-    .result-meta { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
-
-    .result-badge {
-      font-size: 0.7rem;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
+    .result-title { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-meta  { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+    .result-badge { font-size: 0.62rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+    .result-badge.tv    { background: #1a2e1a; color: #4ade80; }
     .result-badge.movie { background: #1e3a5f; color: #60a5fa; }
-    .result-badge.tv    { background: #1e3a2a; color: #34d399; }
+    .search-empty { padding: 0.75rem 1rem; font-size: 0.82rem; color: #6b7280; }
 
-    .search-empty {
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: #4b5563;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-left: auto;
-    }
-
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
     .header-widget {
-      font-size: 0.875rem;
-      color: #6b7280;
-      background: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 0.45rem 0.75rem;
-      white-space: nowrap;
+      font-size: 0.8rem; color: #6b7280; background: #1a1a1a;
+      border: 1px solid #2a2a2a; border-radius: 8px; padding: 0.4rem 0.7rem; white-space: nowrap;
     }
-
     .pending-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 0.75rem;
-      background: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      color: #9ca3af;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.7rem; background: #1a1a1a; border: 1px solid #2a2a2a;
+      border-radius: 8px; font-size: 0.8rem; color: #9ca3af;
     }
     .pending-badge .count {
-      background: #e5a00d;
-      color: #000;
-      font-weight: 700;
-      font-size: 0.75rem;
-      padding: 1px 6px;
-      border-radius: 4px;
+      background: #e5a00d; color: #000; font-weight: 700;
+      font-size: 0.7rem; padding: 1px 6px; border-radius: 4px;
     }
+
+    .btn-sync {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.78rem;
+      font-weight: 500; cursor: pointer; border: 1px solid #2a2a2a;
+      background: transparent; color: #9ca3af; white-space: nowrap; transition: all 0.2s;
+    }
+    .btn-sync:hover { border-color: #444; color: #d1d5db; }
+    .btn-sync.syncing { color: #e5a00d; border-color: #78350f; cursor: default; }
+    .btn-sync.synced  { color: #10b981; border-color: #065f46; cursor: default; }
+    .btn-sync.error   { color: #f87171; border-color: #7f1d1d; cursor: default; }
+    .sync-icon { display: inline-block; }
+    .btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Header row 2 ── */
+    .header-row2 {
+      background: #0f0f0f; border-bottom: 1px solid #2a2a2a;
+      padding: 0 2rem; height: 48px;
+      display: flex; align-items: center;
+      position: sticky; top: 60px; z-index: 99;
+      flex-shrink: 0;
+    }
+    .nav-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #374151; margin-right: 0.6rem; white-space: nowrap; }
+    .nav-group { display: flex; align-items: center; gap: 0.5rem; }
+    .nav-divider { flex: 1; }
+    .nav-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.35rem 1rem; border-radius: 7px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: none; text-decoration: none; white-space: nowrap; transition: opacity 0.15s;
+    }
+    .nav-btn:hover { opacity: 0.82; }
+    .nav-btn-browse   { background: #1e3a5f; color: #60a5fa; }
+    .nav-btn-jellyfin { background: #1a1f3a; color: #a78bfa; }
+    .nav-btn-plex     { background: #e5a00d; color: #000; }
+    .nav-btn-ghost    { background: transparent; color: #9ca3af; border: 1px solid #2a2a2a; }
+
+    /*
+     * ── Main layout ──
+     *
+     * Page scrolls naturally — no fixed viewport height.
+     * Zones: log(195px) | center(flex:1) | controls(185px)
+     * Center: top row = Requests + Downloads (1fr 1fr), bottom row = Indexers
+     */
+    main {
+      flex: 1;
+      padding: 0.75rem 2rem;
+      display: flex;
+      gap: 1.25rem;
+      max-width: 1700px;
+      width: 100%;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    .log-zone  { width: 195px; flex-shrink: 0; display: flex; flex-direction: column; height: calc(100vh - 108px - 1.5rem); }
+    .ctrl-zone { width: 210px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .center-zone {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+    .center-top {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start;
+    }
+    .center-bottom { }
+
+    /* ── Cards ── */
+    .card { background: #161616; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1.1rem; border-bottom: 1px solid #2a2a2a;
+    }
+    .card-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; }
+    .card-links { display: flex; gap: 0.4rem; }
+    .card-body  { padding: 0.25rem 1.1rem; }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 1rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      text-decoration: none;
-      transition: opacity 0.15s;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.35rem 0.75rem; border-radius: 7px; font-size: 0.75rem;
+      font-weight: 500; cursor: pointer; border: none; text-decoration: none;
+      transition: opacity 0.15s; white-space: nowrap;
     }
     .btn:hover { opacity: 0.8; }
-
     .btn-ghost   { background: transparent; color: #9ca3af; border: 1px solid #2a2a2a; }
     .btn-warning { background: #78350f; color: #fcd34d; border: 1px solid #92400e; }
     .btn-danger  { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
 
-    /* ── Layout ── */
-    main {
-      padding: 1.5rem 2rem;
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 1.5rem;
-      max-width: 1400px;
-      margin: 0 auto;
+    /* ── Activity log ── */
+    .log-card {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      background: #111; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden;
     }
-
-    .left-col  { display: flex; flex-direction: column; gap: 1.5rem; }
-    .right-col { display: flex; flex-direction: column; gap: 1.5rem; }
-
-    /* ── Cards ── */
-    .card {
-      background: #161616;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      overflow: hidden;
+    .log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; border-bottom: 1px solid #1e1e1e; flex-shrink: 0;
     }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.875rem 1.25rem;
-      border-bottom: 1px solid #2a2a2a;
+    .log-title {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6b7280;
+      display: flex; align-items: center; gap: 0.5rem;
     }
-
-    .card-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #6b7280;
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #10b981; box-shadow: 0 0 5px #10b981aa;
+      animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
     }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-    .card-links { display: flex; gap: 0.5rem; }
+    .event-feed { overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; padding: 0.2rem 0; }
+    .event-feed::-webkit-scrollbar { width: 3px; }
+    .event-feed::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
 
-    .card-body { padding: 0.25rem 1.25rem; }
-
-    /* ── Focus card ── */
-    .focus-card {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
+    .event-row {
+      display: flex; flex-direction: column; gap: 0.2rem;
+      padding: 0.5rem 0.9rem; border-bottom: 1px solid #161616; transition: background 0.1s;
     }
-
-    .focus-primary {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.75rem;
+    .event-row:hover { background: #161616; }
+    .event-row:last-child { border-bottom: none; }
+    .event-row-meta { display: flex; align-items: center; gap: 0.45rem; }
+    .event-time { font-size: 0.6rem; color: #374151; white-space: nowrap; }
+    .event-badge {
+      font-size: 0.57rem; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em;
     }
-    .focus-secondary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-
-    .focus-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #6b7280;
-      margin-bottom: 0.5rem;
-    }
-
-    .btn-focus {
-      justify-content: center;
-      padding: 1.25rem 1rem;
-      font-size: 1rem;
-      border-radius: 10px;
-    }
-
-    .btn-focus-browse   { background: #1e3a5f; color: #60a5fa; }
-    .btn-focus-jellyfin { background: #1a1f3a; color: #a78bfa; }
-    .btn-focus-plex     { background: #e5a00d; color: #000; }
-    .btn-manage { justify-content: center; font-size: 0.85rem; }
+    .eb-radarr   { background: #1e3a5f; color: #60a5fa; }
+    .eb-sonarr   { background: #1a2e1a; color: #4ade80; }
+    .eb-sabnzbd  { background: #2a1f00; color: #fbbf24; }
+    .eb-prowlarr { background: #2a1a2a; color: #c084fc; }
+    .eb-jellyseerr { background: #1a1a2a; color: #818cf8; }
+    .eb-jellyfin { background: #00211a; color: #34d399; }
+    .event-msg { font-size: 0.75rem; color: #6b7280; line-height: 1.35; overflow-wrap: break-word; min-width: 0; }
+    .event-msg .hi   { color: #d1d5db; font-weight: 500; }
+    .event-msg .ok   { color: #10b981; }
+    .event-msg .warn { color: #f59e0b; }
+    .event-msg .fail { color: #f87171; }
 
     /* ── Downloads ── */
-    .download-item {
-      padding: 0.875rem 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-    }
+    .download-item { padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
     .download-item:not(:last-child) { border-bottom: 1px solid #1f1f1f; }
-
-    .download-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .download-title {
-      font-size: 0.875rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .download-client {
-      font-size: 0.7rem;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      color: #6b7280;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .progress-bar {
-      height: 3px;
-      background: #2a2a2a;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill      { height: 100%; background: #e5a00d; border-radius: 2px; transition: width 0.3s; }
+    .download-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .download-title { font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .download-client { font-size: 0.62rem; padding: 2px 5px; border-radius: 4px; background: #1e1e1e; border: 1px solid #2a2a2a; color: #6b7280; white-space: nowrap; flex-shrink: 0; }
+    .progress-bar { height: 3px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #e5a00d; border-radius: 2px; }
     .progress-fill.done { background: #10b981; }
-
-    .download-meta {
-      font-size: 0.75rem;
-      color: #4b5563;
-      display: flex;
-      gap: 1rem;
-    }
+    .download-meta { font-size: 0.7rem; color: #4b5563; display: flex; gap: 0.75rem; }
 
     /* ── Requests ── */
-    .request-item {
-      padding: 0.75rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .request-item { padding: 0.6rem 0; display: flex; align-items: center; gap: 0.6rem; }
     .request-item:not(:last-child) { border-bottom: 1px solid #1f1f1f; }
-
     .request-info { flex: 1; min-width: 0; }
-    .request-title { font-size: 0.875rem; font-weight: 500; }
-    .request-meta  { font-size: 0.75rem; color: #4b5563; margin-top: 2px; }
-
-    .status-pill {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-weight: 500;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .status-pill.grabbed     { background: #1e3a5f; color: #60a5fa; }
+    .request-title { font-size: 0.82rem; font-weight: 500; }
+    .request-meta  { font-size: 0.68rem; color: #4b5563; margin-top: 2px; }
+    .status-pill { font-size: 0.62rem; padding: 2px 7px; border-radius: 99px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
     .status-pill.downloading { background: #1e3a5f; color: #60a5fa; }
-    .status-pill.pending     { background: #2a1f00; color: #fbbf24; }
     .status-pill.searching   { background: #2a1f00; color: #fbbf24; }
     .status-pill.available   { background: #1a2e1a; color: #34d399; }
     .status-pill.imported    { background: #1a2e1a; color: #34d399; }
+    .status-pill.partial     { background: #1a2e1a; color: #34d399; }
+    .status-pill.grabbed     { background: #1e3a5f; color: #60a5fa; }
     .status-pill.failed      { background: #2a1a1a; color: #f87171; }
     .status-pill.warning     { background: #2a1f00; color: #fbbf24; }
+    .status-pill.pending     { background: #1a1a2a; color: #818cf8; }
+    .status-pill.approved    { background: #1a1a2a; color: #818cf8; }
+    .status-pill.unknown     { background: #1e1e1e; color: #6b7280; }
 
-    /* ── Service Health ── */
-    .container-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.55rem 1.25rem;
+    /* ── Indexers & Servers ── */
+    .infra-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
     }
+    .infra-pane { padding: 0.875rem 1.25rem; }
+    .infra-pane:first-child { border-right: 1px solid #222; }
+    .infra-pane-title {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #374151;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .fail-badge { font-size: 0.62rem; padding: 1px 6px; border-radius: 99px; background: #2a1a1a; color: #f87171; font-weight: 600; }
+    .ok-badge   { font-size: 0.62rem; padding: 1px 6px; border-radius: 99px; background: #1a2e1a; color: #34d399; font-weight: 600; }
+
+    .indexer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.4rem; }
+    .indexer-chip {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.6rem; background: #111; border: 1px solid #1e1e1e; border-radius: 7px;
+    }
+    .indexer-chip.failing  { border-color: #2a1a1a; background: #0f0909; }
+    .indexer-chip.disabled { opacity: 0.4; }
+    .id-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .id-dot.healthy  { background: #10b981; box-shadow: 0 0 4px #10b981aa; }
+    .id-dot.failing  { background: #ef4444; }
+    .id-dot.disabled { background: #374151; }
+    .id-name { font-size: 0.73rem; color: #d1d5db; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .indexer-chip.failing .id-name { color: #9ca3af; }
+    .proto { font-size: 0.54rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; text-transform: uppercase; flex-shrink: 0; }
+    .proto.nzb     { background: #1e2a3a; color: #60a5fa; }
+    .proto.torrent { background: #1a2a1e; color: #34d399; }
+    .id-err { font-size: 0.58rem; color: #f87171; display: block; margin-top: 1px; }
+
+    .server-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .server-stat { background: #111; border: 1px solid #1e1e1e; border-radius: 6px; padding: 0.4rem 0.75rem; }
+    .server-stat-header { display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 0.25rem; }
+    .server-stat-name { font-size: 0.68rem; color: #6b7280; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ssl-badge { font-size: 0.55rem; font-weight: 700; padding: 1px 4px; border-radius: 3px; background: #1a2a1e; color: #34d399; flex-shrink: 0; }
+    .server-stat-rate { font-size: 0.78rem; font-weight: 700; color: #10b981; flex-shrink: 0; }
+    .server-stat-rate.warn { color: #f59e0b; }
+    .server-bar-row { display: flex; align-items: center; gap: 0.5rem; }
+    .server-bar { height: 3px; background: #2a2a2a; border-radius: 2px; overflow: hidden; flex: 1; }
+    .server-bar-fill { height: 100%; border-radius: 2px; }
+    .server-bar-fill.great { background: #10b981; }
+    .server-bar-fill.ok    { background: #f59e0b; }
+    .server-stat-meta { font-size: 0.58rem; color: #4b5563; white-space: nowrap; }
+
+    /* ── Controls ── */
+    .container-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.1rem; }
     .container-row:not(:last-child) { border-bottom: 1px solid #1f1f1f; }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .status-dot.running    { background: #10b981; box-shadow: 0 0 5px #10b981aa; }
-    .status-dot.exited     { background: #ef4444; }
     .status-dot.restarting { background: #f59e0b; }
-
-    .container-name   { font-size: 0.8rem; flex: 1; color: #d1d5db; }
-    .container-uptime { font-size: 0.7rem; color: #374151; }
-
-    /* ── Service Control ── */
-    .control-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1.25rem;
-    }
-    .control-btn { width: 100%; justify-content: center; padding: 0.6rem 1rem; }
-    .control-hint {
-      font-size: 0.7rem;
-      color: #374151;
-      text-align: center;
-      margin-top: -0.25rem;
-    }
+    .status-dot.exited     { background: #ef4444; }
+    .container-name   { font-size: 0.76rem; flex: 1; color: #d1d5db; }
+    .container-uptime { font-size: 0.65rem; color: #374151; min-width: 2.5rem; text-align: right; }
+    .container-toggle { font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; border: 1px solid #333; background: transparent; cursor: pointer; color: #9ca3af; line-height: 1; flex-shrink: 0; }
+    .container-toggle.stop  { color: #f87171; border-color: #7f1d1d; }
+    .container-toggle.start { color: #10b981; border-color: #065f46; }
+    .container-toggle:disabled { opacity: 0.4; cursor: default; }
+    .control-buttons { display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.1rem; }
+    .control-btn { width: 100%; justify-content: center; padding: 0.5rem 0.75rem; font-size: 0.75rem; }
+    .control-hint { font-size: 0.6rem; color: #374151; text-align: center; margin-top: -0.15rem; }
 
     /* ── Empty / error states ── */
-    .empty-state {
-      padding: 1.25rem;
-      font-size: 0.875rem;
-      color: #4b5563;
-      text-align: center;
-    }
+    .empty-state { padding: 1rem; font-size: 0.8rem; color: #374151; text-align: center; }
+    .error-state { padding: 1rem; font-size: 0.78rem; color: #f87171; text-align: center; }
   </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
-<header>
+<!-- Header row 1: logo, search, widgets, sync, pending -->
+<div class="header-row1">
   <div class="logo">movieseer</div>
-
   <div class="search-wrap">
-    <input
-      type="text"
-      id="search-input"
-      placeholder="Search for movies or TV shows…"
-      autocomplete="off"
-    />
-    <div class="search-results" id="search-results" style="display:none"></div>
+    <input type="text" id="search-input" placeholder="Search for movies or TV shows…" autocomplete="off" />
+    <div class="search-results" id="search-results"></div>
   </div>
-
   <div class="header-actions">
     <div class="header-widget" id="clock"></div>
     <div class="header-widget" id="cal"></div>
-    <div class="header-widget" id="storage-widget" style="display:flex;align-items:center;gap:0.5rem;min-width:140px">
-      <div style="flex:1;background:#2a2a2a;border-radius:2px;height:4px;overflow:hidden">
-        <div id="storage-bar" style="height:100%;width:0%;background:#e5a00d;border-radius:2px;transition:width 0.3s"></div>
+    <div class="header-widget" style="display:flex;align-items:center;gap:0.5rem;min-width:130px">
+      <div style="flex:1;background:#2a2a2a;border-radius:2px;height:3px;overflow:hidden">
+        <div id="storage-bar" style="height:100%;width:0%;background:#e5a00d;border-radius:2px;transition:width 0.4s"></div>
       </div>
-      <span id="storage-free" style="white-space:nowrap">— free</span>
+      <span id="storage-free" style="white-space:nowrap">— GB free</span>
     </div>
-    <div class="pending-badge">
-      Pending <span class="count" id="pending-count">—</span>
-    </div>
+    <button class="btn-sync" id="sync-btn">
+      <span class="sync-icon">⟳</span><span class="sync-label">Sync Libraries</span>
+    </button>
+    <button class="btn-sync" id="shutdown-btn" onclick="doShutdown()">
+      <span>⏻</span><span class="shutdown-label">Shutdown</span>
+    </button>
+    <div class="pending-badge">Pending <span class="count" id="pending-count">0</span></div>
   </div>
-</header>
+</div>
 
-<!-- ── Main ── -->
+<!-- Header row 2: nav -->
+<div class="header-row2">
+  <span class="nav-label">Media</span>
+  <div class="nav-group">
+    <a href="#" id="link-jellyseerr" class="nav-btn nav-btn-browse">Browse</a>
+    <a href="#" id="link-jellyfin"   class="nav-btn nav-btn-jellyfin">Jellyfin</a>
+    <a href="#" id="link-plex"       class="nav-btn nav-btn-plex">Plex</a>
+  </div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Manage</span>
+  <div class="nav-group">
+    <a href="#" id="link-sonarr-hdr" class="nav-btn nav-btn-ghost">TV Shows</a>
+    <a href="#" id="link-radarr-hdr" class="nav-btn nav-btn-ghost">Movies</a>
+  </div>
+</div>
+
 <main>
-  <div class="left-col">
 
-    <!-- Focus -->
-    <div class="card focus-card">
-      <div>
-        <p class="focus-label">Media</p>
-        <div class="focus-primary">
-          <a href="#" id="link-jellyseerr" class="btn btn-focus btn-focus-browse">Browse</a>
-          <a href="#" id="link-jellyfin"   class="btn btn-focus btn-focus-jellyfin">Jellyfin</a>
-          <a href="#" id="link-plex"       class="btn btn-focus btn-focus-plex">Plex</a>
+  <!-- Activity log — far left -->
+  <div class="log-zone">
+    <div class="log-card">
+      <div class="log-header">
+        <div class="log-title"><span class="live-dot"></span>Activity</div>
+        <span style="font-size:0.62rem;color:#374151">24h</span>
+      </div>
+      <div class="event-feed" id="event-feed"></div>
+    </div>
+  </div>
+
+  <!-- Centre: Requests + Downloads top, Indexers bottom -->
+  <div class="center-zone">
+
+    <div class="center-top">
+      <!-- Requests -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Requests</span>
+          <div class="card-links">
+            <a href="#" id="link-radarr" class="btn btn-ghost">Radarr</a>
+            <a href="#" id="link-sonarr" class="btn btn-ghost">Sonarr</a>
+          </div>
+        </div>
+        <div class="card-body" id="requests-body">
+          <div class="empty-state">Loading…</div>
         </div>
       </div>
-      <div>
-        <p class="focus-label">Manage</p>
-        <div class="focus-secondary">
-          <a href="#" id="link-sonarr" class="btn btn-ghost btn-manage">TV Shows</a>
-          <a href="#" id="link-radarr" class="btn btn-ghost btn-manage">Movies</a>
+
+      <!-- Downloads -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Downloads</span>
+          <div class="card-links">
+            <a href="#" id="link-sabnzbd"     class="btn btn-ghost">SABnzbd</a>
+            <a href="#" id="link-qbittorrent" class="btn btn-ghost">qBit</a>
+          </div>
+        </div>
+        <div class="card-body" id="downloads-body">
+          <div class="empty-state">Loading…</div>
         </div>
       </div>
     </div>
 
-    <!-- Downloads -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Downloads</span>
-        <div class="card-links">
-          <a href="#" id="link-sabnzbd"     class="btn btn-ghost" style="padding:0.3rem 0.7rem;font-size:0.8rem">SABnzbd</a>
-          <a href="#" id="link-qbittorrent" class="btn btn-ghost" style="padding:0.3rem 0.7rem;font-size:0.8rem">qBittorrent</a>
+    <!-- Indexers & Servers -->
+    <div class="center-bottom">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Indexers &amp; Servers</span>
+          <span style="font-size:0.7rem;color:#4b5563">Prowlarr · SABnzbd</span>
         </div>
-      </div>
-      <div class="card-body" id="downloads-body">
-        <div class="empty-state">Loading…</div>
-      </div>
-    </div>
-
-    <!-- Requests -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Requests</span>
-        <div class="card-links">
-          <a href="#" id="link-radarr-hdr" class="btn btn-ghost" style="padding:0.3rem 0.7rem;font-size:0.8rem">Radarr</a>
-          <a href="#" id="link-sonarr-hdr" class="btn btn-ghost" style="padding:0.3rem 0.7rem;font-size:0.8rem">Sonarr</a>
+        <div class="infra-body" id="infra-body">
+          <div class="infra-pane"><div class="empty-state">Loading…</div></div>
+          <div class="infra-pane"></div>
         </div>
-      </div>
-      <div class="card-body" id="requests-body">
-        <div class="empty-state">Loading…</div>
       </div>
     </div>
 
   </div>
 
-  <div class="right-col">
-
-    <!-- Service Control -->
+  <!-- Controls — far right -->
+  <div class="ctrl-zone">
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">Service Control</span>
-      </div>
+      <div class="card-header"><span class="card-title">Control</span></div>
       <div class="control-buttons">
-        <button class="btn btn-warning control-btn" onclick="doRestart()">&#x21BA; Restart Services</button>
-        <p class="control-hint">docker restart on all services</p>
-        <button class="btn btn-danger control-btn" onclick="doRebuild()">&#x27F3; Rebuild Services</button>
-        <p class="control-hint">pull latest images &amp; restart</p>
+        <button class="btn btn-warning control-btn" onclick="doRestart()">&#x21BA; Restart</button>
+        <p class="control-hint">docker restart all</p>
+        <button class="btn btn-danger control-btn" onclick="doRebuild()">&#x27F3; Rebuild</button>
+        <p class="control-hint">pull &amp; restart</p>
       </div>
     </div>
-
-    <!-- Service Health -->
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">Services</span>
-      </div>
-      <div id="containers-body">
-        <div class="empty-state">Loading…</div>
-      </div>
+      <div class="card-header"><span class="card-title">Services</span></div>
+      <div id="containers-body"><div class="empty-state">Loading…</div></div>
     </div>
-
   </div>
+
 </main>
 
 <script>
-  // ── Clock & calendar ──────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
 
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('cal').textContent =
-      now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+  function esc(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-  updateClock();
-  setInterval(updateClock, 1000);
 
-  // ── Search ────────────────────────────────────────────────────────────────
+  function relTime(isoStr) {
+    if (!isoStr) return '';
+    const diff = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000);
+    if (diff < 60)   return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
 
-  let searchTimeout = null;
-  const searchInput   = document.getElementById('search-input');
-  const searchResults = document.getElementById('search-results');
+  // ── Clock ──────────────────────────────────────────────────────────────────
 
-  searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    const q = searchInput.value.trim();
-    if (q.length < 2) { searchResults.style.display = 'none'; return; }
-    searchTimeout = setTimeout(() => fetchSearch(q), 300);
-  });
+  function initClock() {
+    function tick() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('cal').textContent =
+        now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
 
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-wrap')) searchResults.style.display = 'none';
-  });
+  // ── Search ─────────────────────────────────────────────────────────────────
 
-  async function fetchSearch(q) {
-    try {
-      const res  = await fetch('/api/search?q=' + encodeURIComponent(q));
-      const data = await res.json();
-      renderSearch(data.results || []);
-    } catch {
-      searchResults.style.display = 'none';
+  function initSearch() {
+    let timeout = null;
+    const input   = document.getElementById('search-input');
+    const results = document.getElementById('search-results');
+
+    input.addEventListener('input', () => {
+      clearTimeout(timeout);
+      const q = input.value.trim();
+      if (q.length < 2) { results.style.display = 'none'; return; }
+      timeout = setTimeout(() => fetchSearch(q), 300);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrap')) results.style.display = 'none';
+    });
+
+    async function fetchSearch(q) {
+      try {
+        const res  = await fetch('/api/search?q=' + encodeURIComponent(q));
+        const data = await res.json();
+        renderSearch(data.results || []);
+      } catch { results.style.display = 'none'; }
+    }
+
+    function renderSearch(items) {
+      if (!items.length) {
+        results.innerHTML = '<div class="search-empty">No results found.</div>';
+        results.style.display = 'block';
+        return;
+      }
+      results.innerHTML = items.map(r => `
+        <a class="search-result" href="${esc(r.link)}" target="_blank" rel="noopener">
+          <div class="result-poster">
+            ${r.poster_url ? '<img src="' + esc(r.poster_url) + '" alt="">' : (r.type === 'tv' ? '&#x1F4FA;' : '&#x1F3AC;')}
+          </div>
+          <div class="result-info">
+            <div class="result-title">${esc(r.title)}</div>
+            <div class="result-meta">${esc(r.year)}</div>
+          </div>
+          <span class="result-badge ${r.type === 'tv' ? 'tv' : 'movie'}">${r.type === 'tv' ? 'TV' : 'Movie'}</span>
+        </a>
+      `).join('');
+      results.style.display = 'block';
     }
   }
 
-  function renderSearch(results) {
-    if (!results.length) {
-      searchResults.innerHTML = '<div class="search-empty">No results found.</div>';
-      searchResults.style.display = 'block';
-      return;
+  // ── Config (service URLs) ──────────────────────────────────────────────────
+
+  function initConfig() {
+    fetch('/api/config').then(r => r.json()).then(cfg => {
+      const map = {
+        'link-jellyseerr':  cfg.jellyseerr_url,
+        'link-jellyfin':    cfg.jellyfin_url,
+        'link-plex':        cfg.plex_url,
+        'link-sonarr':      cfg.sonarr_url,
+        'link-radarr':      cfg.radarr_url,
+        'link-radarr-hdr':  cfg.radarr_url,
+        'link-sonarr-hdr':  cfg.sonarr_url,
+        'link-sabnzbd':     cfg.sabnzbd_url,
+        'link-qbittorrent': cfg.qbittorrent_url,
+      };
+      for (const [id, url] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el && url) {
+          el.href   = url;
+          el.target = '_blank';
+          el.rel    = 'noopener noreferrer';
+        }
+      }
+    }).catch(e => console.error('Config fetch failed:', e));
+  }
+
+  // ── Storage ────────────────────────────────────────────────────────────────
+
+  function initStorage() {
+    async function fetch_() {
+      try {
+        const res  = await fetch('/api/storage');
+        const data = await res.json();
+        if (data.error) return;
+        const pct = Math.round(data.used_gb / data.total_gb * 100);
+        const bar = document.getElementById('storage-bar');
+        bar.style.width      = pct + '%';
+        bar.style.background = pct > 90 ? '#ef4444' : '#e5a00d';
+        document.getElementById('storage-free').textContent = data.free_gb + ' GB free';
+      } catch (e) { console.error('Storage fetch failed:', e); }
     }
-    searchResults.innerHTML = results.map(r => `
-      <a class="search-result" href="${esc(r.link)}" target="_blank" rel="noopener">
-        <div class="result-poster">
-          ${r.poster_url
-            ? '<img src="' + esc(r.poster_url) + '" alt="">'
-            : (r.type === 'tv' ? '&#x1F4FA;' : '&#x1F3AC;')}
+    fetch_();
+    setInterval(fetch_, 60000);
+  }
+
+  // ── Sync button ────────────────────────────────────────────────────────────
+
+  function initSyncButton() {
+    const btn   = document.getElementById('sync-btn');
+    const label = btn.querySelector('.sync-label');
+    const icon  = btn.querySelector('.sync-icon');
+    let state   = 'idle';
+    let _listener = null;
+
+    function reset() {
+      state = 'idle';
+      btn.className = 'btn-sync';
+      icon.textContent  = '⟳';
+      label.textContent = 'Sync Libraries';
+    }
+
+    function setError() {
+      if (_listener) {
+        _sseListeners.splice(_sseListeners.indexOf(_listener), 1);
+        _listener = null;
+      }
+      state = 'error';
+      btn.className = 'btn-sync error';
+      icon.textContent  = '✕';
+      label.textContent = 'Sync failed';
+      // Error state persists until the user clicks again (acknowledges)
+    }
+
+    btn.addEventListener('click', async () => {
+      // If in error state, clicking resets to idle
+      if (state === 'error') { reset(); return; }
+      if (state !== 'idle') return;
+
+      state = 'syncing';
+      btn.className = 'btn-sync syncing';
+      icon.textContent  = '⟳';
+      label.textContent = 'Syncing…';
+
+      try {
+        const res = await fetch('/actions/sync-libraries', { method: 'POST' });
+        if (!res.ok) { setError(); return; }
+      } catch {
+        setError(); return;
+      }
+
+      // Watch the SSE stream for sync_complete (jellyseerr) or any failed event
+      _listener = (ev) => {
+        if (ev.source === 'jellyseerr' && ev.event_type === 'sync_complete') {
+          _sseListeners.splice(_sseListeners.indexOf(_listener), 1);
+          _listener = null;
+          state = 'synced';
+          btn.className = 'btn-sync synced';
+          icon.textContent  = '✓';
+          label.textContent = 'Sync complete';
+          setTimeout(reset, 10000);
+        } else if (ev.event_type === 'failed' &&
+                   (ev.source === 'jellyfin' || ev.source === 'jellyseerr')) {
+          setError();
+        }
+      };
+      _sseListeners.push(_listener);
+    });
+  }
+
+  // ── Activity log (SSE) ─────────────────────────────────────────────────────
+
+  const SOURCE_BADGE_CLASS = {
+    radarr:     'eb-radarr',
+    sonarr:     'eb-sonarr',
+    sabnzbd:    'eb-sabnzbd',
+    prowlarr:   'eb-prowlarr',
+    jellyseerr: 'eb-jellyseerr',
+    jellyfin:   'eb-jellyfin',
+  };
+
+  const EVENT_COLOUR = {
+    grabbed:           '',
+    imported:          'ok',
+    failed:            'fail',
+    completed:         'ok',
+    request:           '',
+    indexer_failing:   'fail',
+    indexer_recovered: 'ok',
+    sync_started:      '',
+    sync_complete:     'ok',
+  };
+
+  // Module-level SSE dispatcher — lets components outside initActivityLog
+  // register one-shot or persistent listeners on the event stream.
+  const _sseListeners = [];
+  function _onSseEvent(ev) {
+    for (const fn of [..._sseListeners]) fn(ev);
+  }
+
+  function initActivityLog() {
+    const feed = document.getElementById('event-feed');
+    const MAX_ROWS = 50;
+
+    function prependEvent(ev) {
+      const badgeClass = SOURCE_BADGE_CLASS[ev.source] || 'eb-radarr';
+      const colClass   = EVENT_COLOUR[ev.event_type] || '';
+      const detailHtml = colClass
+        ? `<span class="${colClass}">${esc(ev.detail)}</span>`
+        : `<span class="hi">${esc(ev.detail)}</span>`;
+
+      const row = document.createElement('div');
+      row.className = 'event-row';
+      row.dataset.at = ev.at || '';
+      row.innerHTML = `
+        <div class="event-row-meta">
+          <span class="event-badge ${badgeClass}">${esc(ev.source)}</span>
+          <span class="event-time">${relTime(ev.at)}</span>
         </div>
-        <div class="result-info">
-          <div class="result-title">${esc(r.title)}</div>
-          <div class="result-meta">${esc(r.year)}</div>
-        </div>
-        <span class="result-badge ${r.type === 'tv' ? 'tv' : 'movie'}">${r.type === 'tv' ? 'TV' : 'Movie'}</span>
-      </a>
-    `).join('');
-    searchResults.style.display = 'block';
+        <span class="event-msg">${detailHtml}</span>
+      `;
+      feed.prepend(row);
+
+      // Trim DOM to MAX_ROWS
+      while (feed.children.length > MAX_ROWS) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    // Update relative timestamps every minute
+    setInterval(() => {
+      feed.querySelectorAll('.event-row[data-at]').forEach(row => {
+        const timeEl = row.querySelector('.event-time');
+        if (timeEl) timeEl.textContent = relTime(row.dataset.at);
+      });
+    }, 60000);
+
+    const es = new EventSource('/api/events');
+    es.onmessage = (e) => {
+      try {
+        const ev = JSON.parse(e.data);
+        prependEvent(ev);
+        _onSseEvent(ev);
+      } catch { /* ignore malformed */ }
+    };
+    es.onerror = () => console.warn('SSE connection lost, browser will retry');
   }
 
-  // ── Status polling ────────────────────────────────────────────────────────
+  // ── Requests ──────────────────────────────────────────────────────────────
 
-  async function fetchStatus() {
-    try {
-      const res  = await fetch('/api/status');
-      const data = await res.json();
-      const requests = data.requests || [];
-      const sabSlots  = data.system?.sabnzbd?.slots || [];
-      const qbitItems = Array.isArray(data.system?.qbittorrent) ? data.system.qbittorrent : [];
-      renderDownloads(sabSlots, qbitItems);
-      renderRequests(requests);
-      updatePendingCount(requests);
-    } catch (e) {
-      console.error('Status fetch failed:', e);
+  function initRequests() {
+    async function fetch_() {
+      try {
+        const res  = await fetch('/api/status');
+        const data = await res.json();
+        renderRequests(data.requests || []);
+        updatePendingCount(data.requests || []);
+      } catch (e) { console.error('Requests fetch failed:', e); }
     }
-  }
-
-  async function fetchContainers() {
-    try {
-      const res  = await fetch('/api/containers');
-      const data = await res.json();
-      renderContainers(data.containers || []);
-    } catch (e) {
-      console.error('Containers fetch failed:', e);
-    }
+    fetch_();
+    setInterval(fetch_, 30000);
   }
 
   function updatePendingCount(requests) {
-    const done = ['available', 'imported'];
+    const done  = ['available', 'imported', 'partial'];
     const count = requests.filter(r => {
       const s = (r.arr && r.arr.status) || r.jellyseerr_status || '';
       return !done.includes(s);
     }).length;
     document.getElementById('pending-count').textContent = count;
   }
-
-  // ── Downloads ─────────────────────────────────────────────────────────────
-
-  function downloadItemHtml(title, d) {
-    const pct  = Math.round(d.progress || 0);
-    const done = pct >= 100 || d.status === 'seeding';
-    const meta = done
-      ? (d.status === 'seeding' ? ['Complete', 'seeding'] : ['Complete'])
-      : [pct + '%', d.eta ? 'ETA ' + d.eta : null].filter(Boolean);
-    const client = d.client || 'SABnzbd';
-    return `
-      <div class="download-item">
-        <div class="download-row">
-          <span class="download-title">${esc(title)}</span>
-          <span class="download-client">${esc(client)}</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill${done ? ' done' : ''}" style="width:${Math.min(pct, 100)}%"></div>
-        </div>
-        <div class="download-meta">${meta.map(esc).join(' &nbsp;·&nbsp; ')}</div>
-      </div>
-    `;
-  }
-
-  function renderDownloads(sabSlots, qbitItems) {
-    const body  = document.getElementById('downloads-body');
-    const items = [
-      ...sabSlots.map(s => ({
-        name: s.filename, progress: s.percentage, eta: s.timeleft,
-        status: s.status, client: 'SABnzbd',
-      })),
-      ...qbitItems.map(t => ({
-        name: t.name, progress: Math.round(t.progress * 1000) / 10,
-        eta: t.eta ? String(t.eta) + 's' : '', status: t.state, client: 'qBittorrent',
-      })),
-    ];
-    if (!items.length) {
-      body.innerHTML = '<div class="empty-state">No active downloads.</div>';
-      return;
-    }
-    body.innerHTML = items.map(d => downloadItemHtml(d.name, d)).join('');
-  }
-
-  // ── Requests ──────────────────────────────────────────────────────────────
 
   function renderRequests(requests) {
     const body = document.getElementById('requests-body');
@@ -645,7 +734,7 @@
     body.innerHTML = requests.map(r => {
       const status    = (r.arr && r.arr.status) || r.jellyseerr_status || 'unknown';
       const typeLabel = r.type === 'tv' ? 'TV' : 'Movie';
-      const meta      = r.requested_by ? typeLabel + ' · requested by ' + r.requested_by : typeLabel;
+      const meta      = r.requested_by ? typeLabel + ' · ' + r.requested_by : typeLabel;
       const label     = status.charAt(0).toUpperCase() + status.slice(1);
       return `
         <div class="request-item">
@@ -659,109 +748,229 @@
     }).join('');
   }
 
-  // ── Containers ────────────────────────────────────────────────────────────
+  // ── Downloads ─────────────────────────────────────────────────────────────
 
-  function renderContainers(containers) {
-    const body = document.getElementById('containers-body');
-    if (!containers.length) {
-      body.innerHTML = '<div class="empty-state">No containers found.</div>';
+  function initDownloads() {
+    async function fetch_() {
+      try {
+        const res  = await fetch('/api/status');
+        const data = await res.json();
+        const sabSlots  = data.system?.sabnzbd?.slots  || [];
+        const qbitItems = Array.isArray(data.system?.qbittorrent) ? data.system.qbittorrent : [];
+        renderDownloads(sabSlots, qbitItems);
+      } catch (e) { console.error('Downloads fetch failed:', e); }
+    }
+    fetch_();
+    setInterval(fetch_, 10000);
+  }
+
+  function renderDownloads(sabSlots, qbitItems) {
+    const body  = document.getElementById('downloads-body');
+    const items = [
+      ...sabSlots.map(s => ({ name: s.filename || s.name, progress: s.percentage, eta: s.timeleft, status: s.status, client: 'SABnzbd' })),
+      ...qbitItems.map(t => ({ name: t.name, progress: Math.round(t.progress * 1000) / 10, eta: t.eta ? t.eta + 's' : '', status: t.state, client: 'qBittorrent' })),
+    ];
+    if (!items.length) {
+      body.innerHTML = '<div class="empty-state">No active downloads.</div>';
       return;
     }
-    body.innerHTML = containers.map(c => {
-      const dot = c.status === 'running' ? 'running'
-                : c.status === 'restarting' ? 'restarting'
-                : 'exited';
+    body.innerHTML = items.map(d => {
+      const pct  = Math.round(d.progress || 0);
+      const done = pct >= 100 || d.status === 'seeding';
+      const meta = done
+        ? (d.status === 'seeding' ? ['Complete', 'seeding'] : ['Complete'])
+        : [pct + '%', d.eta ? 'ETA ' + d.eta : null].filter(Boolean);
       return `
-        <div class="container-row">
-          <div class="status-dot ${dot}"></div>
-          <span class="container-name">${esc(c.name)}</span>
-          <span class="container-uptime">${esc(c.uptime)}</span>
+        <div class="download-item">
+          <div class="download-row">
+            <span class="download-title">${esc(d.name)}</span>
+            <span class="download-client">${esc(d.client)}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill${done ? ' done' : ''}" style="width:${Math.min(pct,100)}%"></div></div>
+          <div class="download-meta">${meta.map(esc).join(' &nbsp;·&nbsp; ')}</div>
         </div>
       `;
     }).join('');
   }
 
-  // ── Service control ───────────────────────────────────────────────────────
+  // ── Infra (Indexers & Servers) ─────────────────────────────────────────────
+
+  function initInfra() {
+    async function fetch_() {
+      try {
+        const res  = await fetch('/api/infra');
+        const data = await res.json();
+        renderInfra(data);
+      } catch (e) { console.error('Infra fetch failed:', e); }
+    }
+    fetch_();
+    setInterval(fetch_, 60000);
+  }
+
+  function renderInfra(data) {
+    const body = document.getElementById('infra-body');
+    const prowlarr = data.prowlarr || {};
+    const servers  = Array.isArray(data.sabnzbd_servers) ? data.sabnzbd_servers : [];
+
+    // Prowlarr pane
+    let prowlarrHtml = '';
+    if (prowlarr.error) {
+      prowlarrHtml = `<div class="error-state">${esc(prowlarr.error)}</div>`;
+    } else {
+      const indexers = prowlarr.indexers || [];
+      const failing  = indexers.filter(i => i.failing).length;
+      const badge    = failing
+        ? `<span class="fail-badge">${failing} failing</span>`
+        : `<span class="ok-badge">all healthy</span>`;
+      const chips    = indexers.map(i => {
+        const dotCls  = !i.enabled ? 'disabled' : i.failing ? 'failing' : 'healthy';
+        const chipCls = !i.enabled ? 'disabled' : i.failing ? 'failing' : '';
+        const proto   = i.protocol === 'torrent' ? 'torrent' : 'nzb';
+        const inner   = i.failing
+          ? `<div style="flex:1;min-width:0"><span class="id-name">${esc(i.name)}</span><span class="id-err">${esc(i.error || '')}</span></div>`
+          : `<span class="id-name">${esc(i.name)}</span>`;
+        return `<div class="indexer-chip ${chipCls}"><div class="id-dot ${dotCls}"></div>${inner}<span class="proto ${proto}">${proto.toUpperCase()}</span></div>`;
+      }).join('');
+      prowlarrHtml = `
+        <div class="infra-pane-title"><span>Prowlarr</span>${badge}</div>
+        <div class="indexer-grid">${chips}</div>
+      `;
+    }
+
+    // SABnzbd pane
+    let sabHtml = '';
+    if (servers.length === 0 && data.sabnzbd_servers && data.sabnzbd_servers.error) {
+      sabHtml = `<div class="error-state">${esc(data.sabnzbd_servers.error)}</div>`;
+    } else {
+      const activeBadge = `<span class="ok-badge">${servers.length} active</span>`;
+      const cards = servers.map(s => {
+        const pct     = Math.round((s.hit_rate || 0) * 100 * 10) / 10;
+        const rateCls = pct >= 95 ? '' : 'warn';
+        const barCls  = pct >= 95 ? 'great' : 'ok';
+        return `
+          <div class="server-stat">
+            <div class="server-stat-header">
+              <span class="server-stat-name">${esc(s.name)}</span>
+              <span class="server-stat-rate ${rateCls}">${pct}%</span>
+              ${s.ssl ? '<span class="ssl-badge">SSL</span>' : ''}
+            </div>
+            <div class="server-bar-row">
+              <div class="server-bar"><div class="server-bar-fill ${barCls}" style="width:${pct}%"></div></div>
+              <span class="server-stat-meta">${s.articles_success.toLocaleString()}/${s.articles_tried.toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      sabHtml = `
+        <div class="infra-pane-title"><span>SABnzbd</span>${activeBadge}</div>
+        <div class="server-list">${cards || '<div class="empty-state">No servers.</div>'}</div>
+      `;
+    }
+
+    body.innerHTML = `
+      <div class="infra-pane">${prowlarrHtml}</div>
+      <div class="infra-pane">${sabHtml}</div>
+    `;
+  }
+
+  // ── Containers ─────────────────────────────────────────────────────────────
+
+  function initContainers() {
+    async function fetch_() {
+      try {
+        const res  = await fetch('/api/containers');
+        const data = await res.json();
+        renderContainers(data.containers || []);
+      } catch (e) { console.error('Containers fetch failed:', e); }
+    }
+    fetch_();
+    setInterval(fetch_, 30000);
+  }
+
+  function renderContainers(containers) {
+    const body = document.getElementById('containers-body');
+    if (!containers.length) {
+      body.innerHTML = '<div class="empty-state">No containers.</div>';
+      return;
+    }
+    body.innerHTML = containers.map(c => {
+      const dot          = c.status === 'running' ? 'running' : c.status === 'restarting' ? 'restarting' : 'exited';
+      const isRunning    = c.status === 'running';
+      const toggleAction = isRunning ? 'stop' : 'start';
+      const toggleClass  = isRunning ? 'stop' : 'start';
+      const toggleIcon  = isRunning ? '■' : '▶';
+      const toggleTitle = isRunning ? 'Stop' : 'Start';
+      return `
+        <div class="container-row">
+          <div class="status-dot ${dot}"></div>
+          <span class="container-name">${esc(c.name)}</span>
+          <span class="container-uptime">${esc(c.uptime)}</span>
+          <button id="toggle-${esc(c.name)}" class="container-toggle ${toggleClass}"
+                  title="${toggleTitle}"
+                  onclick="toggleContainer('${esc(c.name)}', '${toggleAction}')">${toggleIcon}</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── Service control ────────────────────────────────────────────────────────
+
+  let _shutdownArmed = false;
+  let _shutdownTimer = null;
+
+  async function doShutdown() {
+    const btn = document.getElementById('shutdown-btn');
+    if (!_shutdownArmed) {
+      _shutdownArmed = true;
+      btn.classList.add('error');
+      btn.querySelector('.shutdown-label').textContent = 'Confirm?';
+      _shutdownTimer = setTimeout(() => {
+        _shutdownArmed = false;
+        btn.classList.remove('error');
+        btn.querySelector('.shutdown-label').textContent = 'Shutdown';
+      }, 3000);
+      return;
+    }
+    clearTimeout(_shutdownTimer);
+    btn.disabled = true;
+    btn.querySelector('.shutdown-label').textContent = 'Stopping…';
+    await fetch('/actions/shutdown', { method: 'POST' });
+  }
+
+  async function toggleContainer(name, action) {
+    const btn = document.getElementById(`toggle-${name}`);
+    btn.disabled = true;
+    btn.textContent = '…';
+    await fetch(`/actions/container/${encodeURIComponent(name)}/${action}`, { method: 'POST' });
+    setTimeout(() => initContainers(), 2000);
+  }
 
   async function doRestart() {
     if (!confirm('Restart all services?')) return;
     await fetch('/actions/restart', { method: 'POST' });
-    setTimeout(fetchContainers, 3000);
+    setTimeout(() => initContainers(), 3000);
   }
 
   async function doRebuild() {
     if (!confirm('Pull latest images and restart all services? This may take a minute.')) return;
     await fetch('/actions/rebuild', { method: 'POST' });
-    setTimeout(fetchContainers, 10000);
+    setTimeout(() => initContainers(), 10000);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Boot ───────────────────────────────────────────────────────────────────
 
-  function esc(str) {
-    return String(str == null ? '' : str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  // ── Config (service URLs) ─────────────────────────────────────────────────
-
-  async function fetchConfig() {
-    try {
-      const res  = await fetch('/api/config');
-      const cfg  = await res.json();
-      const links = {
-        'link-jellyseerr':  cfg.jellyseerr_url,
-        'link-jellyfin':    cfg.jellyfin_url,
-        'link-plex':        cfg.plex_url,
-        'link-sonarr':      cfg.sonarr_url,
-        'link-radarr':      cfg.radarr_url,
-        'link-radarr-hdr':  cfg.radarr_url,
-        'link-sonarr-hdr':  cfg.sonarr_url,
-        'link-sabnzbd':     cfg.sabnzbd_url,
-        'link-qbittorrent': cfg.qbittorrent_url,
-      };
-      for (const [id, url] of Object.entries(links)) {
-        const el = document.getElementById(id);
-        if (el && url) {
-          el.href = url;
-          el.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open(this.href, '_blank', 'noopener,noreferrer');
-          });
-        }
-      }
-    } catch (e) {
-      console.error('Config fetch failed:', e);
-    }
-  }
-
-  // ── Storage ───────────────────────────────────────────────────────────────
-
-  async function fetchStorage() {
-    try {
-      const res  = await fetch('/api/storage');
-      const data = await res.json();
-      if (data.error) return;
-      const pct = Math.round(data.used_gb / data.total_gb * 100);
-      document.getElementById('storage-bar').style.width      = pct + '%';
-      document.getElementById('storage-bar').style.background = pct > 90 ? '#ef4444' : '#e5a00d';
-      document.getElementById('storage-free').textContent     = data.free_gb + ' GB free';
-    } catch (e) {
-      console.error('Storage fetch failed:', e);
-    }
-  }
-
-  // ── Boot ──────────────────────────────────────────────────────────────────
-
-  fetchConfig();
-  fetchStatus();
-  fetchContainers();
-  fetchStorage();
-  setInterval(fetchStatus,     30000);
-  setInterval(fetchContainers, 60000);
-  setInterval(fetchStorage,   300000);
+  document.addEventListener('DOMContentLoaded', () => {
+    initClock();
+    initSearch();
+    initConfig();
+    initStorage();
+    initSyncButton();
+    initActivityLog();
+    initRequests();
+    initDownloads();
+    initInfra();
+    initContainers();
+  });
 </script>
 
 </body>
