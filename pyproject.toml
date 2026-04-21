@@ -12,6 +12,7 @@ dependencies = [
   "fastapi>=0.111",
   "docker>=7.0",
   "uvicorn>=0.34",
+  "aiosqlite>=0.20",
 ]
 
 [dependency-groups]
