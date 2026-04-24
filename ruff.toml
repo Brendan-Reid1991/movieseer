@@ -1,0 +1,14 @@
+line-length = 89
+target-version = "py312"
+fix = true
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "N", "S", "TCH", "RUF"]
+ignore=["TC001", "TC003"]
+exclude = [
+    "tests/*", 
+    "scripts/*", 
+    "docs/*", 
+    "vpn_configurations/*", 
+    "services/*"
+]

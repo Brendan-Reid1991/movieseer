@@ -55,16 +55,17 @@ fi
 # 3. Spin up containers
 echo "Starting containers..."
 cd "$SCRIPT_DIR"
-docker network create movieseer 2>/dev/null || true
 if $TEST_MODE; then
-  docker compose --env-file "$SCRIPT_DIR/.env.test" up -d
+  docker compose -f "$SCRIPT_DIR/docker-compose.test.yml" --env-file "$SCRIPT_DIR/.env.test" up -d
 else
+  docker network create movieseer 2>/dev/null || true
   docker compose up -d
 fi
 
 if $TEST_MODE; then
   echo "\nTest mode: skipping service health checks."
   echo "Services starting — check 'docker compose ps' to verify."
+  open "http://localhost:${MOVIESEER_PORT}"
   exit 0
 fi
 
@@ -92,6 +93,7 @@ echo "\nWaiting for services to be ready..."
 
 # Jellyfin runs in Docker, exposes /health
 wait_for "Jellyfin"       "http://localhost:${JELLYFIN_PORT}/health"
+wait_for "Plex"           "http://localhost:${PLEX_PORT}/identity"
 # *arr services expose /ping without requiring auth
 wait_for "Sonarr"         "http://localhost:${SONARR_PORT}/ping"
 wait_for "Radarr"         "http://localhost:${RADARR_PORT}/ping"
@@ -101,8 +103,8 @@ wait_for "qBittorrent"    "http://localhost:${QBITTORRENT_PORT}/"
 wait_for "SABnzbd"        "http://localhost:${SABNZBD_PORT}/"
 wait_for "Jellyseerr"     "http://localhost:${JELLYSEERR_PORT}/"
 wait_for "Flaresolverr"   "http://localhost:${FLARESOLVERR_PORT}/"
-wait_for "Homepage"       "http://localhost:${HOMEPAGE_PORT}/"
+wait_for "Movieseer"      "http://localhost:${MOVIESEER_PORT}/"
 
-# 6. Open Homepage
-echo "\nAll services ready. Opening Homepage..."
-open "http://localhost:${HOMEPAGE_PORT}"
+# 6. Open Movieseer
+echo "\nAll services ready. Opening Movieseer..."
+open "http://localhost:${MOVIESEER_PORT}"

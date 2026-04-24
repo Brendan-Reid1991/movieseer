@@ -7,3 +7,5 @@
 services/config/
 test-data/
 .env.test
+*.pyc
+logs/*

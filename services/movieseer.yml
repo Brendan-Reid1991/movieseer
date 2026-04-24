@@ -1,0 +1,46 @@
+services:
+  movieseer:
+    build:
+      context: ..
+    container_name: movieseer
+    restart: unless-stopped
+    ports:
+      - "${MOVIESEER_PORT}:8099"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA_PATH}:${MEDIA_MOUNT}:ro
+      - ${LOG_PATH}:/var/log/movieseer
+    environment:
+      - JELLYSEERR_URL=http://jellyseerr:5055
+      - JELLYSEERR_API_KEY=${JELLYSEERR_API_KEY}
+      - RADARR_URL=http://radarr:7878
+      - RADARR_API_KEY=${RADARR_API_KEY}
+      - SONARR_URL=http://sonarr:8989
+      - SONARR_API_KEY=${SONARR_API_KEY}
+      - PROWLARR_URL=http://prowlarr:9696
+      - PROWLARR_API_KEY=${PROWLARR_API_KEY}
+      - SABNZBD_URL=http://sabnzbd:8080
+      - SABNZBD_API_KEY=${SABNZBD_API_KEY}
+      - QBITTORRENT_URL=http://gluetun:8080
+      - QBITTORRENT_USER=${QBITTORRENT_USER}
+      - QBITTORRENT_PASS=${QBITTORRENT_PASS}
+      - JELLYFIN_URL=http://jellyfin:8096
+      - JELLYFIN_API_KEY=${JELLYFIN_API_KEY}
+      - NTFY_URL=http://ntfy:80
+      - NTFY_TOPIC=movieseer
+      - LOG_FILE=/var/log/movieseer/app.log
+      - HOST_IP=${HOST_IP}
+      - JELLYFIN_PORT=${JELLYFIN_PORT}
+      - PLEX_PORT=${PLEX_PORT}
+      - JELLYSEERR_PORT=${JELLYSEERR_PORT}
+      - SONARR_PORT=${SONARR_PORT}
+      - RADARR_PORT=${RADARR_PORT}
+      - SABNZBD_PORT=${SABNZBD_PORT}
+      - QBITTORRENT_PORT=${QBITTORRENT_PORT}
+      - MEDIA_MOUNT=${MEDIA_MOUNT}
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Configure Radarr and Sonarr to send webhook events to the pipeline-status service.
+"""Configure Radarr and Sonarr to send webhook events to the Movieseer service.
 
 Run once from the project root after the stack is up:
     python3 scripts/setup_webhooks.py
@@ -29,15 +29,15 @@ load_env(Path(__file__).parent.parent / ".env")
 
 # Radarr/Sonarr are accessed from the host on their published ports.
 RADARR_HOST = os.getenv("RADARR_HOST", "http://localhost:7878")
-RADARR_API_KEY = os.getenv("HOMEPAGE_VAR_RADARR_API_KEY", "")
+RADARR_API_KEY = os.getenv("RADARR_API_KEY", "")
 
 SONARR_HOST = os.getenv("SONARR_HOST", "http://localhost:8989")
-SONARR_API_KEY = os.getenv("HOMEPAGE_VAR_SONARR_API_KEY", "")
+SONARR_API_KEY = os.getenv("SONARR_API_KEY", "")
 
 # This is the URL Radarr/Sonarr will POST to — must be the internal Docker network address.
-PIPELINE_INTERNAL = os.getenv("PIPELINE_STATUS_INTERNAL", "http://pipeline-status:8099")
+MOVIESEER_INTERNAL = os.getenv("MOVIESEER_INTERNAL", "http://movieseer:8099")
 
-NOTIFICATION_NAME = "pipeline-status"
+NOTIFICATION_NAME = "movieseer"
 
 
 def upsert_notification(base_url: str, api_key: str, payload: dict, label: str):
@@ -51,13 +51,17 @@ def upsert_notification(base_url: str, api_key: str, payload: dict, label: str):
         payload["id"] = existing["id"]
         r = httpx.put(
             f"{base_url}/api/v3/notification/{existing['id']}",
-            headers=headers, json=payload, timeout=10,
+            headers=headers,
+            json=payload,
+            timeout=10,
         )
         print(f"  {label}: updated '{NOTIFICATION_NAME}' (id={existing['id']})")
     else:
         r = httpx.post(
             f"{base_url}/api/v3/notification",
-            headers=headers, json=payload, timeout=10,
+            headers=headers,
+            json=payload,
+            timeout=10,
         )
         print(f"  {label}: created '{NOTIFICATION_NAME}'")
 
@@ -66,7 +70,8 @@ def upsert_notification(base_url: str, api_key: str, payload: dict, label: str):
 
 def configure_radarr():
     upsert_notification(
-        RADARR_HOST, RADARR_API_KEY,
+        RADARR_HOST,
+        RADARR_API_KEY,
         {
             "name": NOTIFICATION_NAME,
             "onGrab": True,
@@ -87,7 +92,7 @@ def configure_radarr():
             "configContract": "WebhookSettings",
             "tags": [],
             "fields": [
-                {"name": "url", "value": f"{PIPELINE_INTERNAL}/webhook/radarr"},
+                {"name": "url", "value": f"{MOVIESEER_INTERNAL}/webhook/radarr"},
                 {"name": "method", "value": 1},
             ],
         },
@@ -97,7 +102,8 @@ def configure_radarr():
 
 def configure_sonarr():
     upsert_notification(
-        SONARR_HOST, SONARR_API_KEY,
+        SONARR_HOST,
+        SONARR_API_KEY,
         {
             "name": NOTIFICATION_NAME,
             "onGrab": True,
@@ -118,7 +124,7 @@ def configure_sonarr():
             "configContract": "WebhookSettings",
             "tags": [],
             "fields": [
-                {"name": "url", "value": f"{PIPELINE_INTERNAL}/webhook/sonarr"},
+                {"name": "url", "value": f"{MOVIESEER_INTERNAL}/webhook/sonarr"},
                 {"name": "method", "value": 1},
             ],
         },
@@ -142,4 +148,4 @@ if __name__ == "__main__":
         print(f"ERROR: Could not connect — {e}")
         sys.exit(1)
 
-    print("Done. Radarr and Sonarr will now POST events to pipeline-status.")
+    print("Done. Radarr and Sonarr will now POST events to Movieseer.")

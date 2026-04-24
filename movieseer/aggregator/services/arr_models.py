@@ -1,0 +1,111 @@
+"""Shared Pydantic models and types for arr API clients (Radarr, Sonarr, Prowlarr)."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
+
+type QueueStatus = Literal[
+    "queued",
+    "paused",
+    "downloading",
+    "completed",
+    "failed",
+    "warning",
+    "delay",
+    "downloadClientUnavailable",
+    "fallback",
+]
+
+type ArrHistoryEventType = Literal[
+    "unknown",
+    "grabbed",
+    "downloadFolderImported",
+    "downloadFailed",
+    "downloadIgnored",
+]
+"""Event types common to all arr history endpoints.
+
+Verified against Radarr/Sonarr source enums. Service-specific types
+(MovieHistoryEventType, EpisodeHistoryEventType) extend this via |.
+"""
+
+
+class _Base(BaseModel):
+    """Shared Pydantic config for all arr API models.
+
+    Automatically maps camelCase JSON keys (e.g. seriesId) to snake_case
+    Python attributes (e.g. series_id).
+    """
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+
+class Language(_Base):
+    """A language tag as returned by Radarr/Sonarr."""
+
+    id: int
+    name: str
+
+
+class QualityInfo(_Base):
+    """The inner quality object describing a specific quality profile."""
+
+    name: str
+    resolution: int
+
+
+class Quality(_Base):
+    """Wraps QualityInfo as returned by the arr quality model."""
+
+    quality: QualityInfo
+
+
+class StatusMessage(_Base):
+    """A single status message entry from a queue record's statusMessages list."""
+
+    messages: list[str] = Field(default_factory=list)
+
+
+class ArrQueue(_Base):
+    """Shared fields across Radarr and Sonarr queue records.
+
+    The aggregator's helpers (_arr_queue_status, _resolve_download) operate
+    exclusively on these fields and accept this type directly.
+    """
+
+    languages: list[Language] = Field(default_factory=list)
+    quality: Quality
+    size: float
+    sizeleft: float = 0.0
+    title: str
+    estimated_completion_time: datetime | None = None
+    added: datetime | None = None
+    status: QueueStatus
+    tracked_download_status: str = "Ok"
+    status_messages: list[StatusMessage] = Field(default_factory=list)
+    error_message: str | None = None
+    download_id: str | None = None
+    download_client: str | None = None
+    indexer: str | None = None
+
+
+class ArrHistory(_Base):
+    """Shared fields across Radarr and Sonarr history records.
+
+    The aggregator's helpers (_arr_history_status, _format_history) operate
+    exclusively on these fields and accept this type directly.
+    """
+
+    id: int
+    source_title: str
+    languages: list[Language] = Field(default_factory=list)
+    quality: Quality
+    quality_cutoff_not_met: bool
+    date: datetime
+    download_id: str | None = None
+    event_type: ArrHistoryEventType
+    data: dict[str, str | None] = Field(default_factory=dict)

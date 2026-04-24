@@ -1,0 +1,27 @@
+services:
+  plex:
+    image: plexinc/pms-docker
+    container_name: plex
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PLEX_UID=${PUID}
+      - PLEX_GID=${PGID}
+      - ADVERTISE_IP=http://192.168.4.208:${PLEX_PORT}/,http://${HOST_IP}:${PLEX_PORT}/
+      - PLEX_CLAIM=${PLEX_CLAIM}
+    ports:
+      - "${PLEX_PORT}:32400"
+    volumes:
+      - plex_config:/config
+      - plex_transcode:/transcode
+      - ${DATA_PATH}:/media
+    networks:
+      - movieseer
+
+networks:
+  movieseer:
+    external: true
+
+volumes:
+  plex_config:
+  plex_transcode:

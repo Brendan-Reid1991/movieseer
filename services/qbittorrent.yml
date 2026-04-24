@@ -3,6 +3,9 @@ services:
     image: linuxserver/qbittorrent
     container_name: qbittorrent
     restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
