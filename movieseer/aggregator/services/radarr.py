@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import Field
 
-from movieseer.aggregator.services.arr_models import (
+from movieseer.aggregator.services.base import _ArrClient
+from movieseer.aggregator.services.models.arr_models import (
     ArrHistory,
     ArrHistoryEventType,
     ArrQueue,
     _Base,
 )
-from movieseer.aggregator.services.base import _ArrClient
 from movieseer.config import RADARR_API_KEY, RADARR_URL
 
 type MovieHistoryEventType = (
@@ -90,11 +90,14 @@ class RadarrClient(_ArrClient):
 
     async def queue(self, page_length: int = 100) -> list[RadarrQueue]:
         """Fetch the current download queue with embedded movie details."""
-        data = await self._get(
-            "/queue",
-            params={"pageSize": page_length, "includeMovie": True},
+        data = cast(
+            "dict[str, list[object]]",
+            await self._get(
+                "/queue",
+                params={"pageSize": page_length, "includeMovie": True},
+            ),
         )
-        return [RadarrQueue.model_validate(r) for r in data["records"]]  # type: ignore[index]
+        return [RadarrQueue.model_validate(r) for r in data["records"]]
 
     async def history(
         self,
@@ -103,11 +106,14 @@ class RadarrClient(_ArrClient):
         sort_order: Literal["asc", "desc"] = "desc",
     ) -> list[RadarrHistory]:
         """Fetch the global history log, sorted by date descending by default."""
-        data = await self._get(
-            "/history",
-            params={"pageSize": page_length, "sortKey": sort_by, "sortDir": sort_order},
+        data = cast(
+            "dict[str, list[object]]",
+            await self._get(
+                "/history",
+                params={"pageSize": page_length, "sortKey": sort_by, "sortDir": sort_order},
+            ),
         )
-        return [RadarrHistory.model_validate(r) for r in data["records"]]  # type: ignore[index]
+        return [RadarrHistory.model_validate(r) for r in data["records"]]
 
     async def movie(self, movie_id: int) -> Movie:
         """Fetch full details for a single movie by its Radarr ID."""
@@ -116,5 +122,7 @@ class RadarrClient(_ArrClient):
 
     async def movie_history(self, movie_id: int) -> list[RadarrHistory]:
         """Fetch the event history for a specific movie."""
-        data = await self._get("/history/movie", params={"movieId": movie_id})
-        return [RadarrHistory.model_validate(r) for r in data]  # type: ignore[union-attr]
+        data = cast(
+            "list[object]", await self._get("/history/movie", params={"movieId": movie_id})
+        )
+        return [RadarrHistory.model_validate(r) for r in data]

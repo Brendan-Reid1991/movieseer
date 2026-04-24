@@ -158,8 +158,8 @@ def stop_container(name: str) -> None:
     client = _client()
     try:
         container = client.containers.get(name)
-    except docker.errors.NotFound:
-        raise ValueError(f"Container {name!r} not found")
+    except docker.errors.NotFound as exc:
+        raise ValueError(f"Container {name!r} not found") from exc
     logger.info("Stopping container: %s", name)
     container.stop()
 
@@ -173,8 +173,8 @@ def start_container(name: str) -> None:
     client = _client()
     try:
         container = client.containers.get(name)
-    except docker.errors.NotFound:
-        raise ValueError(f"Container {name!r} not found")
+    except docker.errors.NotFound as exc:
+        raise ValueError(f"Container {name!r} not found") from exc
     logger.info("Starting container: %s", name)
     container.start()
 

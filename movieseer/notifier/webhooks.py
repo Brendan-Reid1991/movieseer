@@ -4,8 +4,6 @@ from collections.abc import Awaitable
 import httpx
 
 from movieseer.config import NTFY_TOPIC, NTFY_URL
-
-logger = logging.getLogger(__name__)
 from movieseer.notifier.types import (
     GrabPayload,
     HealthPayload,
@@ -13,6 +11,8 @@ from movieseer.notifier.types import (
     Priority,
     Services,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def _send_message(
@@ -90,6 +90,4 @@ def health(payload: HealthPayload, service: Services) -> Awaitable[None]:
     msg = payload.get("message", "No message provided.")
     level = payload.get("level", "warning").lower()
     priority: Priority = "high" if level == "error" else "default"
-    return _send_message(
-        msg, f"Health issue from {service}", priority=priority, tags="warning"
-    )
+    return _send_message(msg, f"Health issue from {service}", priority=priority, tags="warning")

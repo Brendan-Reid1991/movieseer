@@ -93,6 +93,15 @@
       position: sticky; top: 60px; z-index: 99;
       flex-shrink: 0;
     }
+
+    /* ── Header row 3: indexer health + Prowlarr link ── */
+    .header-row3 {
+      background: #0a0a0a; border-bottom: 1px solid #1e1e1e;
+      padding: 0 2rem; height: 40px;
+      display: flex; align-items: center; gap: 0.6rem;
+      position: sticky; top: 108px; z-index: 98;
+      flex-shrink: 0;
+    }
     .nav-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #374151; margin-right: 0.6rem; white-space: nowrap; }
     .nav-group { display: flex; align-items: center; gap: 0.5rem; }
     .nav-divider { flex: 1; }
@@ -112,7 +121,7 @@
      *
      * Page scrolls naturally — no fixed viewport height.
      * Zones: log(195px) | center(flex:1) | controls(185px)
-     * Center: top row = Requests + Downloads (1fr 1fr), bottom row = Indexers
+     * Center: top row = Requests + Downloads (1fr 1fr), bottom row = ___ | Servers
      */
     main {
       flex: 1;
@@ -125,17 +134,11 @@
       align-items: flex-start;
     }
 
-    .log-zone  { width: 195px; flex-shrink: 0; display: flex; flex-direction: column; height: calc(100vh - 108px - 1.5rem); }
+    .log-zone  { width: 195px; flex-shrink: 0; display: flex; flex-direction: column; height: calc(100vh - 148px - 1.5rem); }
     .ctrl-zone { width: 210px; flex-shrink: 0; display: flex; flex-direction: column; gap: 1.25rem; }
 
-    .center-zone {
-      flex: 1; min-width: 0;
-      display: flex; flex-direction: column; gap: 1.25rem;
-    }
-    .center-top {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start;
-    }
-    .center-bottom { }
+    .center-zone { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+    .right-col   { display: flex; flex-direction: column; gap: 1.25rem; }
 
     /* ── Cards ── */
     .card { background: #161616; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
@@ -353,6 +356,15 @@
   </div>
 </div>
 
+<!-- Header row 3: indexer health + Prowlarr link -->
+<div class="header-row3">
+  <span class="nav-label">Indexers</span>
+  <span id="indexer-health" style="font-size:0.7rem;color:#4b5563">—</span>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Defined in</span>
+  <a href="#" id="link-prowlarr" class="nav-btn nav-btn-ghost">Prowlarr</a>
+</div>
+
 <main>
 
   <!-- Activity log — far left -->
@@ -366,25 +378,25 @@
     </div>
   </div>
 
-  <!-- Centre: Requests + Downloads top, Indexers bottom -->
+  <!-- Centre: Requests left, Downloads + Servers stacked right -->
   <div class="center-zone">
 
-    <div class="center-top">
-      <!-- Requests -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Requests</span>
-          <div class="card-links">
-            <a href="#" id="link-radarr" class="btn btn-ghost">Radarr</a>
-            <a href="#" id="link-sonarr" class="btn btn-ghost">Sonarr</a>
-          </div>
-        </div>
-        <div class="card-body" id="requests-body">
-          <div class="empty-state">Loading…</div>
+    <!-- Column 1: Requests -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Requests</span>
+        <div class="card-links">
+          <a href="#" id="link-radarr" class="btn btn-ghost">Radarr</a>
+          <a href="#" id="link-sonarr" class="btn btn-ghost">Sonarr</a>
         </div>
       </div>
+      <div class="card-body" id="requests-body">
+        <div class="empty-state">Loading…</div>
+      </div>
+    </div>
 
-      <!-- Downloads -->
+    <!-- Column 2: Downloads + Servers -->
+    <div class="right-col">
       <div class="card">
         <div class="card-header">
           <span class="card-title">Downloads</span>
@@ -397,18 +409,12 @@
           <div class="empty-state">Loading…</div>
         </div>
       </div>
-    </div>
-
-    <!-- Indexers & Servers -->
-    <div class="center-bottom">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Indexers &amp; Servers</span>
-          <span style="font-size:0.7rem;color:#4b5563">Prowlarr · SABnzbd</span>
+          <span class="card-title">Servers</span>
         </div>
-        <div class="infra-body" id="infra-body">
-          <div class="infra-pane"><div class="empty-state">Loading…</div></div>
-          <div class="infra-pane"></div>
+        <div id="servers-body" class="infra-pane">
+          <div class="empty-state">Loading…</div>
         </div>
       </div>
     </div>
@@ -528,6 +534,7 @@
         'link-sonarr-hdr':  cfg.sonarr_url,
         'link-sabnzbd':     cfg.sabnzbd_url,
         'link-qbittorrent': cfg.qbittorrent_url,
+        'link-prowlarr':    cfg.prowlarr_url,
       };
       for (const [id, url] of Object.entries(map)) {
         const el = document.getElementById(id);
@@ -808,68 +815,52 @@
   }
 
   function renderInfra(data) {
-    const body = document.getElementById('infra-body');
     const prowlarr = data.prowlarr || {};
     const servers  = Array.isArray(data.sabnzbd_servers) ? data.sabnzbd_servers : [];
 
-    // Prowlarr pane
-    let prowlarrHtml = '';
-    if (prowlarr.error) {
-      prowlarrHtml = `<div class="error-state">${esc(prowlarr.error)}</div>`;
-    } else {
-      const indexers = prowlarr.indexers || [];
-      const failing  = indexers.filter(i => i.failing).length;
-      const badge    = failing
-        ? `<span class="fail-badge">${failing} failing</span>`
-        : `<span class="ok-badge">all healthy</span>`;
-      const chips    = indexers.map(i => {
-        const dotCls  = !i.enabled ? 'disabled' : i.failing ? 'failing' : 'healthy';
-        const chipCls = !i.enabled ? 'disabled' : i.failing ? 'failing' : '';
-        const proto   = i.protocol === 'torrent' ? 'torrent' : 'nzb';
-        const inner   = i.failing
-          ? `<div style="flex:1;min-width:0"><span class="id-name">${esc(i.name)}</span><span class="id-err">${esc(i.error || '')}</span></div>`
-          : `<span class="id-name">${esc(i.name)}</span>`;
-        return `<div class="indexer-chip ${chipCls}"><div class="id-dot ${dotCls}"></div>${inner}<span class="proto ${proto}">${proto.toUpperCase()}</span></div>`;
-      }).join('');
-      prowlarrHtml = `
-        <div class="infra-pane-title"><span>Prowlarr</span>${badge}</div>
-        <div class="indexer-grid">${chips}</div>
-      `;
+    // Indexer health → toolbar badge
+    const healthEl = document.getElementById('indexer-health');
+    if (healthEl) {
+      if (prowlarr.error) {
+        healthEl.innerHTML = `<span class="fail-badge">error</span>`;
+      } else {
+        const indexers = prowlarr.indexers || [];
+        const failing  = indexers.filter(i => i.failing).length;
+        healthEl.innerHTML = failing
+          ? `<span class="fail-badge">${failing} failing</span>`
+          : `<span class="ok-badge">${indexers.length} healthy</span>`;
+      }
     }
 
-    // SABnzbd pane
-    let sabHtml = '';
+    // SABnzbd servers → servers card
+    const serversEl = document.getElementById('servers-body');
+    if (!serversEl) return;
     if (servers.length === 0 && data.sabnzbd_servers && data.sabnzbd_servers.error) {
-      sabHtml = `<div class="error-state">${esc(data.sabnzbd_servers.error)}</div>`;
-    } else {
-      const activeBadge = `<span class="ok-badge">${servers.length} active</span>`;
-      const cards = servers.map(s => {
-        const pct     = Math.round((s.hit_rate || 0) * 100 * 10) / 10;
-        const rateCls = pct >= 95 ? '' : 'warn';
-        const barCls  = pct >= 95 ? 'great' : 'ok';
-        return `
-          <div class="server-stat">
-            <div class="server-stat-header">
-              <span class="server-stat-name">${esc(s.name)}</span>
-              <span class="server-stat-rate ${rateCls}">${pct}%</span>
-              ${s.ssl ? '<span class="ssl-badge">SSL</span>' : ''}
-            </div>
-            <div class="server-bar-row">
-              <div class="server-bar"><div class="server-bar-fill ${barCls}" style="width:${pct}%"></div></div>
-              <span class="server-stat-meta">${s.articles_success.toLocaleString()}/${s.articles_tried.toLocaleString()}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-      sabHtml = `
-        <div class="infra-pane-title"><span>SABnzbd</span>${activeBadge}</div>
-        <div class="server-list">${cards || '<div class="empty-state">No servers.</div>'}</div>
-      `;
+      serversEl.innerHTML = `<div class="error-state">${esc(data.sabnzbd_servers.error)}</div>`;
+      return;
     }
-
-    body.innerHTML = `
-      <div class="infra-pane">${prowlarrHtml}</div>
-      <div class="infra-pane">${sabHtml}</div>
+    const activeBadge = `<span class="ok-badge">${servers.length} active</span>`;
+    const cards = servers.map(s => {
+      const pct     = Math.round((s.hit_rate || 0) * 100 * 10) / 10;
+      const rateCls = pct >= 95 ? '' : 'warn';
+      const barCls  = pct >= 95 ? 'great' : 'ok';
+      return `
+        <div class="server-stat">
+          <div class="server-stat-header">
+            <span class="server-stat-name">${esc(s.name)}</span>
+            <span class="server-stat-rate ${rateCls}">${pct}%</span>
+            ${s.ssl ? '<span class="ssl-badge">SSL</span>' : ''}
+          </div>
+          <div class="server-bar-row">
+            <div class="server-bar"><div class="server-bar-fill ${barCls}" style="width:${pct}%"></div></div>
+            <span class="server-stat-meta">${s.articles_success.toLocaleString()}/${s.articles_tried.toLocaleString()}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    serversEl.innerHTML = `
+      <div class="infra-pane-title"><span>SABnzbd</span>${activeBadge}</div>
+      <div class="server-list">${cards || '<div class="empty-state">No servers.</div>'}</div>
     `;
   }
 

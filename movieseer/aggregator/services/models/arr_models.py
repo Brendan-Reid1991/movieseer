@@ -5,8 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic.alias_generators import to_camel
+from pydantic import Field
+
+from movieseer.aggregator.services.models._base import _Base
 
 type QueueStatus = Literal[
     "queued",
@@ -32,16 +33,6 @@ type ArrHistoryEventType = Literal[
 Verified against Radarr/Sonarr source enums. Service-specific types
 (MovieHistoryEventType, EpisodeHistoryEventType) extend this via |.
 """
-
-
-class _Base(BaseModel):
-    """Shared Pydantic config for all arr API models.
-
-    Automatically maps camelCase JSON keys (e.g. seriesId) to snake_case
-    Python attributes (e.g. series_id).
-    """
-
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 
 class Language(_Base):

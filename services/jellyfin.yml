@@ -9,7 +9,6 @@ services:
       - ./config/jellyfin:/config
       - ./config/jellyfin/cache:/cache
       - ${DATA_PATH}:/media
-      - ${PRIVATE_PATH}:/private
     networks:
       - movieseer
 

@@ -6,7 +6,7 @@ services:
     cap_add:
       - NET_ADMIN
     env_file:
-      - ../vpn_configurations/active.env
+      - ${VPN_ENV}
     environment:
       - VPN_SERVICE_PROVIDER=custom
       - VPN_TYPE=wireguard

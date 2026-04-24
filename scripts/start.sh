@@ -2,46 +2,55 @@
 set -e
 
 SCRIPT_DIR="${0:A:h}"
-TEST_MODE=false
+PATH_TO_ROOT="$(dirname "$SCRIPT_DIR")"
+if [[ "$(basename "$PATH_TO_ROOT")" != "movieseer" ]]; then
+  echo "Error: Script is expected to be on folder down from the project root. Current path: $SCRIPT_DIR"
+  exit 1
+fi
 
-for arg in "$@"; do
-  case $arg in
-    --test) TEST_MODE=true ;;
-  esac
-done
+NUM_ARGS=$#
 
 # Load .env to get DATA_PATH and port variables
-set -a
-if $TEST_MODE; then
-  source "$SCRIPT_DIR/.env.test"
-else
-  source "$SCRIPT_DIR/.env"
+source "$PATH_TO_ROOT/.env"
+
+if [[ $NUM_ARGS -gt 0 ]]; then
+  for var in "$@"; do
+    case "$var" in
+      --down*)
+        cd "$PATH_TO_ROOT"
+        docker compose down
+        exit 0
+        ;;
+      *)
+        echo "Unknown argument: $var"
+        echo "Usage: $0 [--down]"
+        exit 1
+        ;;
+    esac
+  done
 fi
-set +a
+
 
 # 0. Check that the media volume is mounted
-if $TEST_MODE; then
-  echo "Test mode: skipping volume check (DATA_PATH=$DATA_PATH)"
-else
-  if [[ ! -d "$DATA_PATH" ]]; then
-    osascript -e "display alert \"Volume not mounted\" message \"$DATA_PATH does not exist. Please mount the drive before starting Movieseer.\" as critical"
-    exit 1
-  fi
-  echo "Volume $DATA_PATH is mounted."
+
+if [[ ! -d "$DATA_PATH" ]]; then
+  osascript -e "display alert \"Volume not mounted\" message \"$DATA_PATH does not exist. Please mount the drive before starting Movieseer.\" as critical"
+  exit 1
 fi
+echo "Volume $DATA_PATH is mounted."
 
 # 1. Ensure Tailscale is running
-if /usr/local/bin/tailscale status &>/dev/null 2>&1; then
+if /usr/local/bin/tailscale status &>/dev/null; then
   echo "Tailscale is already connected."
 else
   echo "Starting Tailscale..."
-  open -gj -a Tailscale
+  open -g -a Tailscale
 fi
 
 # 2. Launch Docker Desktop if not already running
-if ! docker info &>/dev/null 2>&1; then
+if ! docker info &>/dev/null; then
   echo "Starting Docker Desktop..."
-  open -gj -a Docker
+  open -g -a Docker
   echo -n "Waiting for Docker to be ready"
   while ! docker info &>/dev/null 2>&1; do
     echo -n "."
@@ -54,20 +63,10 @@ fi
 
 # 3. Spin up containers
 echo "Starting containers..."
-cd "$SCRIPT_DIR"
-if $TEST_MODE; then
-  docker compose -f "$SCRIPT_DIR/docker-compose.test.yml" --env-file "$SCRIPT_DIR/.env.test" up -d
-else
-  docker network create movieseer 2>/dev/null || true
-  docker compose up -d
-fi
+cd "$PATH_TO_ROOT"
+docker network create movieseer 2>/dev/null || true
+docker compose up -d
 
-if $TEST_MODE; then
-  echo "\nTest mode: skipping service health checks."
-  echo "Services starting — check 'docker compose ps' to verify."
-  open "http://localhost:${MOVIESEER_PORT}"
-  exit 0
-fi
 
 # 5. Wait for each service to be reachable
 # Polls URL every 2s, gives up after max_attempts (default 30 = 60s timeout)

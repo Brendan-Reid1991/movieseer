@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VPN_DIR="vpn_configurations"
 CONF="${1:-}"
 
 if [ -z "$CONF" ]; then
-  echo "Usage: ./vpn_configurations/set-vpn.sh <config-name>"
+  echo "Usage: ./scripts/set-vpn.sh <config-name>"
   echo ""
   echo "Available configs:"
-  ls "$SCRIPT_DIR"/*.conf | xargs -n1 basename | sed 's/\.conf$//'
+  ls "$VPN_DIR"/*.conf | xargs -n1 basename | sed 's/\.conf$//'
   exit 1
 fi
 
-CONF_FILE="$SCRIPT_DIR/${CONF}.conf"
+CONF_FILE="$VPN_DIR/${CONF}.conf"
 if [ ! -f "$CONF_FILE" ]; then
   echo "Error: $CONF_FILE not found"
   exit 1
@@ -25,7 +25,7 @@ ENDPOINT=$(awk -F' = ' '/^Endpoint/{print $2}' "$CONF_FILE")
 ENDPOINT_IP="${ENDPOINT%:*}"
 ENDPOINT_PORT="${ENDPOINT#*:}"
 
-cat > "$SCRIPT_DIR/active.env" <<EOF
+cat > "$VPN_DIR/active.env" <<EOF
 # Generated from ${CONF}.conf - do not edit manually
 WIREGUARD_PRIVATE_KEY=${PRIVATE_KEY}
 WIREGUARD_ADDRESSES=${ADDRESSES}
@@ -35,4 +35,4 @@ VPN_ENDPOINT_PORT=${ENDPOINT_PORT}
 EOF
 
 echo "VPN config set to: $CONF"
-echo "Written to: $SCRIPT_DIR/active.env"
+echo "Written to: $VPN_DIR/active.env"

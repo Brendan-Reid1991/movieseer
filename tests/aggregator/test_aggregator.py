@@ -268,9 +268,7 @@ class TestArrHistoryStatus:
         assert result["status"] == "available"
 
     def test_grabbed_event(self):
-        result = _agg._arr_history_status(
-            history=[make_radarr_history("grabbed")], media={}
-        )
+        result = _agg._arr_history_status(history=[make_radarr_history("grabbed")], media={})
         assert result["status"] == "grabbed"
 
     def test_download_folder_imported_maps_to_imported(self):
@@ -355,9 +353,7 @@ class TestFormatHistory:
         assert _agg._format_history([]) == []
 
     def test_event_fields_mapped_correctly(self):
-        result = _agg._format_history(
-            [make_radarr_history("grabbed", "Some.Movie.2024")]
-        )
+        result = _agg._format_history([make_radarr_history("grabbed", "Some.Movie.2024")])
         assert len(result) == 1
         assert result[0]["event"] == "grabbed"
         assert result[0]["source"] == "Some.Movie.2024"
@@ -375,9 +371,7 @@ class TestFormatHistory:
         assert result[0]["error"] == "NZB corrupt"
 
     def test_failed_event_falls_back_to_source_title(self):
-        result = _agg._format_history(
-            [make_radarr_history("downloadFailed", "Some.Movie.2024")]
-        )
+        result = _agg._format_history([make_radarr_history("downloadFailed", "Some.Movie.2024")])
         assert result[0]["error"] == "Some.Movie.2024"
 
     def test_multiple_events_returned_in_order(self):
@@ -452,9 +446,7 @@ class TestGetRequestsParams:
         agg._qbit.torrents = AsyncMock(return_value={})
 
         mock_client = _mock_js_client({"results": []})
-        with patch(
-            "movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client
-        ):
+        with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
             await agg._get_requests()
 
         params = mock_client.get.call_args.kwargs.get("params", {})
@@ -468,9 +460,7 @@ class TestGetRequestsParams:
         agg._qbit.torrents = AsyncMock(return_value={})
 
         mock_client = _mock_js_client({"results": []})
-        with patch(
-            "movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client
-        ):
+        with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
             await agg._get_requests()
 
         params = mock_client.get.call_args.kwargs.get("params", {})
@@ -491,12 +481,8 @@ class TestSilentFailureLogging:
         agg._qbit.torrents = AsyncMock(return_value={})
 
         mock_client = _mock_js_client({"results": []})
-        with patch(
-            "movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client
-        ):
-            with caplog.at_level(
-                logging.WARNING, logger="movieseer.aggregator.aggregator"
-            ):
+        with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
+            with caplog.at_level(logging.WARNING, logger="movieseer.aggregator.aggregator"):
                 await agg._get_requests()
 
         assert any("Sonarr queue" in r.message for r in caplog.records)
@@ -509,12 +495,8 @@ class TestSilentFailureLogging:
         agg._qbit.torrents = AsyncMock(return_value={})
 
         mock_client = _mock_js_client({"results": []})
-        with patch(
-            "movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client
-        ):
-            with caplog.at_level(
-                logging.WARNING, logger="movieseer.aggregator.aggregator"
-            ):
+        with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
+            with caplog.at_level(logging.WARNING, logger="movieseer.aggregator.aggregator"):
                 await agg._get_requests()
 
         assert any("Radarr queue" in r.message for r in caplog.records)
@@ -529,7 +511,7 @@ class TestTitleResolution:
     async def test_movie_title_from_radarr_queue(self):
         agg = Aggregator()
         req = make_js_req("movie", arr_id=42)
-        item = await agg._build_js_item(
+        item = await agg._build_jellyseerr_item(
             req, [make_radarr_queue(arr_id=42, title="Dune")], [], {}, {}
         )
         assert item["title"] == "Dune"
@@ -537,7 +519,7 @@ class TestTitleResolution:
     async def test_tv_title_from_sonarr_queue(self):
         agg = Aggregator()
         req = make_js_req("tv", arr_id=10)
-        item = await agg._build_js_item(
+        item = await agg._build_jellyseerr_item(
             req, [], [make_sonarr_queue(arr_id=10, title="Severance")], {}, {}
         )
         assert item["title"] == "Severance"
@@ -559,17 +541,15 @@ class TestTitleResolution:
         )
         agg._radarr.movie = AsyncMock(return_value=movie)
         agg._radarr.movie_history = AsyncMock(return_value=[])
-        item = await agg._build_js_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
         assert item["title"] == "Alien"
 
     async def test_tv_title_from_sonarr_api_when_not_in_queue(self):
         agg = Aggregator()
         req = make_js_req("tv", arr_id=10)
-        agg._sonarr.series = AsyncMock(
-            return_value=make_series(series_id=10, title="The Wire")
-        )
+        agg._sonarr.series = AsyncMock(return_value=make_series(series_id=10, title="The Wire"))
         agg._sonarr.series_history = AsyncMock(return_value=[])
-        item = await agg._build_js_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
         assert item["title"] == "The Wire"
 
     async def test_title_from_jellyseerr_when_no_arr_id(self):
@@ -583,10 +563,8 @@ class TestTitleResolution:
             "requestedBy": {"displayName": "brendan"},
         }
         mock_client = _mock_js_client({"title": "The Substance"})
-        with patch(
-            "movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client
-        ):
-            item = await agg._build_js_item(req, [], [], {}, {})
+        with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
+            item = await agg._build_jellyseerr_item(req, [], [], {}, {})
         assert item["title"] == "The Substance"
 
     async def test_title_falls_back_to_unknown_when_all_resolution_fails(self):
@@ -594,7 +572,7 @@ class TestTitleResolution:
         req = make_js_req("movie", arr_id=99)
         agg._radarr.movie = AsyncMock(side_effect=Exception("404"))
         agg._radarr.movie_history = AsyncMock(return_value=[])
-        item = await agg._build_js_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
         assert item["title"] == "Unknown"
 
 

@@ -87,6 +87,7 @@ PLEX_PORT: int = int(os.getenv("PLEX_PORT", "32400"))
 JELLYSEERR_PORT: int = int(os.getenv("JELLYSEERR_PORT", "5055"))
 SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
 RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
+PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
 SABNZBD_PORT: int = int(os.getenv("SABNZBD_PORT", "8085"))
 QBITTORRENT_PORT: int = int(os.getenv("QBITTORRENT_PORT", "8080"))
 
@@ -113,7 +114,8 @@ EVENT_POLL_INTERVAL: int = int(os.getenv("EVENT_POLL_INTERVAL", "30"))
 """Seconds between event collector poll cycles."""
 
 EVENT_RETENTION_DAYS: int = int(os.getenv("EVENT_RETENTION_DAYS", "7"))
-"""How many days of events to retain in the database. Older rows are pruned on each collector cycle."""
+"""How many days of events to retain in the database. Older rows are pruned on
+each collector cycle."""
 
 # ---------------------------------------------------------------------------
 # Logging

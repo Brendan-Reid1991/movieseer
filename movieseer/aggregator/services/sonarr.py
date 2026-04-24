@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import Field
 
-from movieseer.aggregator.services.arr_models import (
+from movieseer.aggregator.services.base import _ArrClient
+from movieseer.aggregator.services.models.arr_models import (
     ArrHistory,
     ArrHistoryEventType,
     ArrQueue,
     _Base,
 )
-from movieseer.aggregator.services.base import _ArrClient
 from movieseer.config import SONARR_API_KEY, SONARR_URL
 
 type EpisodeHistoryEventType = (
@@ -99,9 +99,12 @@ class SonarrClient(_ArrClient):
 
     async def queue(self, page_length: int = 100) -> list[SonarrQueue]:
         """Fetch the current download queue with embedded series details."""
-        data = await self._get(
-            "/queue",
-            params={"pageSize": page_length, "includeSeries": True},
+        data = cast(
+            "dict[str, list[object]]",
+            await self._get(
+                "/queue",
+                params={"pageSize": page_length, "includeSeries": True},
+            ),
         )
         return [SonarrQueue.model_validate(r) for r in data["records"]]
 
@@ -112,9 +115,12 @@ class SonarrClient(_ArrClient):
         sort_order: Literal["asc", "desc"] = "desc",
     ) -> list[SonarrHistory]:
         """Fetch the global history log, sorted by date descending by default."""
-        data = await self._get(
-            "/history",
-            params={"pageSize": page_length, "sortKey": sort_by, "sortDir": sort_order},
+        data = cast(
+            "dict[str, list[object]]",
+            await self._get(
+                "/history",
+                params={"pageSize": page_length, "sortKey": sort_by, "sortDir": sort_order},
+            ),
         )
         return [SonarrHistory.model_validate(r) for r in data["records"]]
 
@@ -125,5 +131,7 @@ class SonarrClient(_ArrClient):
 
     async def series_history(self, series_id: int) -> list[SonarrHistory]:
         """Fetch the event history for a specific series."""
-        data = await self._get("/history/series", params={"seriesId": series_id})
+        data = cast(
+            "list[object]", await self._get("/history/series", params={"seriesId": series_id})
+        )
         return [SonarrHistory.model_validate(r) for r in data]
