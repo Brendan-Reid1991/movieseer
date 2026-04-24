@@ -66,7 +66,8 @@ class EventStore:
             for event in events:
                 cursor = await db.execute(
                     """
-                    INSERT INTO events (source, event_type, title, detail, at, created_at)
+                    INSERT INTO events:
+                    (source, event_type, title, detail, at, created_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """,
                     (
@@ -83,9 +84,7 @@ class EventStore:
 
         return populated
 
-    async def get_watermark(
-        self, source: EventSource
-    ) -> tuple[int | None, str | None]:
+    async def get_watermark(self, source: EventSource) -> tuple[int | None, str | None]:
         """Return ``(last_id, last_at)`` for a source, or ``(None, None)`` if unset."""
         async with aiosqlite.connect(self._path) as db:
             async with db.execute(
@@ -146,9 +145,7 @@ class EventStore:
         """Delete events older than ``retention_days``. Returns count deleted."""
         cutoff = (datetime.now(UTC) - timedelta(days=retention_days)).isoformat()
         async with aiosqlite.connect(self._path) as db:
-            cursor = await db.execute(
-                "DELETE FROM events WHERE created_at < ?", (cutoff,)
-            )
+            cursor = await db.execute("DELETE FROM events WHERE created_at < ?", (cutoff,))
             await db.commit()
         deleted = cursor.rowcount
         if deleted:

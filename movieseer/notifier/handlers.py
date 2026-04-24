@@ -83,7 +83,5 @@ def labeller(payload: ArrPayload, service: Services) -> str:
             ep_label = ""
             if episodes:
                 ep = episodes[0]
-                ep_label = (
-                    f" S{ep.get('seasonNumber', 0):02d}E{ep.get('episodeNumber', 0):02d}"
-                )
+                ep_label = f" S{ep.get('seasonNumber', 0):02d}E{ep.get('episodeNumber', 0):02d}"
             return f"{title}{ep_label}"

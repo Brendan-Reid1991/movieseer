@@ -30,10 +30,10 @@ install: ## Sync runtime + dev dependencies
 	$(UV) venv --seed
 	$(UV) sync --group dev
 
-lint: ## Lint (no writes)
+lint: ## Lint and fix
 	$(UV) run $(RUFF) check $(CODE) --fix
 
-lint-fix: ## Lint and fix
+lint-check: ## Lint check
 	$(UV) run $(RUFF) check $(CODE)
 
 format: ## Auto-format code
@@ -43,14 +43,11 @@ format: ## Auto-format code
 fmt-check: ## Check formatting without writing
 	$(UV) run $(RUFF) format --check $(CODE)
 
-bank: ## run the app
-	$(UV) run $(PY) -m zeni.app
-
 test: ## Run test suite
 	$(UV) run pytest --cov=src --cov-fail-under=95 --cov-report term-missing --disable-warnings
 
 ci: ## Lint + format check + tests (for CI pipelines)
-	$(MAKE) lint
+	$(MAKE) lint-check
 	$(MAKE) fmt-check
 	$(MAKE) test
 

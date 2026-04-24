@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, cast
 
 from movieseer.aggregator.services.base import _ArrClient
 from movieseer.config import PROWLARR_API_KEY, PROWLARR_URL
@@ -68,19 +68,18 @@ class ProwlarrClient(_ArrClient):
         httpx.HTTPStatusError
             If either API call returns a non-2xx response.
         """
-        failing_raw, all_raw = await asyncio.gather(
+        _failing, _all = await asyncio.gather(
             self._get("/indexerstatus"),
             self._get("/indexer"),
         )
+        failing_raw = cast("list[dict[str, object]]", _failing)
+        all_raw = cast("list[dict[str, object]]", _all)
 
         # Build a map of indexer_id → error message for fast lookup
-        failing_map: dict[int, str] = {
-            i["indexerId"]: i.get("message", "")
-            for i in failing_raw  # type: ignore[union-attr]
-        }
+        failing_map: dict[int, str] = {i["indexerId"]: i.get("message", "") for i in failing_raw}
 
         result: list[IndexerDetail] = []
-        for idx in all_raw:  # type: ignore[union-attr]
+        for idx in all_raw:
             idx_id: int = idx["id"]
             protocol_raw: str = idx.get("protocol", "usenet").lower()
             protocol: Literal["usenet", "torrent"] = (
@@ -117,9 +116,6 @@ class ProwlarrClient(_ArrClient):
             total=len(all_indexers),
             failing=len(failing),
             healthy=len(all_indexers) - len(failing),
-            issues=[
-                ProwlarrIssue(name=i["name"], message=i.get("error") or "")
-                for i in failing
-            ],
+            issues=[ProwlarrIssue(name=i["name"], message=i.get("error") or "") for i in failing],
             indexers=all_indexers,
         )

@@ -41,6 +41,7 @@ from movieseer.config import (
     PLEX_PORT,
     PLEX_TOKEN,
     PLEX_URL,
+    PROWLARR_PORT,
     QBITTORRENT_PORT,
     RADARR_PORT,
     SABNZBD_PORT,
@@ -62,9 +63,7 @@ def _configure_logging() -> None:
     handlers: list[logging.Handler] = [logging.StreamHandler()]
     if LOG_FILE:
         Path(LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
-        handlers.append(
-            RotatingFileHandler(LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5)
-        )
+        handlers.append(RotatingFileHandler(LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5))
     logging.basicConfig(
         level=LOG_LEVEL,
         format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
@@ -158,6 +157,7 @@ async def api_config():
         "radarr_url": f"{base}:{RADARR_PORT}",
         "sabnzbd_url": f"{base}:{SABNZBD_PORT}",
         "qbittorrent_url": f"{base}:{QBITTORRENT_PORT}",
+        "prowlarr_url": f"{base}:{PROWLARR_PORT}",
     }
 
 
@@ -233,9 +233,7 @@ async def api_search(q: str = Query(..., min_length=1)):
         media_type = item.get("mediaType", "movie")
         tmdb_id = item.get("id")
         poster_path = item.get("posterPath")
-        poster_url = (
-            f"https://image.tmdb.org/t/p/w92{poster_path}" if poster_path else None
-        )
+        poster_url = f"https://image.tmdb.org/t/p/w92{poster_path}" if poster_path else None
 
         browser_base = f"http://{HOST_IP}:{JELLYSEERR_PORT}"
         if media_type == "tv":
@@ -362,11 +360,12 @@ async def action_shutdown():
     Returns immediately. The shutdown runs in the background after a short
     delay so the response has time to flush before the process exits.
     """
+
     async def _delayed_stop():
         await asyncio.sleep(1)
         await asyncio.to_thread(stop_all)
 
-    asyncio.create_task(_delayed_stop())
+    _ = asyncio.create_task(_delayed_stop())
     return {"ok": True}
 
 
@@ -409,6 +408,7 @@ async def api_events(request: Request) -> StreamingResponse:
     cycle. After that, new events are pushed as they arrive from the
     collector.
     """
+
     async def event_generator():
         q: asyncio.Queue[LogEvent] = asyncio.Queue()
         _sse_subscribers.add(q)
@@ -421,7 +421,7 @@ async def api_events(request: Request) -> StreamingResponse:
                 try:
                     event = await asyncio.wait_for(q.get(), timeout=15.0)
                     yield f"data: {json.dumps(event)}\n\n"
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     yield ": keep-alive\n\n"
         finally:
             _sse_subscribers.discard(q)
@@ -470,9 +470,7 @@ async def _sync_jellyfin() -> None:
                     headers={"X-Emby-Token": JELLYFIN_API_KEY},
                 )
                 r.raise_for_status()
-                scan_task = next(
-                    (t for t in r.json() if t.get("Key") == "RefreshLibrary"), None
-                )
+                scan_task = next((t for t in r.json() if t.get("Key") == "RefreshLibrary"), None)
                 if scan_task is not None and scan_task.get("State") == "Idle":
                     break
 
@@ -558,5 +556,5 @@ async def action_sync_libraries():
     Returns immediately. Progress and completion are delivered via the SSE
     event stream (/api/events) as sync_started / sync_complete / failed events.
     """
-    asyncio.create_task(_run_library_sync())
+    _ = asyncio.create_task(_run_library_sync())
     return {"ok": True}

@@ -68,9 +68,7 @@ class TestProwlarrClientStatus:
 
     async def test_all_failing(self):
         client = _make_client()
-        three_failing = [
-            {"indexerName": f"Indexer{i}", "message": "err"} for i in range(3)
-        ]
+        three_failing = [{"indexerName": f"Indexer{i}", "message": "err"} for i in range(3)]
         client._get = AsyncMock(side_effect=[three_failing, _ALL_INDEXERS])
 
         result = await client.status()

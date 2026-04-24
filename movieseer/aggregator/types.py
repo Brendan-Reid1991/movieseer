@@ -1,18 +1,24 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 from movieseer.aggregator.services.prowlarr import ProwlarrStatus
 from movieseer.aggregator.services.qbittorrent import Torrent
 from movieseer.aggregator.services.sabnzbd import Queue, ServerStat
 
 
+class ServiceError(TypedDict):
+    """Uniform error envelope used when a service call fails."""
+
+    error: str
+
+
 class SystemStatus(TypedDict):
     """Combined system status across all download clients and indexers."""
 
-    prowlarr: ProwlarrStatus | dict[str, str]
-    sabnzbd: Queue | dict[str, str]
-    qbittorrent: list[Torrent] | dict[str, str]
+    prowlarr: ProwlarrStatus | ServiceError
+    sabnzbd: Queue | ServiceError
+    qbittorrent: list[Torrent] | ServiceError
 
 
 class _ArrStatusBase(TypedDict):
@@ -30,17 +36,6 @@ class ArrStatus(_ArrStatusBase, total=False):
     episodes: str | None
 
 
-class DownloadInfo(TypedDict):
-    """Details of an active or recent download from any client."""
-
-    client: str
-    name: str
-    progress: float
-    status: str
-    eta: str
-    error: str | None
-
-
 class HistoryEvent(TypedDict):
     """A single past event in the lifecycle of a media request."""
 
@@ -51,29 +46,28 @@ class HistoryEvent(TypedDict):
 
 
 class RequestItem(TypedDict):
-    """Full status snapshot for a single Jellyseerr media request."""
+    """Full status snapshot for a single media request."""
 
     id: int | None
     title: str
-    type: str
-    source: str
+    type: Literal["movie", "tv"]
+    source: Literal["jellyseerr", "radarr", "sonarr"]
     requested_by: str
     requested_at: str | None
     jellyseerr_status: str | None
     arr: ArrStatus | None
-    download: DownloadInfo | None
     history: list[HistoryEvent]
 
 
 class InfraStatus(TypedDict):
     """Response shape for GET /api/infra — indexer and server stats."""
 
-    prowlarr: ProwlarrStatus | dict[str, str]
-    sabnzbd_servers: list[ServerStat] | dict[str, str]
+    prowlarr: ProwlarrStatus | ServiceError
+    sabnzbd_servers: list[ServerStat] | ServiceError
 
 
 class StatusResult(TypedDict):
     """Top-level aggregated result returned by the Aggregator."""
 
-    system: SystemStatus | dict[str, str]
+    system: SystemStatus | ServiceError
     requests: list[RequestItem]

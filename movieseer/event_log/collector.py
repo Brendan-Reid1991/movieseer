@@ -14,9 +14,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import UTC, datetime
-
 from collections.abc import Callable
+from datetime import UTC, datetime
 
 from movieseer.aggregator.services.prowlarr import ProwlarrClient
 from movieseer.aggregator.services.radarr import RadarrClient
@@ -83,7 +82,7 @@ class EventCollector:
     async def run_forever(
         self,
         interval: int,
-        broadcast_fn: "Callable[[list[LogEvent]], None]",
+        broadcast_fn: Callable[[list[LogEvent]], None],
         retention_days: int,
     ) -> None:
         """Poll indefinitely, broadcasting new events after each cycle.
@@ -127,7 +126,7 @@ class EventCollector:
 
         new_events: list[LogEvent] = []
         source_names = ("radarr", "sonarr", "sabnzbd", "prowlarr")
-        for name, result in zip(source_names, results):
+        for name, result in zip(source_names, results, strict=True):
             if isinstance(result, Exception):
                 logger.warning("Event collection failed for %s: %s", name, result)
             else:
@@ -223,9 +222,7 @@ class EventCollector:
         slots = (data or {}).get("history", {}).get("slots", [])
 
         new_events: list[LogEvent] = []
-        max_completed: float = (
-            datetime.fromisoformat(last_at).timestamp() if last_at else 0.0
-        )
+        max_completed: float = datetime.fromisoformat(last_at).timestamp() if last_at else 0.0
 
         for slot in slots:
             completed_ts: float = slot.get("completed", 0)
@@ -260,7 +257,9 @@ class EventCollector:
             if completed_ts > max_completed:
                 max_completed = completed_ts
 
-        if max_completed > 0 and (not last_at or max_completed > datetime.fromisoformat(last_at).timestamp()):
+        if max_completed > 0 and (
+            not last_at or max_completed > datetime.fromisoformat(last_at).timestamp()
+        ):
             await self._store.set_watermark(
                 "sabnzbd",
                 None,
@@ -287,9 +286,7 @@ class EventCollector:
         # Newly failing
         for idx_id in current_failing - self._failing_indexers:
             name = id_to_name.get(idx_id, str(idx_id))
-            error = next(
-                (i.get("error") or "" for i in indexers if i["id"] == idx_id), ""
-            )
+            error = next((i.get("error") or "" for i in indexers if i["id"] == idx_id), "")
             new_events.append(
                 LogEvent(
                     id=0,

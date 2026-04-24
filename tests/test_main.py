@@ -161,9 +161,7 @@ class TestActionRestart:
         assert set(data["restarted"]) == {"sonarr", "radarr"}
 
     def test_docker_error_returns_503(self, client):
-        with patch(
-            "movieseer.main.restart_all", side_effect=RuntimeError("socket error")
-        ):
+        with patch("movieseer.main.restart_all", side_effect=RuntimeError("socket error")):
             response = client.post("/actions/restart")
 
         assert response.status_code == 503
@@ -183,9 +181,7 @@ class TestActionRebuild:
         assert data["rebuilt"] == ["jellyfin"]
 
     def test_docker_error_returns_503(self, client):
-        with patch(
-            "movieseer.main.rebuild_all", side_effect=RuntimeError("socket error")
-        ):
+        with patch("movieseer.main.rebuild_all", side_effect=RuntimeError("socket error")):
             response = client.post("/actions/rebuild")
 
         assert response.status_code == 503
