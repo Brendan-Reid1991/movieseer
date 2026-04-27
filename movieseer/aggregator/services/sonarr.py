@@ -11,7 +11,7 @@ from movieseer.aggregator.services.models.arr_models import (
     ArrHistory,
     ArrHistoryEventType,
     ArrQueue,
-    _Base,
+    _CamelBase,
 )
 from movieseer.config import SONARR_API_KEY, SONARR_URL
 
@@ -31,7 +31,7 @@ type SeriesStatusType = Literal["continuing", "ended", "upcoming", "deleted"]
 # ---------------------------------------------------------------------------
 
 
-class SeriesStatistics(_Base):
+class SeriesStatistics(_CamelBase):
     """Episode and file counts for a Sonarr series."""
 
     season_count: int = 0
@@ -42,7 +42,7 @@ class SeriesStatistics(_Base):
     percent_of_episodes: float = 0.0
 
 
-class Series(_Base):
+class Series(_CamelBase):
     """A Sonarr series record."""
 
     id: int

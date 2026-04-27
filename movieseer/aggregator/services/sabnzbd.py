@@ -1,144 +1,156 @@
-"""SABnzbd API client."""
+"""SABnzbd API client.
+
+Wraps the SABnzbd JSON API (https://sabnzbd.org/wiki/configuration/4.5/api).
+All requests are authenticated via the ``apikey`` query parameter.
+"""
 
 from __future__ import annotations
 
 import asyncio
-from typing import TypedDict, cast
+from typing import Literal, TypeVar, cast, overload
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from movieseer.aggregator.services.base import _BaseServiceClient
+from movieseer.aggregator.services.models.sabnzbd_models import (
+    History,
+    HistorySlot,
+    Queue,
+    ServersConfig,
+    ServerStat,
+    ServerStatsData,
+    Slot,
+)
 from movieseer.config import SABNZBD_API_KEY, SABNZBD_URL
 
-
-class Slot(BaseModel):
-    """A single slot entry from the SABnzbd queue API.
-
-    A subset of the slots entry in https://sabnzbd.org/wiki/configuration/4.5/api#queue
-    """
-
-    nzo_id: str
-    name: str = Field(alias="filename")
-    progress: float = Field(alias="percentage")
-    eta: str = Field(alias="timeleft")
-    status: str
-
-
-class Queue(BaseModel):
-    """Top-level queue object from the SABnzbd queue API.
-
-    A subset of the queue object from
-    https://sabnzbd.org/wiki/configuration/4.5/api#queue
-    """
-
-    count: int = Field(alias="noofslots")
-    speed: str
-    eta: str = Field(alias="timeleft")
-    paused: bool
-    slots: list[Slot]
-
-
-class ServerStat(TypedDict):
-    """Hit-rate statistics for a single SABnzbd news server (cumulative totals)."""
-
-    name: str
-    ssl: bool
-    articles_tried: int  # total download attempts (all-time sum of per-day counts)
-    articles_success: int  # successful downloads (all-time sum of per-day counts)
-    hit_rate: float  # articles_success / articles_tried, or 0.0 if zero
+T = TypeVar("T", bound=BaseModel)
 
 
 class SABnzbdClient(_BaseServiceClient):
-    """SABnzbd API client.
+    """HTTP client for the SABnzbd API.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
     the Aggregator's lifespan) to release connections on shutdown.
 
-    Auth is via the ``apikey`` query parameter, passed on each request.
+    Auth is handled via ``DEFAULT_PARAMS``, which is merged into every request.
+
+    Adding a new config section
+    ---------------------------
+    1. Define a ``BaseModel`` for the section's response in ``sabnzbd_models.py``.
+    2. Add an entry to ``_CONFIG_SECTIONS``: ``"section_name": SectionModel``.
+    3. Add an ``@overload`` stub for ``get_config`` with the new ``Literal`` and return type.
 
     Example
     -------
     sabnzbd = SABnzbdClient()
     queue = await sabnzbd.queue()
-    stats = await sabnzbd.server_stats()
+    health = await sabnzbd.server_health()
     await sabnzbd.aclose()
     """
 
     _API_PREFIX = "/api"
+    DEFAULT_PARAMS = {"apikey": SABNZBD_API_KEY, "output": "json"}
+    _CONFIG_SECTIONS: dict[str, type[BaseModel]] = {
+        "servers": ServersConfig,
+    }
 
     def __init__(self) -> None:
         super().__init__(SABNZBD_URL)
 
-    async def queue(self) -> Queue:
-        """Fetch the SABnzbd queue.
+    async def _mode(
+        self,
+        model: type[T],
+        mode: str,
+        retrieve: str | None = None,
+        params: dict[str, str | int | bool] | None = None,
+    ) -> T:
+        """Issue a SABnzbd API request and validate the response into ``model``.
 
-        Raises
-        ------
-        httpx.HTTPStatusError
-            If the SABnzbd API returns a non-2xx response.
+        Parameters
+        ----------
+        model:
+            The Pydantic model to validate the response into.
+        mode:
+            The SABnzbd API ``mode`` parameter (e.g. ``"queue"``, ``"history"``).
+        retrieve:
+            The top-level key to extract from the JSON response before validation.
+            Defaults to ``mode`` when not provided.
+        params:
+            Additional query parameters merged on top of ``DEFAULT_PARAMS``.
         """
+        retrieve = retrieve if retrieve is not None else mode
         data = cast(
             "dict[str, object]",
             await self._get(
                 "",
-                params={"mode": "queue", "apikey": SABNZBD_API_KEY, "output": "json"},
+                params=self.DEFAULT_PARAMS | {"mode": mode} | (params or {}),
             ),
         )
-        return Queue.model_validate(data["queue"])
+        return model.model_validate(data[retrieve])
+
+    async def queue(self) -> Queue:
+        """Fetch the current SABnzbd download queue."""
+        return await self._mode(Queue, "queue")
+
+    async def history(self) -> History:
+        """Fetch the SABnzbd download history (completed and failed jobs)."""
+        return await self._mode(History, "history")
+
+    async def server_stats(self) -> ServerStatsData:
+        """Fetch raw per-server download statistics, keyed by server hostname.
+
+        Article counts are broken down by date (YYYY-MM-DD). Use ``server_health``
+        to get aggregated hit-rate statistics instead.
+        """
+        return await self._mode(ServerStatsData, "server_stats")
 
     async def slots(self) -> dict[str, Slot]:
-        """Return the current queue slots keyed by NZO ID."""
+        """Fetch the current queue and return its slots keyed by NZO ID.
+
+        Makes a network request on every call.
+        """
         return {slot.nzo_id: slot for slot in (await self.queue()).slots}
 
-    async def server_stats(self) -> list[ServerStat]:
-        """Return per-server hit-rate statistics for the last 24 hours.
+    async def slots_history(self) -> dict[str, HistorySlot]:
+        """Fetch the download history and return its slots keyed by NZO ID.
 
-        Fetches ``mode=server_stats`` and ``mode=get_config&section=servers``
-        concurrently so we can annotate each server with its SSL flag (which
-        is not present in the stats response).
-
-        Raises
-        ------
-        httpx.HTTPStatusError
-            If either SABnzbd API call returns a non-2xx response.
+        Makes a network request on every call.
         """
-        _stats, _config = await asyncio.gather(
-            self._get(
-                "",
-                params={
-                    "mode": "server_stats",
-                    "apikey": SABNZBD_API_KEY,
-                    "output": "json",
-                },
-            ),
-            self._get(
-                "",
-                params={
-                    "mode": "get_config",
-                    "section": "servers",
-                    "apikey": SABNZBD_API_KEY,
-                    "output": "json",
-                },
-            ),
+        return {slot.nzo_id: slot for slot in (await self.history()).slots}
+
+    @overload
+    async def get_config(self, section: Literal["servers"]) -> ServersConfig: ...
+
+    async def get_config(self, section: str) -> BaseModel:
+        """Fetch a SABnzbd configuration section.
+
+        The ``section`` must be registered in ``_CONFIG_SECTIONS``, otherwise a
+        ``KeyError`` is raised. See the class docstring for how to add new sections.
+        """
+        return await self._mode(
+            self._CONFIG_SECTIONS[section],
+            "get_config",
+            retrieve="config",
+            params={"section": section},
         )
-        stats_data = cast("dict[str, object]", _stats)
-        config_data = cast("dict[str, object]", _config)
 
-        # Build SSL map: server host → ssl bool
-        ssl_map: dict[str, bool] = {}
-        config_inner = cast("dict[str, object]", config_data.get("config") or {})
-        for srv in cast("list[dict[str, object]]", config_inner.get("servers") or []):
-            ssl_map[str(srv.get("host") or "")] = bool(srv.get("ssl", False))
+    async def server_health(self) -> list[ServerStat]:
+        """Return aggregated per-server hit-rate statistics.
 
-        servers = cast("dict[str, dict[str, object]]", stats_data.get("servers") or {})
+        Fetches ``server_stats`` and ``get_config("servers")`` concurrently,
+        then joins them on hostname to annotate each server's article counts
+        with its SSL flag. Hit rate is calculated as
+        ``articles_success / articles_tried`` across all recorded dates.
+        """
+        stats, config = await asyncio.gather(
+            self.server_stats(),
+            self.get_config(section="servers"),
+        )
+        ssl_map = {server.host: server.ssl for server in config.servers}
         result: list[ServerStat] = []
-
-        for name, srv_stats in servers.items():
-            # articles_tried / articles_success are dicts keyed by date label (YYYYMMDD)
-            tried_by_day = cast("dict[str, int]", srv_stats.get("articles_tried") or {})
-            success_by_day = cast("dict[str, int]", srv_stats.get("articles_success") or {})
-            tried: int = sum(tried_by_day.values()) if tried_by_day else 0
-            success: int = sum(success_by_day.values()) if success_by_day else 0
+        for name, server in stats.servers.items():
+            tried = sum(server.articles_tried.values())
+            success = sum(server.articles_success.values())
             hit_rate = round(success / tried, 4) if tried > 0 else 0.0
             result.append(
                 ServerStat(
@@ -149,5 +161,4 @@ class SABnzbdClient(_BaseServiceClient):
                     hit_rate=hit_rate,
                 )
             )
-
         return result

@@ -11,7 +11,7 @@ from movieseer.aggregator.services.models.arr_models import (
     ArrHistory,
     ArrHistoryEventType,
     ArrQueue,
-    _Base,
+    _CamelBase,
 )
 from movieseer.config import RADARR_API_KEY, RADARR_URL
 
@@ -31,7 +31,7 @@ type MovieStatusType = Literal["tba", "announced", "inCinemas", "released", "del
 # ---------------------------------------------------------------------------
 
 
-class Movie(_Base):
+class Movie(_CamelBase):
     """A Radarr movie record."""
 
     id: int

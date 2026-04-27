@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from movieseer.aggregator.services.models._base import _Base
+from movieseer.aggregator.services.models._base import _CamelBase
 
 type QueueStatus = Literal[
     "queued",
@@ -35,33 +35,33 @@ Verified against Radarr/Sonarr source enums. Service-specific types
 """
 
 
-class Language(_Base):
+class Language(_CamelBase):
     """A language tag as returned by Radarr/Sonarr."""
 
     id: int
     name: str
 
 
-class QualityInfo(_Base):
+class QualityInfo(_CamelBase):
     """The inner quality object describing a specific quality profile."""
 
     name: str
     resolution: int
 
 
-class Quality(_Base):
+class Quality(_CamelBase):
     """Wraps QualityInfo as returned by the arr quality model."""
 
     quality: QualityInfo
 
 
-class StatusMessage(_Base):
+class StatusMessage(_CamelBase):
     """A single status message entry from a queue record's statusMessages list."""
 
     messages: list[str] = Field(default_factory=list)
 
 
-class ArrQueue(_Base):
+class ArrQueue(_CamelBase):
     """Shared fields across Radarr and Sonarr queue records.
 
     The aggregator's helpers (_arr_queue_status, _resolve_download) operate
@@ -84,7 +84,7 @@ class ArrQueue(_Base):
     indexer: str | None = None
 
 
-class ArrHistory(_Base):
+class ArrHistory(_CamelBase):
     """Shared fields across Radarr and Sonarr history records.
 
     The aggregator's helpers (_arr_history_status, _format_history) operate

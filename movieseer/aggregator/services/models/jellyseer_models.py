@@ -5,14 +5,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from movieseer.aggregator.services.models._base import _Base
+from movieseer.aggregator.services.models._base import _CamelBase
 
 
-class User(_Base):
+class User(_CamelBase):
     display_name: str = ""
 
 
-class MediaInfo(_Base):
+class MediaInfo(_CamelBase):
     tmdb_id: int
     external_service_id: int | None = None
     status: int = 1
@@ -20,7 +20,7 @@ class MediaInfo(_Base):
     title: str | None = None
 
 
-class MediaRequest(_Base):
+class MediaRequest(_CamelBase):
     id: int
     status: int
     type: Literal["movie", "tv"]
@@ -29,6 +29,6 @@ class MediaRequest(_Base):
     media: MediaInfo
 
 
-class MediaDetail(_Base):
+class MediaDetail(_CamelBase):
     title: str | None = None  # present on movie responses
     name: str | None = None  # present on TV responses
