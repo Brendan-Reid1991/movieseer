@@ -30,11 +30,46 @@ _PROWLARR = {
     "healthy": 5,
     "issues": [],
     "indexers": [
-        {"id": 1, "name": "NZBgeek",      "protocol": "usenet",  "enabled": True, "failing": False, "error": None},
-        {"id": 2, "name": "NewzDark",     "protocol": "usenet",  "enabled": True, "failing": False, "error": None},
-        {"id": 3, "name": "DrunkenSlug",  "protocol": "usenet",  "enabled": True, "failing": False, "error": None},
-        {"id": 4, "name": "1337x",        "protocol": "torrent", "enabled": True, "failing": False, "error": None},
-        {"id": 5, "name": "RARBG Mirror", "protocol": "torrent", "enabled": True, "failing": False, "error": None},
+        {
+            "id": 1,
+            "name": "NZBgeek",
+            "protocol": "usenet",
+            "enabled": True,
+            "failing": False,
+            "error": None,
+        },
+        {
+            "id": 2,
+            "name": "NewzDark",
+            "protocol": "usenet",
+            "enabled": True,
+            "failing": False,
+            "error": None,
+        },
+        {
+            "id": 3,
+            "name": "DrunkenSlug",
+            "protocol": "usenet",
+            "enabled": True,
+            "failing": False,
+            "error": None,
+        },
+        {
+            "id": 4,
+            "name": "1337x",
+            "protocol": "torrent",
+            "enabled": True,
+            "failing": False,
+            "error": None,
+        },
+        {
+            "id": 5,
+            "name": "RARBG Mirror",
+            "protocol": "torrent",
+            "enabled": True,
+            "failing": False,
+            "error": None,
+        },
     ],
 }
 
@@ -86,7 +121,12 @@ _STATUS = {
             "jellyseerr_status": "Downloading",
             "arr": {"status": "downloading", "error": None, "at": "2026-04-25T15:05:00+00:00"},
             "history": [
-                {"event": "grabbed", "at": "2026-04-25T15:05:00+00:00", "source": "radarr", "error": None}
+                {
+                    "event": "grabbed",
+                    "at": "2026-04-25T15:05:00+00:00",
+                    "source": "radarr",
+                    "error": None,
+                }
             ],
         },
         {
@@ -104,7 +144,12 @@ _STATUS = {
                 "episodes_queued": 3,
             },
             "history": [
-                {"event": "grabbed", "at": "2026-04-24T09:30:00+00:00", "source": "sonarr", "error": None}
+                {
+                    "event": "grabbed",
+                    "at": "2026-04-24T09:30:00+00:00",
+                    "source": "sonarr",
+                    "error": None,
+                }
             ],
         },
         {
@@ -117,8 +162,18 @@ _STATUS = {
             "jellyseerr_status": "Available",
             "arr": {"status": "imported", "error": None, "at": "2026-04-20T22:15:00+00:00"},
             "history": [
-                {"event": "imported", "at": "2026-04-20T22:15:00+00:00", "source": "radarr", "error": None},
-                {"event": "grabbed",  "at": "2026-04-20T20:30:00+00:00", "source": "radarr", "error": None},
+                {
+                    "event": "imported",
+                    "at": "2026-04-20T22:15:00+00:00",
+                    "source": "radarr",
+                    "error": None,
+                },
+                {
+                    "event": "grabbed",
+                    "at": "2026-04-20T20:30:00+00:00",
+                    "source": "radarr",
+                    "error": None,
+                },
             ],
         },
         {
@@ -136,7 +191,12 @@ _STATUS = {
                 "episodes_queued": 8,
             },
             "history": [
-                {"event": "grabbed", "at": "2026-04-26T07:20:00+00:00", "source": "sonarr", "error": None}
+                {
+                    "event": "grabbed",
+                    "at": "2026-04-26T07:20:00+00:00",
+                    "source": "sonarr",
+                    "error": None,
+                }
             ],
         },
         {
@@ -149,8 +209,18 @@ _STATUS = {
             "jellyseerr_status": "Available",
             "arr": {"status": "imported", "error": None, "at": "2026-04-15T23:45:00+00:00"},
             "history": [
-                {"event": "imported", "at": "2026-04-15T23:45:00+00:00", "source": "radarr", "error": None},
-                {"event": "grabbed",  "at": "2026-04-15T21:20:00+00:00", "source": "radarr", "error": None},
+                {
+                    "event": "imported",
+                    "at": "2026-04-15T23:45:00+00:00",
+                    "source": "radarr",
+                    "error": None,
+                },
+                {
+                    "event": "grabbed",
+                    "at": "2026-04-15T21:20:00+00:00",
+                    "source": "radarr",
+                    "error": None,
+                },
             ],
         },
     ],
@@ -158,17 +228,17 @@ _STATUS = {
 
 _CONTAINERS = [
     {"name": "flaresolverr", "status": "running", "uptime": "12d 4h"},
-    {"name": "gluetun",      "status": "running", "uptime": "12d 4h"},
-    {"name": "jellyfin",     "status": "running", "uptime": "12d 3h"},
-    {"name": "jellyseerr",   "status": "running", "uptime": "12d 3h"},
-    {"name": "movieseer",    "status": "running", "uptime": "12d 4h"},
-    {"name": "ntfy",         "status": "running", "uptime": "12d 4h"},
-    {"name": "plex",         "status": "running", "uptime": "12d 3h"},
-    {"name": "prowlarr",     "status": "running", "uptime": "11d 22h"},
-    {"name": "qbittorrent",  "status": "running", "uptime": "12d 4h"},
-    {"name": "radarr",       "status": "running", "uptime": "11d 22h"},
-    {"name": "sabnzbd",      "status": "running", "uptime": "12d 4h"},
-    {"name": "sonarr",       "status": "running", "uptime": "11d 22h"},
+    {"name": "gluetun", "status": "running", "uptime": "12d 4h"},
+    {"name": "jellyfin", "status": "running", "uptime": "12d 3h"},
+    {"name": "jellyseerr", "status": "running", "uptime": "12d 3h"},
+    {"name": "movieseer", "status": "running", "uptime": "12d 4h"},
+    {"name": "ntfy", "status": "running", "uptime": "12d 4h"},
+    {"name": "plex", "status": "running", "uptime": "12d 3h"},
+    {"name": "prowlarr", "status": "running", "uptime": "11d 22h"},
+    {"name": "qbittorrent", "status": "running", "uptime": "12d 4h"},
+    {"name": "radarr", "status": "running", "uptime": "11d 22h"},
+    {"name": "sabnzbd", "status": "running", "uptime": "12d 4h"},
+    {"name": "sonarr", "status": "running", "uptime": "11d 22h"},
 ]
 
 _INFRA = {
@@ -193,26 +263,115 @@ _INFRA = {
 
 # Newest-first; reversed on SSE connect to match the real app's behaviour
 _EVENTS = [
-    {"id": 11, "source": "sonarr",     "event_type": "grabbed",  "title": "The Bear",      "detail": "The Bear S03E01-08 grabbed — [1337x] WEB 1080p",          "at": "2026-04-26T07:20:00+00:00"},
-    {"id": 10, "source": "radarr",     "event_type": "grabbed",  "title": "Dune: Part Two", "detail": "Dune: Part Two grabbed — [NZBgeek] BluRay 2160p",         "at": "2026-04-25T15:05:00+00:00"},
-    {"id": 9,  "source": "jellyseerr", "event_type": "request",  "title": "Dune: Part Two", "detail": "brendan requested Dune: Part Two",                        "at": "2026-04-25T14:32:00+00:00"},
-    {"id": 8,  "source": "sonarr",     "event_type": "grabbed",  "title": "Severance",      "detail": "Severance S02E06 grabbed — [NZBgeek] WEB-DL 1080p",       "at": "2026-04-24T09:30:00+00:00"},
-    {"id": 7,  "source": "jellyseerr", "event_type": "request",  "title": "Severance",      "detail": "brendan requested Severance S02",                         "at": "2026-04-24T09:10:00+00:00"},
-    {"id": 6,  "source": "radarr",     "event_type": "imported", "title": "The Brutalist",  "detail": "The Brutalist imported successfully",                     "at": "2026-04-20T22:15:00+00:00"},
-    {"id": 5,  "source": "radarr",     "event_type": "grabbed",  "title": "The Brutalist",  "detail": "The Brutalist grabbed — [NZBgeek] BluRay 1080p",          "at": "2026-04-20T20:30:00+00:00"},
-    {"id": 4,  "source": "jellyseerr", "event_type": "request",  "title": "The Brutalist",  "detail": "brendan requested The Brutalist",                         "at": "2026-04-20T18:44:00+00:00"},
-    {"id": 3,  "source": "radarr",     "event_type": "imported", "title": "Conclave",       "detail": "Conclave imported successfully",                          "at": "2026-04-15T23:45:00+00:00"},
-    {"id": 2,  "source": "radarr",     "event_type": "grabbed",  "title": "Conclave",       "detail": "Conclave grabbed — [NZBgeek] BluRay 1080p",               "at": "2026-04-15T21:20:00+00:00"},
-    {"id": 1,  "source": "jellyseerr", "event_type": "request",  "title": "Conclave",       "detail": "brendan requested Conclave",                              "at": "2026-04-15T21:00:00+00:00"},
+    {
+        "id": 11,
+        "source": "sonarr",
+        "event_type": "grabbed",
+        "title": "The Bear",
+        "detail": "The Bear S03E01-08 grabbed — [1337x] WEB 1080p",
+        "at": "2026-04-26T07:20:00+00:00",
+    },
+    {
+        "id": 10,
+        "source": "radarr",
+        "event_type": "grabbed",
+        "title": "Dune: Part Two",
+        "detail": "Dune: Part Two grabbed — [NZBgeek] BluRay 2160p",
+        "at": "2026-04-25T15:05:00+00:00",
+    },
+    {
+        "id": 9,
+        "source": "jellyseerr",
+        "event_type": "request",
+        "title": "Dune: Part Two",
+        "detail": "brendan requested Dune: Part Two",
+        "at": "2026-04-25T14:32:00+00:00",
+    },
+    {
+        "id": 8,
+        "source": "sonarr",
+        "event_type": "grabbed",
+        "title": "Severance",
+        "detail": "Severance S02E06 grabbed — [NZBgeek] WEB-DL 1080p",
+        "at": "2026-04-24T09:30:00+00:00",
+    },
+    {
+        "id": 7,
+        "source": "jellyseerr",
+        "event_type": "request",
+        "title": "Severance",
+        "detail": "brendan requested Severance S02",
+        "at": "2026-04-24T09:10:00+00:00",
+    },
+    {
+        "id": 6,
+        "source": "radarr",
+        "event_type": "imported",
+        "title": "The Brutalist",
+        "detail": "The Brutalist imported successfully",
+        "at": "2026-04-20T22:15:00+00:00",
+    },
+    {
+        "id": 5,
+        "source": "radarr",
+        "event_type": "grabbed",
+        "title": "The Brutalist",
+        "detail": "The Brutalist grabbed — [NZBgeek] BluRay 1080p",
+        "at": "2026-04-20T20:30:00+00:00",
+    },
+    {
+        "id": 4,
+        "source": "jellyseerr",
+        "event_type": "request",
+        "title": "The Brutalist",
+        "detail": "brendan requested The Brutalist",
+        "at": "2026-04-20T18:44:00+00:00",
+    },
+    {
+        "id": 3,
+        "source": "radarr",
+        "event_type": "imported",
+        "title": "Conclave",
+        "detail": "Conclave imported successfully",
+        "at": "2026-04-15T23:45:00+00:00",
+    },
+    {
+        "id": 2,
+        "source": "radarr",
+        "event_type": "grabbed",
+        "title": "Conclave",
+        "detail": "Conclave grabbed — [NZBgeek] BluRay 1080p",
+        "at": "2026-04-15T21:20:00+00:00",
+    },
+    {
+        "id": 1,
+        "source": "jellyseerr",
+        "event_type": "request",
+        "title": "Conclave",
+        "detail": "brendan requested Conclave",
+        "at": "2026-04-15T21:00:00+00:00",
+    },
 ]
 
 _SEARCH_RESULTS = {
     "results": [
-        {"title": "Dune: Part Two", "type": "movie", "year": "2024", "poster_url": None, "link": "#"},
-        {"title": "The Brutalist",  "type": "movie", "year": "2024", "poster_url": None, "link": "#"},
-        {"title": "Conclave",       "type": "movie", "year": "2024", "poster_url": None, "link": "#"},
-        {"title": "Severance",      "type": "tv",    "year": "2022", "poster_url": None, "link": "#"},
-        {"title": "The Bear",       "type": "tv",    "year": "2022", "poster_url": None, "link": "#"},
+        {
+            "title": "Dune: Part Two",
+            "type": "movie",
+            "year": "2024",
+            "poster_url": None,
+            "link": "#",
+        },
+        {
+            "title": "The Brutalist",
+            "type": "movie",
+            "year": "2024",
+            "poster_url": None,
+            "link": "#",
+        },
+        {"title": "Conclave", "type": "movie", "year": "2024", "poster_url": None, "link": "#"},
+        {"title": "Severance", "type": "tv", "year": "2022", "poster_url": None, "link": "#"},
+        {"title": "The Bear", "type": "tv", "year": "2022", "poster_url": None, "link": "#"},
     ]
 }
 
@@ -229,11 +388,19 @@ async def dashboard():
 @app.get("/api/config")
 async def api_config():
     # null values — the frontend's `if (el && url)` guard leaves links as href="#"
-    return {k: None for k in [
-        "jellyseerr_url", "jellyfin_url", "plex_url",
-        "sonarr_url", "radarr_url", "sabnzbd_url",
-        "qbittorrent_url", "prowlarr_url",
-    ]}
+    return {
+        k: None
+        for k in [
+            "jellyseerr_url",
+            "jellyfin_url",
+            "plex_url",
+            "sonarr_url",
+            "radarr_url",
+            "sabnzbd_url",
+            "qbittorrent_url",
+            "prowlarr_url",
+        ]
+    }
 
 
 @app.get("/api/status")

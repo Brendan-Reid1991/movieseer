@@ -33,6 +33,8 @@ class TestApiConfig:
             "radarr_url",
             "sabnzbd_url",
             "qbittorrent_url",
+            "plex_url",
+            "prowlarr_url",
         }
         assert expected_keys == set(data.keys())
 

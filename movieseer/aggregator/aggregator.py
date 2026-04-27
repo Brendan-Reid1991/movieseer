@@ -9,11 +9,11 @@ import time
 from movieseer.aggregator._utils import (
     arr_history_status,
     arr_queue_status,
-    movie_requests,
-    series_requests,
     format_history,
     is_recent,
     jellyseerr_status,
+    movie_requests,
+    series_requests,
 )
 from movieseer.aggregator.services.jellyseer import JellyseerClient
 from movieseer.aggregator.services.models.jellyseer_models import MediaRequest
@@ -328,7 +328,6 @@ class Aggregator:
         if isinstance(sonarr_hist, Exception):
             logger.warning("Sonarr history fetch failed: %s", sonarr_hist)
             sonarr_hist = []
-
 
         radarr_ids = {q.movie_id for q in radarr_queue if q.movie_id} | {
             e.movie_id for e in radarr_hist if is_recent(e.date)
