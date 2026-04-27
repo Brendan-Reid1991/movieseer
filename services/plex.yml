@@ -11,6 +11,7 @@ services:
       - PLEX_CLAIM=${PLEX_CLAIM}
     ports:
       - "${PLEX_PORT}:32400"
+      - "32410-32414:32410-32414/udp"
     volumes:
       - plex_config:/config
       - plex_transcode:/transcode

@@ -54,9 +54,8 @@ def list_containers() -> list[dict[str, Any]]:
 
     for container in client.containers.list(all=True):
         name = container.name
-        status = container.status  # "running", "exited", "restarting", etc.
+        status = container.status
 
-        # Reload to get the most recent attrs including State.StartedAt
         container.reload()
         started_at = container.attrs.get("State", {}).get("StartedAt", "")
         uptime = _format_uptime(started_at) if status == "running" else status
