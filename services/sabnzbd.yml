@@ -11,7 +11,7 @@ services:
     volumes:
       - ./config/sabnzbd:/config
       - ${DATA_PATH}:/data
-      - /Users/brendan/Downloads/sabnzbd-incomplete:/data/downloads/usenet/incomplete
+      - ${SABNZBD_INCOMPLETE}:/incomplete
     networks:
       - movieseer
 

@@ -56,17 +56,13 @@ in `services/movieseer.yml`.
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and fill in the variables. Note that `.env.example`
-   doesn't include every variable — also set: `NTFY_PORT`, `LOG_PATH`, `PLEX_CLAIM`,
-   `PLEX_TOKEN`, `PRIVATE_PATH`
+1. Copy `.env.example` to `.env` and fill in the variables.
 2. Create the Docker network: `docker network create movieseer` — skip this if you use
    `./start.sh`, which creates it automatically
 3. Start the stack: `docker compose up -d` (or `./start.sh`, which also checks the
    media volume, starts Tailscale and Docker Desktop, and waits for services to
    become healthy)
 4. Register Radarr/Sonarr webhooks: `python3 scripts/setup_webhooks.py`
-5. Add the AppleDouble cleanup cron job (see [AppleDouble cleanup](#appledouble-cleanup)
-   below) — required to prevent Jellyfin scan errors on the ExFAT media volume
 
 ### Key environment variables
 
@@ -79,8 +75,7 @@ in `services/movieseer.yml`.
 | `LOG_PATH` | — | Host path for Movieseer log files |
 | `PLEX_CLAIM` | — | Plex claim token (from plex.tv/claim; required only on first container launch) |
 | `PLEX_TOKEN` | — | Plex auth token for API calls |
-| `PRIVATE_PATH` | — | Host path mounted as `/private` in the Jellyfin container |
-| `NTFY_PORT` | — | Published port for the ntfy container |
+| `NTFY_PORT` | `8095` | Published port for the ntfy container |
 | `EVENT_POLL_INTERVAL` | `30` | Seconds between event collector cycles |
 | `EVENT_RETENTION_DAYS` | `7` | Days of events to keep in SQLite |
 | `CACHE_TTL` | `30` | Seconds before the aggregator cache expires |
@@ -163,10 +158,6 @@ docker compose restart gluetun
 
 This writes the selected config's keys and endpoint to `vpn_configurations/active.env`,
 which Gluetun reads on startup.
-
-> **Note:** `set-vpn.sh` was recently moved from `vpn_configurations/` to `scripts/`.
-> If the script cannot find the `.conf` files, run it from the repo root as shown above
-> and verify that `vpn_configurations/active.env` is updated after running.
 
 ## Notes
 
