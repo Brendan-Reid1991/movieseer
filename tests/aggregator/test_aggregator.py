@@ -511,7 +511,7 @@ class TestTitleResolution:
     async def test_movie_title_from_radarr_queue(self):
         agg = Aggregator()
         req = make_js_req("movie", arr_id=42)
-        item = await agg._build_jellyseerr_item(
+        item = await agg._build_jellyseerr_request(
             req, [make_radarr_queue(arr_id=42, title="Dune")], [], {}, {}
         )
         assert item["title"] == "Dune"
@@ -519,7 +519,7 @@ class TestTitleResolution:
     async def test_tv_title_from_sonarr_queue(self):
         agg = Aggregator()
         req = make_js_req("tv", arr_id=10)
-        item = await agg._build_jellyseerr_item(
+        item = await agg._build_jellyseerr_request(
             req, [], [make_sonarr_queue(arr_id=10, title="Severance")], {}, {}
         )
         assert item["title"] == "Severance"
@@ -541,7 +541,7 @@ class TestTitleResolution:
         )
         agg._radarr.movie = AsyncMock(return_value=movie)
         agg._radarr.movie_history = AsyncMock(return_value=[])
-        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_request(req, [], [], {}, {})
         assert item["title"] == "Alien"
 
     async def test_tv_title_from_sonarr_api_when_not_in_queue(self):
@@ -549,7 +549,7 @@ class TestTitleResolution:
         req = make_js_req("tv", arr_id=10)
         agg._sonarr.series = AsyncMock(return_value=make_series(series_id=10, title="The Wire"))
         agg._sonarr.series_history = AsyncMock(return_value=[])
-        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_request(req, [], [], {}, {})
         assert item["title"] == "The Wire"
 
     async def test_title_from_jellyseerr_when_no_arr_id(self):
@@ -564,7 +564,7 @@ class TestTitleResolution:
         }
         mock_client = _mock_js_client({"title": "The Substance"})
         with patch("movieseer.aggregator.aggregator.httpx.AsyncClient", return_value=mock_client):
-            item = await agg._build_jellyseerr_item(req, [], [], {}, {})
+            item = await agg._build_jellyseerr_request(req, [], [], {}, {})
         assert item["title"] == "The Substance"
 
     async def test_title_falls_back_to_unknown_when_all_resolution_fails(self):
@@ -572,7 +572,7 @@ class TestTitleResolution:
         req = make_js_req("movie", arr_id=99)
         agg._radarr.movie = AsyncMock(side_effect=Exception("404"))
         agg._radarr.movie_history = AsyncMock(return_value=[])
-        item = await agg._build_jellyseerr_item(req, [], [], {}, {})
+        item = await agg._build_jellyseerr_request(req, [], [], {}, {})
         assert item["title"] == "Unknown"
 
 
