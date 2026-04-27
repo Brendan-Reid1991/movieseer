@@ -166,9 +166,6 @@ which Gluetun reads on startup.
 - The `movieseer` Docker network must be created manually before starting the stack;
   it is declared `external: true` in service files so Compose will not create it
   automatically (`start.sh` does this for you)
-- **SABnzbd incomplete directory** — hardcoded to
-  `/Users/brendan/Downloads/sabnzbd-incomplete` in `services/sabnzbd.yml`; update
-  this if you move to a different machine
 - **qBittorrent networking** — qBittorrent uses Gluetun's network namespace; its
   web UI is accessible via Gluetun's published port, not a port of its own
 
