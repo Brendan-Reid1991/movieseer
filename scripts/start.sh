@@ -9,6 +9,7 @@ if [[ "$(basename "$PATH_TO_ROOT")" != "movieseer" ]]; then
 fi
 
 NUM_ARGS=$#
+REBUILD=false
 
 # Load .env to get DATA_PATH and port variables
 source "$PATH_TO_ROOT/.env"
@@ -21,9 +22,12 @@ if [[ $NUM_ARGS -gt 0 ]]; then
         docker compose down
         exit 0
         ;;
+      --rebuild)
+        REBUILD=true
+        ;;
       *)
         echo "Unknown argument: $var"
-        echo "Usage: $0 [--down]"
+        echo "Usage: $0 [--down] [--rebuild]"
         exit 1
         ;;
     esac
@@ -65,6 +69,9 @@ fi
 echo "Starting containers..."
 cd "$PATH_TO_ROOT"
 docker network create movieseer 2>/dev/null || true
+if [[ "$REBUILD" == true ]]; then
+  docker compose build movieseer
+fi
 docker compose up -d
 
 
