@@ -133,6 +133,13 @@ set -a && source .env && set +a
 uv run uvicorn movieseer.main:app --reload --port 8099
 ```
 
+To preview the dashboard without any running services or environment variables, use the
+demo app. It serves the same HTML shell and returns synthetic data for all endpoints:
+
+```bash
+uv run uvicorn movieseer.demo:app --port 8099
+```
+
 ## Common commands
 
 ```bash
