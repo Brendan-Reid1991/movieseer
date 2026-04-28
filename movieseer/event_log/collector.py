@@ -16,51 +16,66 @@ import asyncio
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Literal
 
-from movieseer.aggregator.services.prowlarr import ProwlarrClient
+from movieseer.aggregator.services.models.sabnzbd_models import HistorySlot
+from movieseer.aggregator.services.prowlarr import IndexerDetail, ProwlarrClient
 from movieseer.aggregator.services.radarr import RadarrClient
 from movieseer.aggregator.services.sabnzbd import SABnzbdClient
 from movieseer.aggregator.services.sonarr import SonarrClient
-from movieseer.config import SABNZBD_API_KEY
 from movieseer.event_log.db import EventStore
-from movieseer.event_log.types import EventType, LogEvent
+from movieseer.event_log.types import LogEvent
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Signal allowlist — event types worth storing per source
-# ---------------------------------------------------------------------------
+class SabnzbdSlotStatus(StrEnum):
+    COMPLETED = "Completed"
+    FAILED = "Failed"
 
-_RADARR_SIGNALS: frozenset[str] = frozenset(
-    {"grabbed", "downloadFailed", "downloadFolderImported", "movieFolderImported"}
-)
-_SONARR_SIGNALS: frozenset[str] = frozenset(
-    {"grabbed", "downloadFailed", "downloadFolderImported"}
-)
+class ArrEvent(StrEnum):
+    GRABBED = "grabbed"
+    DOWNLOAD_FAILED = "downloadFailed"
+    DOWNLOAD_FOLDER_IMPORTED = "downloadFolderImported"
+    MOVIE_FOLDER_IMPORTED = "movieFolderImported"
 
-_ARR_EVENT_MAP: dict[str, EventType] = {
-    "grabbed": "grabbed",
-    "downloadFailed": "failed",
-    "downloadFolderImported": "imported",
-    "movieFolderImported": "imported",
+
+class Event(StrEnum):
+    GRABBED = "grabbed"
+    FAILED = "failed"
+    IMPORTED = "imported"
+
+
+EVENT_MAP: dict[ArrEvent, Event] = {
+    ArrEvent.GRABBED: Event.GRABBED,
+    ArrEvent.DOWNLOAD_FOLDER_IMPORTED: Event.IMPORTED,
+    ArrEvent.MOVIE_FOLDER_IMPORTED: Event.IMPORTED,
+    ArrEvent.DOWNLOAD_FAILED: Event.FAILED,
 }
 
 
-def _is_signal_radarr(event_type: str) -> bool:
-    return event_type in _RADARR_SIGNALS
-
-
-def _is_signal_sonarr(event_type: str) -> bool:
-    return event_type in _SONARR_SIGNALS
-
-
-# ---------------------------------------------------------------------------
-# Collector
-# ---------------------------------------------------------------------------
-
-
 class EventCollector:
-    """Polls all configured services and writes signal events to EventStore."""
+    """Polls all downstream services and writes signal events to EventStore.
+
+    Radarr, Sonarr, and SABnzbd all expose history endpoints; Prowlarr does not.
+    History-based sources use a per-source watermark stored in EventStore to avoid
+    re-processing records already seen. Prowlarr requires in-memory state diffing
+    instead — there is no persistent log of indexer health transitions, so we
+    compare each new snapshot against the previous one.
+
+    Parameters
+    ----------
+    store : EventStore
+        Persistent storage for events and per-source watermarks.
+    radarr : RadarrClient
+        Client for the Radarr movie download manager.
+    sonarr : SonarrClient
+        Client for the Sonarr TV download manager.
+    sabnzbd : SABnzbdClient
+        Client for the SABnzbd download client.
+    prowlarr : ProwlarrClient
+        Client for the Prowlarr indexer manager.
+    """
 
     def __init__(
         self,
@@ -85,17 +100,23 @@ class EventCollector:
         broadcast_fn: Callable[[list[LogEvent]], None],
         retention_days: int,
     ) -> None:
-        """Poll indefinitely, broadcasting new events after each cycle.
+        """Poll all sources indefinitely, broadcasting new events after each cycle.
+
+        Exceptions from individual cycles are caught and logged rather than re-raised
+        because a transient upstream error should stall one cycle, not kill the
+        background task. ``asyncio.CancelledError`` is re-raised immediately so the
+        task responds correctly to application shutdown.
 
         Parameters
         ----------
-        interval:
-            Seconds to sleep between cycles.
-        broadcast_fn:
-            Called with the list of new LogEvents after each successful cycle.
-            Plain (non-async) function — it puts events onto asyncio Queues.
-        retention_days:
-            Passed to ``EventStore.prune()`` after each cycle.
+        interval : int
+            Seconds to sleep between poll cycles.
+        broadcast_fn : Callable[[list[LogEvent]], None]
+            Called with newly inserted events after each successful cycle. Must be a
+            plain (non-async) function — it enqueues events onto asyncio Queues without
+            awaiting anything itself.
+        retention_days : int
+            Passed to ``EventStore.prune()`` at the end of each cycle.
         """
         while True:
             try:
@@ -109,12 +130,23 @@ class EventCollector:
             await asyncio.sleep(interval)
 
     async def poll_once(self, retention_days: int = 7) -> list[LogEvent]:
-        """Run one full poll cycle across all sources.
+        """Run one complete poll cycle and return newly inserted events.
 
-        Each source is polled concurrently. Per-source failures are caught and
-        logged so one broken service never silences the others.
+        Sources are polled concurrently via ``asyncio.gather`` with
+        ``return_exceptions=True`` so that a single broken service never blocks or
+        suppresses output from the healthy ones. Per-source failures are logged at
+        WARNING level; the cycle still returns whatever the healthy sources produced.
 
-        Returns the list of newly inserted LogEvents (with ids set).
+        Parameters
+        ----------
+        retention_days : int, optional
+            Events older than this many days are pruned at the end of the cycle.
+
+        Returns
+        -------
+        list[LogEvent]
+            Newly inserted events with their database-assigned ``id`` set.
+            Empty if no new events were found.
         """
         results = await asyncio.gather(
             self._poll_radarr(),
@@ -138,30 +170,66 @@ class EventCollector:
 
     # ── per-source pollers ────────────────────────────────────────────────────
 
-    async def _poll_radarr(self) -> list[LogEvent]:
-        last_id, _ = await self._store.get_watermark("radarr")
-        history = await self._radarr.history(page_length=50)
+    async def _poll_radarr_sonarr(self, service: Literal["sonarr", "radarr"]) -> list[LogEvent]:
+        """Fetch new history from Radarr or Sonarr and return signal events.
+
+        Both services expose identical history API shapes, so a single implementation
+        handles both. The watermark is the highest record ID seen so far; integer IDs
+        are safe here because both services guarantee their history IDs are stable and
+        monotonically increasing.
+
+        Records whose ``event_type`` is absent from ``EVENT_MAP`` are noise
+        (e.g. ``seriesAdded``, ``fileRenamed``) and are silently skipped.
+
+        Parameters
+        ----------
+        service : {"radarr", "sonarr"}
+            Selects the client to call and the watermark key to read/write.
+
+        Returns
+        -------
+        list[LogEvent]
+            New signal events since the last watermark. Empty if nothing new.
+        """
+        match service:
+            case "sonarr":
+                client = self._sonarr
+            case "radarr":
+                client = self._radarr
+            case _:
+                raise ValueError(f"Unrecognised client: {service}.")
+
+        last_id, _ = await self._store.get_watermark(service)
+        history = await client.history()
 
         new_events: list[LogEvent] = []
         max_id = last_id or 0
 
         for record in history:
-            if not _is_signal_radarr(record.event_type):
+            if record.event_type not in EVENT_MAP:
+                logger.debug(
+                    "%s poll: skipping event %s as it is not in EventMap",
+                    service,
+                    record.event_type,
+                )
                 continue
             if last_id is not None and record.id <= last_id:
+                logger.debug(
+                    "%s poll: skipping event %s with ID %s. Watermark ID is %s.",
+                    service,
+                    record.event_type,
+                    record.id,
+                    last_id,
+                )
                 continue
-
-            event_type = _ARR_EVENT_MAP.get(record.event_type, "grabbed")
             title = record.source_title or "Unknown"
-            detail = _radarr_detail(record.event_type, title)
-
             new_events.append(
                 LogEvent(
                     id=0,
-                    source="radarr",
-                    event_type=event_type,  # type: ignore[arg-type]
+                    source=service,
+                    event_type=EVENT_MAP[record.event_type],  # type: ignore[arg-type]
                     title=title,
-                    detail=detail,
+                    detail=_radarr_sonarr_detail(record.event_type, title),
                     at=record.date.isoformat(),
                 )
             )
@@ -169,97 +237,77 @@ class EventCollector:
                 max_id = record.id
 
         if max_id > (last_id or 0):
-            await self._store.set_watermark("radarr", max_id, None)
+            await self._store.set_watermark(service, max_id, None)
 
         return new_events
+
+    async def _poll_radarr(self) -> list[LogEvent]:
+        return await self._poll_radarr_sonarr("radarr")
 
     async def _poll_sonarr(self) -> list[LogEvent]:
-        last_id, _ = await self._store.get_watermark("sonarr")
-        history = await self._sonarr.history(page_length=50)
-
-        new_events: list[LogEvent] = []
-        max_id = last_id or 0
-
-        for record in history:
-            if not _is_signal_sonarr(record.event_type):
-                continue
-            if last_id is not None and record.id <= last_id:
-                continue
-
-            event_type = _ARR_EVENT_MAP.get(record.event_type, "grabbed")
-            title = record.source_title or "Unknown"
-            detail = _sonarr_detail(record.event_type, title)
-
-            new_events.append(
-                LogEvent(
-                    id=0,
-                    source="sonarr",
-                    event_type=event_type,  # type: ignore[arg-type]
-                    title=title,
-                    detail=detail,
-                    at=record.date.isoformat(),
-                )
-            )
-            if record.id > max_id:
-                max_id = record.id
-
-        if max_id > (last_id or 0):
-            await self._store.set_watermark("sonarr", max_id, None)
-
-        return new_events
+        return await self._poll_radarr_sonarr("sonarr")
 
     async def _poll_sabnzbd(self) -> list[LogEvent]:
+        """Fetch completed SABnzbd slots and return new signal events.
+
+        SABnzbd history slots do not have stable ascending IDs, so the ``completed``
+        Unix timestamp is used as the watermark cursor instead. Only ``Completed`` and
+        ``Failed`` terminal states are recorded — intermediate states such as
+        ``Downloading`` and ``Verifying`` are not signals worth storing.
+
+        Returns
+        -------
+        list[LogEvent]
+            New ``completed`` or ``failed`` events since the last watermark.
+            Empty if no slots have finished since the previous cycle.
+        """
         _, last_at = await self._store.get_watermark("sabnzbd")
-        data = await self._sabnzbd._get(
-            "",
-            params={
-                "mode": "history",
-                "limit": 50,
-                "apikey": SABNZBD_API_KEY,
-                "output": "json",
-            },
-        )
-        slots = (data or {}).get("history", {}).get("slots", [])
+        slots: dict[str, HistorySlot] = await self._sabnzbd.slots_history()
 
         new_events: list[LogEvent] = []
         max_completed: float = datetime.fromisoformat(last_at).timestamp() if last_at else 0.0
+        initial_max = max_completed
 
-        for slot in slots:
-            completed_ts: float = slot.get("completed", 0)
-            if completed_ts <= max_completed:
-                continue
-
-            status: str = slot.get("status", "")
-            if status not in ("Completed", "Failed"):
-                continue
-
-            name: str = slot.get("name", "Unknown")
-            fail_msg: str = slot.get("fail_message", "")
-            completed_dt = datetime.fromtimestamp(completed_ts, tz=UTC).isoformat()
-
-            if status == "Completed":
-                event_type: EventType = "completed"
-                detail = f"Completed {name}"
-            else:
-                event_type = "failed"
-                detail = f"Failed {name}" + (f" — {fail_msg}" if fail_msg else "")
-
-            new_events.append(
-                LogEvent(
-                    id=0,
-                    source="sabnzbd",
-                    event_type=event_type,
-                    title=name,
-                    detail=detail,
-                    at=completed_dt,
+        for slot in slots.values():
+            if slot.completed <= max_completed:
+                logger.debug(
+                    "Skipping completed slot %s. Watermark is %s", slot.name, max_completed
                 )
-            )
-            if completed_ts > max_completed:
-                max_completed = completed_ts
+                continue
 
-        if max_completed > 0 and (
-            not last_at or max_completed > datetime.fromisoformat(last_at).timestamp()
-        ):
+            if slot.status not in SabnzbdSlotStatus:
+                logger.debug("Skipping completed slot %s. Status is %s", slot.name, slot.status)
+                continue
+
+            match slot.status:
+                case SabnzbdSlotStatus.COMPLETED:
+                    new_events.append(
+                        LogEvent(
+                            id=0,
+                            source="sabnzbd",
+                            event_type="completed",
+                            title=slot.name,
+                            detail=f"Completed {slot.name}",
+                            at=slot.completed_as_iso,
+                        )
+                    )
+                case SabnzbdSlotStatus.FAILED:
+                    new_events.append(
+                        LogEvent(
+                            id=0,
+                            source="sabnzbd",
+                            event_type="failed",
+                            title=slot.name,
+                            detail=f"Failed {slot.name}: "
+                            f"{slot.fail_message or 'No failure message'}",
+                            at=slot.completed_as_iso,
+                        )
+                    )
+
+            if slot.completed > max_completed:
+                max_completed = slot.completed
+
+        if max_completed > initial_max:
             await self._store.set_watermark(
                 "sabnzbd",
                 None,
@@ -269,8 +317,27 @@ class EventCollector:
         return new_events
 
     async def _poll_prowlarr(self) -> list[LogEvent]:
+        """Diff current Prowlarr indexer state against the previous snapshot.
+
+        Prowlarr exposes only the current state of each indexer — there is no event
+        log for health transitions. We maintain ``_failing_indexers`` in memory and
+        compare successive snapshots to emit events only when an indexer transitions
+        between healthy and failing.
+
+        On the first call we record the current state as the baseline and return
+        immediately without emitting events. We have no prior snapshot to diff against,
+        so emitting on startup would produce spurious alerts for pre-existing failures
+        the user has already seen.
+
+        Returns
+        -------
+        list[LogEvent]
+            ``indexer_failing`` events for newly failed indexers and
+            ``indexer_recovered`` events for newly healthy ones.
+            Returns an empty list on the first call (baseline capture only).
+        """
         indexers = await self._prowlarr.indexers()
-        current_failing: set[int] = {i["id"] for i in indexers if i.get("failing")}
+        current_failing: set[int] = {i["id"] for i in indexers if i["failing"]}
 
         new_events: list[LogEvent] = []
         now = datetime.now(UTC).isoformat()
@@ -281,33 +348,33 @@ class EventCollector:
             self._prowlarr_initialised = True
             return []
 
-        id_to_name = {i["id"]: i["name"] for i in indexers}
+        indexers_by_id: dict[int, IndexerDetail] = {i["id"]: i for i in indexers}
 
         # Newly failing
-        for idx_id in current_failing - self._failing_indexers:
-            name = id_to_name.get(idx_id, str(idx_id))
-            error = next((i.get("error") or "" for i in indexers if i["id"] == idx_id), "")
+        for indexer_id in current_failing - self._failing_indexers:
+            indexer = indexers_by_id[indexer_id]
             new_events.append(
                 LogEvent(
                     id=0,
                     source="prowlarr",
                     event_type="indexer_failing",
-                    title=name,
-                    detail=f"{name} is failing" + (f" — {error}" if error else ""),
+                    title=indexer["name"],
+                    detail=f"{indexer['name']} is failing: "
+                    f"{indexer['error'] or 'No failure reason found.'}",
                     at=now,
                 )
             )
 
         # Recovered
-        for idx_id in self._failing_indexers - current_failing:
-            name = id_to_name.get(idx_id, str(idx_id))
+        for indexer_id in self._failing_indexers - current_failing:
+            indexer = indexers_by_id[indexer_id]
             new_events.append(
                 LogEvent(
                     id=0,
                     source="prowlarr",
                     event_type="indexer_recovered",
-                    title=name,
-                    detail=f"{name} recovered",
+                    title=indexer["name"],
+                    detail=f"{indexer['name']} recovered",
                     at=now,
                 )
             )
@@ -316,26 +383,31 @@ class EventCollector:
         return new_events
 
 
-# ---------------------------------------------------------------------------
-# Detail formatters — plain functions, no I/O
-# ---------------------------------------------------------------------------
+def _radarr_sonarr_detail(event_type: ArrEvent, title: str) -> str:
+    """Format a human-readable detail string for a Radarr/Sonarr history event.
 
+    The wildcard arm raises rather than returning a fallback so that adding a new
+    ``ArrEvent`` variant without updating this function fails loudly at runtime
+    instead of silently producing a misleading message.
 
-def _radarr_detail(event_type: str, title: str) -> str:
-    if event_type == "grabbed":
-        return f"Grabbed {title}"
-    if event_type in ("downloadFolderImported", "movieFolderImported"):
-        return f"Imported {title}"
-    if event_type == "downloadFailed":
-        return f"Failed — {title}"
-    return title
+    Parameters
+    ----------
+    event_type : ArrEvent
+        The history event type to format.
+    title : str
+        The media title associated with the event.
 
-
-def _sonarr_detail(event_type: str, title: str) -> str:
-    if event_type == "grabbed":
-        return f"Grabbed {title}"
-    if event_type == "downloadFolderImported":
-        return f"Imported {title}"
-    if event_type == "downloadFailed":
-        return f"Failed — {title}"
-    return title
+    Returns
+    -------
+    str
+        Human-readable description suitable for display in the event log.
+    """
+    match event_type:
+        case ArrEvent.GRABBED:
+            return f"Grabbed {title}"
+        case ArrEvent.DOWNLOAD_FOLDER_IMPORTED | ArrEvent.MOVIE_FOLDER_IMPORTED:
+            return f"Imported {title}"
+        case ArrEvent.DOWNLOAD_FAILED:
+            return f"Failed — {title}"
+        case _:
+            raise ValueError(f"Unrecognised event type: {event_type}")

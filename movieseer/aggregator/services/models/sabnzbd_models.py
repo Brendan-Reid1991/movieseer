@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TypedDict
 
 from pydantic import BaseModel, Field
@@ -45,6 +46,10 @@ class HistorySlot(BaseModel):
     status: str
     completed: int  # Unix timestamp
     fail_message: str = ""
+
+    @property
+    def completed_as_iso(self) -> str:
+        return datetime.fromtimestamp(self.completed, tz=UTC).isoformat()
 
 
 class History(BaseModel):
