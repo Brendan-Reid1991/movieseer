@@ -66,7 +66,7 @@ class EventStore:
             for event in events:
                 cursor = await db.execute(
                     """
-                    INSERT INTO events:
+                    INSERT INTO events
                     (source, event_type, title, detail, at, created_at)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """,
