@@ -69,6 +69,7 @@ def _configure_logging() -> None:
         format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
         handlers=handlers,
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
 
 _configure_logging()
