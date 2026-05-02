@@ -7,7 +7,7 @@ services:
       - TZ=${TZ}
       - PLEX_UID=${PUID}
       - PLEX_GID=${PGID}
-      - ADVERTISE_IP=http://192.168.4.208:${PLEX_PORT}/,http://${HOST_IP}:${PLEX_PORT}/
+      - ADVERTISE_IP=http://${HOST_IP}:${PLEX_PORT}/
       - PLEX_CLAIM=${PLEX_CLAIM}
     ports:
       - "${PLEX_PORT}:32400"
