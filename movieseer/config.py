@@ -41,7 +41,7 @@ PROWLARR_API_KEY: str = os.getenv("PROWLARR_API_KEY", "")
 # SABnzbd
 # ---------------------------------------------------------------------------
 
-SABNZBD_URL: str = os.getenv("SABNZBD_URL", "http://sabnzbd:8080")
+SABNZBD_URL: str = os.getenv("SABNZBD_URL", "http://sabnzbd:8085")
 SABNZBD_API_KEY: str = os.getenv("SABNZBD_API_KEY", "")
 
 # ---------------------------------------------------------------------------
