@@ -74,11 +74,11 @@ class SABnzbdClient(_BaseServiceClient):
             The SABnzbd API ``mode`` parameter (e.g. ``"queue"``, ``"history"``).
         retrieve:
             The top-level key to extract from the JSON response before validation.
-            Defaults to ``mode`` when not provided.
+            Pass ``None`` to validate the full response dict directly — for endpoints
+            whose response is an unwrapped object rather than a keyed envelope.
         params:
             Additional query parameters merged on top of ``DEFAULT_PARAMS``.
         """
-        retrieve = retrieve if retrieve is not None else mode
         data = cast(
             "dict[str, object]",
             await self._get(
@@ -86,15 +86,17 @@ class SABnzbdClient(_BaseServiceClient):
                 params=self.DEFAULT_PARAMS | {"mode": mode} | (params or {}),
             ),
         )
+        if retrieve is None:
+            return model.model_validate(data)
         return model.model_validate(data[retrieve])
 
     async def queue(self) -> Queue:
         """Fetch the current SABnzbd download queue."""
-        return await self._mode(Queue, "queue")
+        return await self._mode(model=Queue, mode="queue", retrieve="queue")
 
     async def history(self) -> History:
         """Fetch the SABnzbd download history (completed and failed jobs)."""
-        return await self._mode(History, "history")
+        return await self._mode(model=History, mode="history", retrieve="history")
 
     async def server_stats(self) -> ServerStatsData:
         """Fetch raw per-server download statistics, keyed by server hostname.
@@ -102,7 +104,7 @@ class SABnzbdClient(_BaseServiceClient):
         Article counts are broken down by date (YYYY-MM-DD). Use ``server_health``
         to get aggregated hit-rate statistics instead.
         """
-        return await self._mode(ServerStatsData, "server_stats")
+        return await self._mode(model=ServerStatsData, mode="server_stats")
 
     async def slots(self) -> dict[str, Slot]:
         """Fetch the current queue and return its slots keyed by NZO ID.
