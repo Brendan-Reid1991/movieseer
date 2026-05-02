@@ -25,9 +25,16 @@ if [[ $NUM_ARGS -gt 0 ]]; then
       --rebuild)
         REBUILD=true
         ;;
+      --murder)
+        cd "$PATH_TO_ROOT"
+        docker compose down
+        docker desktop stop
+        diskutil eject "$DATA_PATH"
+        exit 0
+        ;;
       *)
         echo "Unknown argument: $var"
-        echo "Usage: $0 [--down] [--rebuild]"
+        echo "Usage: $0 [--down] [--rebuild] [--murder]"
         exit 1
         ;;
     esac
