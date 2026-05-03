@@ -322,7 +322,7 @@ async def api_infra() -> InfraStatus:
     """
     prowlarr_result, sabnzbd_result = await asyncio.gather(
         aggregator._prowlarr.status(),
-        aggregator._sabnzbd.server_stats(),
+        aggregator._sabnzbd.server_health(),
         return_exceptions=True,
     )
     return InfraStatus(

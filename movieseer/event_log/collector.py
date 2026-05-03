@@ -29,9 +29,11 @@ from movieseer.event_log.types import LogEvent
 
 logger = logging.getLogger(__name__)
 
+
 class SabnzbdSlotStatus(StrEnum):
     COMPLETED = "Completed"
     FAILED = "Failed"
+
 
 class ArrEvent(StrEnum):
     GRABBED = "grabbed"
@@ -160,7 +162,10 @@ class EventCollector:
         source_names = ("radarr", "sonarr", "sabnzbd", "prowlarr")
         for name, result in zip(source_names, results, strict=True):
             if isinstance(result, Exception):
-                logger.warning("Event collection failed for %s: %s", name, result)
+                logger.warning(
+                    f"Event collection failed for {name}. "
+                    f"Exception class {type(results)}, message: {str(result)}"
+                )
             else:
                 new_events.extend(result)
 
