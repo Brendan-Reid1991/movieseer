@@ -76,7 +76,7 @@ class TestDefaults:
 
     def test_sabnzbd_url_default(self):
         cfg = _reload_config({"SABNZBD_URL": None})
-        assert cfg.SABNZBD_URL == "http://sabnzbd:8080"
+        assert cfg.SABNZBD_URL == "http://sabnzbd:8085"
 
     def test_qbittorrent_url_default(self):
         cfg = _reload_config({"QBITTORRENT_URL": None})
