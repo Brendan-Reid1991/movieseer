@@ -4,7 +4,7 @@ set -e
 SCRIPT_DIR="${0:A:h}"
 PATH_TO_ROOT="$(dirname "$SCRIPT_DIR")"
 if [[ "$(basename "$PATH_TO_ROOT")" != "movieseer" ]]; then
-  echo "Error: Script is expected to be on folder down from the project root. Current path: $SCRIPT_DIR"
+  echo "Error: Script is expected to be one folder down from the project root. Current path: $SCRIPT_DIR"
   exit 1
 fi
 
@@ -29,7 +29,7 @@ if [[ $NUM_ARGS -gt 0 ]]; then
         cd "$PATH_TO_ROOT"
         docker compose down
         docker desktop stop
-        diskutil eject "$DATA_PATH"
+        diskutil eject "$(dirname "$DATA_PATH")"
         exit 0
         ;;
       *)
