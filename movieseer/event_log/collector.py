@@ -16,7 +16,7 @@ import asyncio
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
-from enum import StrEnum
+
 from typing import Literal
 
 from movieseer.aggregator.services.models.sabnzbd_models import HistorySlot
@@ -25,35 +25,9 @@ from movieseer.aggregator.services.radarr import RadarrClient
 from movieseer.aggregator.services.sabnzbd import SABnzbdClient
 from movieseer.aggregator.services.sonarr import SonarrClient
 from movieseer.event_log.db import EventStore
-from movieseer.event_log.types import LogEvent
+from movieseer.event_log.types import LogEvent, SabnzbdSlotStatus, ArrHistoryEvent, EVENT_MAP
 
 logger = logging.getLogger(__name__)
-
-
-class SabnzbdSlotStatus(StrEnum):
-    COMPLETED = "Completed"
-    FAILED = "Failed"
-
-
-class ArrEvent(StrEnum):
-    GRABBED = "grabbed"
-    DOWNLOAD_FAILED = "downloadFailed"
-    DOWNLOAD_FOLDER_IMPORTED = "downloadFolderImported"
-    MOVIE_FOLDER_IMPORTED = "movieFolderImported"
-
-
-class Event(StrEnum):
-    GRABBED = "grabbed"
-    FAILED = "failed"
-    IMPORTED = "imported"
-
-
-EVENT_MAP: dict[ArrEvent, Event] = {
-    ArrEvent.GRABBED: Event.GRABBED,
-    ArrEvent.DOWNLOAD_FOLDER_IMPORTED: Event.IMPORTED,
-    ArrEvent.MOVIE_FOLDER_IMPORTED: Event.IMPORTED,
-    ArrEvent.DOWNLOAD_FAILED: Event.FAILED,
-}
 
 
 class EventCollector:
@@ -388,16 +362,16 @@ class EventCollector:
         return new_events
 
 
-def _radarr_sonarr_detail(event_type: ArrEvent, title: str) -> str:
+def _radarr_sonarr_detail(event_type: ArrHistoryEvent, title: str) -> str:
     """Format a human-readable detail string for a Radarr/Sonarr history event.
 
     The wildcard arm raises rather than returning a fallback so that adding a new
-    ``ArrEvent`` variant without updating this function fails loudly at runtime
+    ``ArrHistoryEvent`` variant without updating this function fails loudly at runtime
     instead of silently producing a misleading message.
 
     Parameters
     ----------
-    event_type : ArrEvent
+    event_type : ArrHistoryEvent
         The history event type to format.
     title : str
         The media title associated with the event.
@@ -408,11 +382,11 @@ def _radarr_sonarr_detail(event_type: ArrEvent, title: str) -> str:
         Human-readable description suitable for display in the event log.
     """
     match event_type:
-        case ArrEvent.GRABBED:
+        case ArrHistoryEvent.GRABBED:
             return f"Grabbed {title}"
-        case ArrEvent.DOWNLOAD_FOLDER_IMPORTED | ArrEvent.MOVIE_FOLDER_IMPORTED:
+        case ArrHistoryEvent.DOWNLOAD_FOLDER_IMPORTED | ArrHistoryEvent.MOVIE_FOLDER_IMPORTED:
             return f"Imported {title}"
-        case ArrEvent.DOWNLOAD_FAILED:
+        case ArrHistoryEvent.DOWNLOAD_FAILED:
             return f"Failed — {title}"
         case _:
             raise ValueError(f"Unrecognised event type: {event_type}")

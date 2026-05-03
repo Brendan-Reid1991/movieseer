@@ -1,7 +1,7 @@
 from typing import cast
 
 from movieseer.notifier.types import (
-    ArrEvent,
+    ArrWebhookEvent,
     ArrPayload,
     RadarrPayload,
     Services,
@@ -22,18 +22,20 @@ async def _dispatch(payload: ArrPayload, service: Services) -> None:
     based on the event type."""
     label = labeller(payload, service)
     match payload.get("eventType", ""):
-        case ArrEvent.Grab:
+        case ArrWebhookEvent.Grab:
             await grab(payload, label)
-        case ArrEvent.Download:
+        case ArrWebhookEvent.Download:
             await download(label)
-        case ArrEvent.DownloadFailure:
+        case ArrWebhookEvent.DownloadFailure:
             await download_failure(payload, label)
-        case ArrEvent.ImportFailure:
+        case ArrWebhookEvent.ImportFailure:
             await import_failure(payload, label)
-        case ArrEvent.ManualInteractionRequired:
+        case ArrWebhookEvent.ManualInteractionRequired:
             await manual_interaction_required(payload, label)
-        case ArrEvent.Health:
+        case ArrWebhookEvent.Health:
             await health(payload, service)
+        case "Test":
+            pass
         case _ as unknown:
             raise ValueError(f"Unknown event type: {unknown}")
 

@@ -2,7 +2,7 @@ from enum import StrEnum
 from typing import Literal, TypedDict
 
 
-class ArrEvent(StrEnum):
+class ArrWebhookEvent(StrEnum):
     """Webhooks emitted from Radarr and Sonarr."""
 
     Grab = "Grab"

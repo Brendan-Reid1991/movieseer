@@ -25,6 +25,7 @@ type ArrHistoryEventType = Literal[
     "unknown",
     "grabbed",
     "downloadFolderImported",
+    "movieFolderImported",
     "downloadFailed",
     "downloadIgnored",
 ]

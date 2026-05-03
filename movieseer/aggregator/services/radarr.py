@@ -18,7 +18,6 @@ from movieseer.config import RADARR_API_KEY, RADARR_URL
 type MovieHistoryEventType = (
     ArrHistoryEventType
     | Literal[
-        "movieFolderImported",
         "movieFileDeleted",
         "movieFileRenamed",
     ]

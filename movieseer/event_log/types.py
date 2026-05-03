@@ -1,7 +1,7 @@
 """Types for the Movieseer event log."""
 
 from __future__ import annotations
-
+from enum import StrEnum
 from typing import Literal, TypedDict
 
 EventSource = Literal["radarr", "sonarr", "sabnzbd", "prowlarr", "jellyseerr", "jellyfin", "plex"]
@@ -28,3 +28,28 @@ class LogEvent(TypedDict):
     title: str  # media title, indexer name, etc.
     detail: str  # pre-formatted human-readable one-liner
     at: str  # ISO 8601 — when the event occurred in the source system
+
+class SabnzbdSlotStatus(StrEnum):
+    COMPLETED = "Completed"
+    FAILED = "Failed"
+
+
+class ArrHistoryEvent(StrEnum):
+    GRABBED = "grabbed"
+    DOWNLOAD_FAILED = "downloadFailed"
+    DOWNLOAD_FOLDER_IMPORTED = "downloadFolderImported"
+    MOVIE_FOLDER_IMPORTED = "movieFolderImported"
+
+
+class Event(StrEnum):
+    GRABBED = "grabbed"
+    FAILED = "failed"
+    IMPORTED = "imported"
+
+
+EVENT_MAP: dict[ArrHistoryEvent, Event] = {
+    ArrHistoryEvent.GRABBED: Event.GRABBED,
+    ArrHistoryEvent.DOWNLOAD_FOLDER_IMPORTED: Event.IMPORTED,
+    ArrHistoryEvent.MOVIE_FOLDER_IMPORTED: Event.IMPORTED,
+    ArrHistoryEvent.DOWNLOAD_FAILED: Event.FAILED,
+}
