@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import httpx
 
 
@@ -16,16 +18,16 @@ class _BaseServiceClient:
     that prefix, so an API version bump is a single-line change per service.
     """
 
-    _API_PREFIX: str = ""
+    BASE_URL: ClassVar[str]
+    _API_PREFIX: ClassVar[str]
 
     def __init__(
         self,
-        base_url: str,
         headers: dict[str, str] | None = None,
         timeout: float = 10.0,
     ) -> None:
         self._client = httpx.AsyncClient(
-            base_url=base_url,
+            base_url=self.BASE_URL,
             headers=headers or {},
             timeout=timeout,
         )
@@ -50,7 +52,8 @@ class _BaseServiceClient:
         data: dict[str, str] | None = None,
     ) -> None:
         """Issue a POST request. Response body is discarded."""
-        await self._client.post(f"{self._API_PREFIX}{path}", data=data)
+        r = await self._client.post(f"{self._API_PREFIX}{path}", data=data)
+        r.raise_for_status()
 
 
 class _ArrClient(_BaseServiceClient):
@@ -68,5 +71,5 @@ class _ArrClient(_BaseServiceClient):
                 super().__init__(NEW_ARR_URL, NEW_ARR_API_KEY)
     """
 
-    def __init__(self, base_url: str, api_key: str) -> None:
-        super().__init__(base_url, headers={"X-Api-Key": api_key})
+    def __init__(self) -> None:
+        super().__init__(headers={"X-Api-Key": self.API_KEY})

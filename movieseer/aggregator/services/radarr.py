@@ -83,10 +83,9 @@ class RadarrClient(_ArrClient):
     await radarr.aclose()
     """
 
+    BASE_URL = RADARR_URL
+    API_KEY = RADARR_API_KEY
     _API_PREFIX = "/api/v3"
-
-    def __init__(self) -> None:
-        super().__init__(RADARR_URL, RADARR_API_KEY)
 
     async def queue(self, page_length: int = 100) -> list[RadarrQueue]:
         """Fetch the current download queue with embedded movie details."""

@@ -47,10 +47,11 @@ class QBittorrentClient(_BaseServiceClient):
     await qbit.aclose()
     """
 
+    BASE_URL = QBITTORRENT_URL
     _API_PREFIX = "/api/v2"
 
     def __init__(self) -> None:
-        super().__init__(QBITTORRENT_URL)
+        super().__init__()
         self._authenticated = False
 
     async def _login(self) -> None:

@@ -7,7 +7,7 @@ All requests are authenticated via the ``apikey`` query parameter.
 from __future__ import annotations
 
 import asyncio
-from typing import Literal, TypeVar, cast, overload
+from typing import ClassVar, Literal, TypeVar, cast, overload
 
 from pydantic import BaseModel
 
@@ -32,7 +32,7 @@ class SABnzbdClient(_BaseServiceClient):
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
     the Aggregator's lifespan) to release connections on shutdown.
 
-    Auth is handled via ``DEFAULT_PARAMS``, which is merged into every request.
+    Auth is handled via ``_DEFAULT_PARAMS``, which is merged into every request.
 
     Adding a new config section
     ---------------------------
@@ -48,14 +48,13 @@ class SABnzbdClient(_BaseServiceClient):
     await sabnzbd.aclose()
     """
 
+    BASE_URL = SABNZBD_URL
     _API_PREFIX = "/api"
-    DEFAULT_PARAMS = {"apikey": SABNZBD_API_KEY, "output": "json"}
+    _DEFAULT_PARAMS: ClassVar[dict[str, str]] = {"apikey": SABNZBD_API_KEY, "output": "json"}
+
     _CONFIG_SECTIONS: dict[str, type[BaseModel]] = {
         "servers": ServersConfig,
     }
-
-    def __init__(self) -> None:
-        super().__init__(SABNZBD_URL)
 
     async def _mode(
         self,
@@ -77,13 +76,13 @@ class SABnzbdClient(_BaseServiceClient):
             Pass ``None`` to validate the full response dict directly — for endpoints
             whose response is an unwrapped object rather than a keyed envelope.
         params:
-            Additional query parameters merged on top of ``DEFAULT_PARAMS``.
+            Additional query parameters merged on top of ``_DEFAULT_PARAMS``.
         """
         data = cast(
             "dict[str, object]",
             await self._get(
                 "",
-                params=self.DEFAULT_PARAMS | {"mode": mode} | (params or {}),
+                params=self._DEFAULT_PARAMS | {"mode": mode} | (params or {}),
             ),
         )
         if retrieve is None:

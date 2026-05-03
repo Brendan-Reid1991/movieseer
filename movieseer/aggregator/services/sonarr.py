@@ -92,10 +92,9 @@ class SonarrClient(_ArrClient):
     await sonarr.aclose()
     """
 
+    BASE_URL = SONARR_URL
+    API_KEY = SONARR_API_KEY
     _API_PREFIX = "/api/v3"
-
-    def __init__(self) -> None:
-        super().__init__(SONARR_URL, SONARR_API_KEY)
 
     async def queue(self, page_length: int = 100) -> list[SonarrQueue]:
         """Fetch the current download queue with embedded series details."""

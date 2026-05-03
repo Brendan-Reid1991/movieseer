@@ -51,10 +51,9 @@ class ProwlarrClient(_ArrClient):
     await prowlarr.aclose()
     """
 
+    BASE_URL = PROWLARR_URL
+    API_KEY = PROWLARR_API_KEY
     _API_PREFIX = "/api/v1"
-
-    def __init__(self) -> None:
-        super().__init__(PROWLARR_URL, PROWLARR_API_KEY)
 
     async def indexers(self) -> list[IndexerDetail]:
         """Return per-indexer status joined from /indexer and /indexerstatus.
