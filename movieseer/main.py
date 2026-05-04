@@ -455,7 +455,7 @@ async def _emit(source: str, event_type: str, detail: str) -> None:
 async def _sync_jellyfin() -> None:
     try:
         await _emit("jellyfin", "sync_started", "Jellyfin library refresh started")
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.post(
                 f"{JELLYFIN_URL}/Library/Refresh",

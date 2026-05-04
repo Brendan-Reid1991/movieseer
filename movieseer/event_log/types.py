@@ -1,6 +1,7 @@
 """Types for the Movieseer event log."""
 
 from __future__ import annotations
+
 from enum import StrEnum
 from typing import Literal, TypedDict
 

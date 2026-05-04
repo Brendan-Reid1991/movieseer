@@ -1,8 +1,8 @@
 from typing import cast
 
 from movieseer.notifier.types import (
-    ArrWebhookEvent,
     ArrPayload,
+    ArrWebhookEvent,
     RadarrPayload,
     Services,
     SonarrPayload,
@@ -13,7 +13,8 @@ from movieseer.notifier.webhooks import (
     grab,
     health,
     import_failure,
-    manual_interaction_required,test_webhook,
+    manual_interaction_required,
+    test_webhook,
 )
 
 
