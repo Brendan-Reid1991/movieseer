@@ -35,11 +35,13 @@ class _BaseClient:
 
     def __init__(
         self,
+        url: str | None = None,
         headers: dict[str, str] | None = None,
         timeout: float = 10.0,
     ) -> None:
+        self._active_url = url or self.SERVICE_URL
         self._client = httpx.AsyncClient(
-            base_url=self.SERVICE_URL,
+            base_url=self._active_url,
             headers=headers or {},
             timeout=timeout,
         )
@@ -77,5 +79,5 @@ class _ApiKeyClient(_BaseClient):
 
     API_KEY: ClassVar[str]
 
-    def __init__(self) -> None:
-        super().__init__(headers={"X-Api-Key": self.API_KEY})
+    def __init__(self, url: str | None = None) -> None:
+        super().__init__(url=url, headers={"X-Api-Key": self.API_KEY})

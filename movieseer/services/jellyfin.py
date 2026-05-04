@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from .client_api import _BaseClient
 from movieseer.config import JELLYFIN_API_KEY, JELLYFIN_URL
+
+from .client_api import _BaseClient
 
 TaskState = Literal["Idle", "Running", "Cancelling"]
 _LIBRARY_SCAN_KEY = "RefreshLibrary"
@@ -17,8 +18,8 @@ class JellyfinClient(_BaseClient):
 
     SERVICE_URL = JELLYFIN_URL
 
-    def __init__(self) -> None:
-        super().__init__(headers={"X-Emby-Token": JELLYFIN_API_KEY})
+    def __init__(self, url: str | None = None) -> None:
+        super().__init__(url=url, headers={"X-Emby-Token": JELLYFIN_API_KEY})
 
     async def _task_id(self, key: str) -> str:
         tasks = await self._get("/ScheduledTasks")
