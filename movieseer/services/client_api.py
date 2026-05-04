@@ -31,7 +31,7 @@ class _BaseClient:
     """
 
     SERVICE_URL: ClassVar[str]
-    _API_PREFIX: ClassVar[str]
+    _API_PREFIX: ClassVar[str] = ""
 
     def __init__(
         self,
