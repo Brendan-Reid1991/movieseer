@@ -16,16 +16,14 @@ import asyncio
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
-
 from typing import Literal
 
-from movieseer.aggregator.services.models.sabnzbd_models import HistorySlot
-from movieseer.aggregator.services.prowlarr import IndexerDetail, ProwlarrClient
-from movieseer.aggregator.services.radarr import RadarrClient
-from movieseer.aggregator.services.sabnzbd import SABnzbdClient
-from movieseer.aggregator.services.sonarr import SonarrClient
-from movieseer.event_log.db import EventStore
-from movieseer.event_log.types import LogEvent, SabnzbdSlotStatus, ArrHistoryEvent, EVENT_MAP
+from movieseer.services import ProwlarrClient, RadarrClient, SABnzbdClient, SonarrClient
+from movieseer.services.data_structures.prowlarr_models import IndexerDetail
+from movieseer.services.data_structures.sabnzbd_models import HistorySlot
+
+from .db import EventStore
+from .types import EVENT_MAP, ArrHistoryEvent, LogEvent, SabnzbdSlotStatus
 
 logger = logging.getLogger(__name__)
 
