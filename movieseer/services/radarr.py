@@ -4,70 +4,17 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from pydantic import Field
-
-from movieseer.aggregator.services.base import _ApiKeyClient
-from movieseer.aggregator.services.models.arr_models import (
-    ArrHistory,
-    ArrHistoryEventType,
-    ArrQueue,
-    _CamelBase,
-)
 from movieseer.config import RADARR_API_KEY, RADARR_URL
 
-type MovieHistoryEventType = (
-    ArrHistoryEventType
-    | Literal[
-        "movieFileDeleted",
-        "movieFileRenamed",
-    ]
+from .client_api import _ApiKeyClient, gateway
+from .data_structures.radarr_models import (
+    Movie,
+    RadarrHistory,
+    RadarrQueue,
 )
-type MovieStatusType = Literal["tba", "announced", "inCinemas", "released", "deleted"]
 
 
-# ---------------------------------------------------------------------------
-# Models
-# ---------------------------------------------------------------------------
-
-
-class Movie(_CamelBase):
-    """A Radarr movie record."""
-
-    id: int
-    title: str
-    year: int
-    status: MovieStatusType
-    imdb_id: str | None = None
-    tmdb_id: int
-    has_file: bool | None = None
-    monitored: bool
-    size_on_disk: int | None = None
-    genres: list[str] = Field(default_factory=list)
-    runtime: int
-    grabbed: bool | None = None
-    is_available: bool
-    is_excluded: bool | None = None
-
-
-class RadarrQueue(ArrQueue):
-    """Radarr queue record — extends ArrQueue with movie-specific fields."""
-
-    movie_id: int | None = None
-    movie: Movie | None = None  # populated when includeMovie=True
-
-
-class RadarrHistory(ArrHistory):
-    """Radarr history record — extends ArrHistory with movie-specific fields."""
-
-    movie_id: int
-    event_type: MovieHistoryEventType  # type: ignore[assignment]
-
-
-# ---------------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------------
-
-
+@gateway("/api/v3")
 class RadarrClient(_ApiKeyClient):
     """Radarr API v3 client.
 
@@ -82,9 +29,8 @@ class RadarrClient(_ApiKeyClient):
     await radarr.aclose()
     """
 
-    BASE_URL = RADARR_URL
+    SERVICE_URL = RADARR_URL
     API_KEY = RADARR_API_KEY
-    _API_PREFIX = "/api/v3"
 
     async def queue(self, page_length: int = 100) -> list[RadarrQueue]:
         """Fetch the current download queue with embedded movie details."""

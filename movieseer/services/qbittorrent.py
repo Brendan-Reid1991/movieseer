@@ -2,34 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TypedDict, cast
+from typing import cast
 
 import httpx
-from pydantic import BaseModel
 
-from movieseer.aggregator.services.base import _BaseServiceClient
 from movieseer.config import QBITTORRENT_PASS, QBITTORRENT_URL, QBITTORRENT_USER
 
-
-class QbitSummary(TypedDict):
-    """Aggregated qBittorrent torrent counts."""
-
-    active: int
-    downloading: int
+from .client_api import _BaseClient
+from .data_structures.qbittorrent_models import QbitSummary, Torrent
 
 
-class Torrent(BaseModel):
-    """A single torrent entry from the qBittorrent API."""
-
-    hash: str
-    name: str
-    state: str
-    progress: float
-    eta: int
-    size: int
-
-
-class QBittorrentClient(_BaseServiceClient):
+class QBittorrentClient(_BaseClient):
     """qBittorrent Web API client.
 
     Constructs and owns its httpx.AsyncClient. The long-lived client retains
@@ -47,8 +30,7 @@ class QBittorrentClient(_BaseServiceClient):
     await qbit.aclose()
     """
 
-    BASE_URL = QBITTORRENT_URL
-    _API_PREFIX = "/api/v2"
+    SERVICE_URL = QBITTORRENT_URL
 
     def __init__(self) -> None:
         super().__init__()

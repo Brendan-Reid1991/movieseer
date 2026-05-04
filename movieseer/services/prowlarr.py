@@ -3,57 +3,20 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Literal, TypedDict, cast
+from typing import Literal, cast
 
-from movieseer.aggregator.services.base import _ApiKeyClient
 from movieseer.config import PROWLARR_API_KEY, PROWLARR_URL
 
-
-class ProwlarrIssue(TypedDict):
-    """A single health-check issue reported by Prowlarr."""
-
-    name: str
-    message: str
+from .client_api import _ApiKeyClient, gateway
+from .data_structures.prowlarr_models import IndexerDetail, ProwlarrIssue, ProwlarrStatus
 
 
-class IndexerDetail(TypedDict, total=False):
-    """Per-indexer status joined from /indexer and /indexerstatus."""
-
-    id: int
-    name: str
-    protocol: Literal["usenet", "torrent"]
-    enabled: bool
-    failing: bool
-    error: str | None  # message from /indexerstatus if failing, else None
-
-
-class ProwlarrStatus(TypedDict):
-    """Aggregated indexer health from Prowlarr."""
-
-    total: int
-    failing: int
-    healthy: int
-    issues: list[ProwlarrIssue]
-    indexers: list[IndexerDetail]
-
-
+@gateway("/api/v1")
 class ProwlarrClient(_ApiKeyClient):
-    """Prowlarr API v1 client.
-
-    Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
-    the Aggregator's lifespan) to release connections on shutdown.
-
-    Example
-    -------
-    prowlarr = ProwlarrClient()
-    status = await prowlarr.status()
-    indexers = await prowlarr.indexers()
-    await prowlarr.aclose()
-    """
+    """Prowlarr API client."""
 
     BASE_URL = PROWLARR_URL
     API_KEY = PROWLARR_API_KEY
-    _API_PREFIX = "/api/v1"
 
     async def indexers(self) -> list[IndexerDetail]:
         """Return per-indexer status joined from /indexer and /indexerstatus.

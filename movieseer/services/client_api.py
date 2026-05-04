@@ -7,18 +7,30 @@ from typing import ClassVar
 import httpx
 
 
-class _BaseServiceClient:
-    """Owns an httpx.AsyncClient and provides generic HTTP helpers.
+def gateway(url: str):
+    """Decorator to populate _BaseClient subclasses with an _API_PREFIX
+    class variable.
 
-    Has no knowledge of auth — subclasses are responsible for configuring
-    authentication at construction time or per-request.
-
-    Subclasses declare ``_API_PREFIX`` to centralise the API version string
-    (e.g. ``"/api/v3"``). All ``_get`` and ``_post`` paths are relative to
-    that prefix, so an API version bump is a single-line change per service.
+    Added solely to avoid muddying the subclass definitions.
     """
 
-    BASE_URL: ClassVar[str]
+    def decorator(cls: type[_BaseClient]):
+        cls._API_PREFIX = url
+        return cls
+
+    return decorator
+
+
+class _BaseClient:
+    """Base class for all API calls to client services.
+
+    Subclasses inherit and populate the `SERVICE_URL` variable which comes from
+    the config.py.
+
+    _API_PREFIX can be set in the class body, or via the @gateway decorator.
+    """
+
+    SERVICE_URL: ClassVar[str]
     _API_PREFIX: ClassVar[str]
 
     def __init__(
@@ -27,7 +39,7 @@ class _BaseServiceClient:
         timeout: float = 10.0,
     ) -> None:
         self._client = httpx.AsyncClient(
-            base_url=self.BASE_URL,
+            base_url=self.SERVICE_URL,
             headers=headers or {},
             timeout=timeout,
         )
@@ -56,12 +68,13 @@ class _BaseServiceClient:
         r.raise_for_status()
 
 
-class _ApiKeyClient(_BaseServiceClient):
+class _ApiKeyClient(_BaseClient):
     """Base client for services that accept the API key via the header.
 
     Bakes the X-Api-Key header into the underlying httpx.AsyncClient so that
-    all requests inherit it automatically — no per-request auth handling needed.
+    all requests inherit it automatically.
     """
+
     API_KEY: ClassVar[str]
 
     def __init__(self) -> None:

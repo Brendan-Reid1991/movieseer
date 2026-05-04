@@ -4,80 +4,13 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from pydantic import Field
-
-from movieseer.aggregator.services.base import _ApiKeyClient
-from movieseer.aggregator.services.models.arr_models import (
-    ArrHistory,
-    ArrHistoryEventType,
-    ArrQueue,
-    _CamelBase,
-)
 from movieseer.config import SONARR_API_KEY, SONARR_URL
 
-type EpisodeHistoryEventType = (
-    ArrHistoryEventType
-    | Literal[
-        "seriesFolderImported",
-        "episodeFileDeleted",
-        "episodeFileRenamed",
-    ]
-)
-type SeriesStatusType = Literal["continuing", "ended", "upcoming", "deleted"]
+from .client_api import _ApiKeyClient, gateway
+from .data_structures.sonarr_models import Series, SonarrHistory, SonarrQueue
 
 
-# ---------------------------------------------------------------------------
-# Models
-# ---------------------------------------------------------------------------
-
-
-class SeriesStatistics(_CamelBase):
-    """Episode and file counts for a Sonarr series."""
-
-    season_count: int = 0
-    episode_count: int = 0
-    episode_file_count: int = 0
-    total_episode_count: int = 0
-    size_on_disk: int = 0
-    percent_of_episodes: float = 0.0
-
-
-class Series(_CamelBase):
-    """A Sonarr series record."""
-
-    id: int
-    title: str
-    year: int
-    status: SeriesStatusType
-    tvdb_id: int
-    imdb_id: str | None = None
-    monitored: bool
-    runtime: int
-    genres: list[str] = Field(default_factory=list)
-    statistics: SeriesStatistics | None = None
-
-
-class SonarrQueue(ArrQueue):
-    """Sonarr queue record — extends ArrQueue with episode-specific fields."""
-
-    series_id: int | None = None
-    episode_id: int | None = None
-    series: Series | None = None  # populated when includeSeries=True
-
-
-class SonarrHistory(ArrHistory):
-    """Sonarr history record — extends ArrHistory with episode-specific fields."""
-
-    series_id: int
-    episode_id: int
-    event_type: EpisodeHistoryEventType  # type: ignore[assignment]
-
-
-# ---------------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------------
-
-
+@gateway("/api/v3")
 class SonarrClient(_ApiKeyClient):
     """Sonarr API v3 client.
 
@@ -92,9 +25,8 @@ class SonarrClient(_ApiKeyClient):
     await sonarr.aclose()
     """
 
-    BASE_URL = SONARR_URL
+    SERVICE_URL = SONARR_URL
     API_KEY = SONARR_API_KEY
-    _API_PREFIX = "/api/v3"
 
     async def queue(self, page_length: int = 100) -> list[SonarrQueue]:
         """Fetch the current download queue with embedded series details."""

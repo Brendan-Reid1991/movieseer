@@ -10,10 +10,10 @@ _LIBRARY_SCAN_KEY = "RefreshLibrary"
 
 
 class JellyfinClient(_BaseServiceClient):
-    """Jellyfin API client. 
+    """Jellyfin API client.
 
     Only required to trigger library refreshes and to track the status.
-    """    
+    """
 
     BASE_URL = JELLYFIN_URL
     _API_PREFIX = ""
@@ -37,4 +37,4 @@ class JellyfinClient(_BaseServiceClient):
     async def refresh_state(self, task_id: str) -> TaskState:
         data = await self._get(f"/ScheduledTasks/{task_id}")
         assert isinstance(data, dict)
-        return cast(TaskState, data["State"])
+        return cast("TaskState", data["State"])

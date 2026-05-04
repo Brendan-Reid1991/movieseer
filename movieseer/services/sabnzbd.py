@@ -11,8 +11,10 @@ from typing import ClassVar, Literal, TypeVar, cast, overload
 
 from pydantic import BaseModel
 
-from movieseer.aggregator.services.base import _BaseServiceClient
-from movieseer.aggregator.services.models.sabnzbd_models import (
+from movieseer.config import SABNZBD_API_KEY, SABNZBD_URL
+
+from .client_api import _BaseClient, gateway
+from .data_structures.sabnzbd_models import (
     History,
     HistorySlot,
     Queue,
@@ -21,12 +23,12 @@ from movieseer.aggregator.services.models.sabnzbd_models import (
     ServerStatsData,
     Slot,
 )
-from movieseer.config import SABNZBD_API_KEY, SABNZBD_URL
 
 T = TypeVar("T", bound=BaseModel)
 
 
-class SABnzbdClient(_BaseServiceClient):
+@gateway("/api")
+class SABnzbdClient(_BaseClient):
     """HTTP client for the SABnzbd API.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
@@ -48,8 +50,8 @@ class SABnzbdClient(_BaseServiceClient):
     await sabnzbd.aclose()
     """
 
-    BASE_URL = SABNZBD_URL
-    _API_PREFIX = "/api"
+    SERVICE_URL = SABNZBD_URL
+
     _DEFAULT_PARAMS: ClassVar[dict[str, str]] = {"apikey": SABNZBD_API_KEY, "output": "json"}
 
     _CONFIG_SECTIONS: dict[str, type[BaseModel]] = {
