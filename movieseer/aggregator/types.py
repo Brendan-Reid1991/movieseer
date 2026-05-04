@@ -7,7 +7,6 @@ from movieseer.services.data_structures.qbittorrent_models import Torrent
 from movieseer.services.data_structures.sabnzbd_models import Queue, ServerStat
 
 
-
 class ServiceError(TypedDict):
     """Uniform error envelope used when a service call fails."""
 
