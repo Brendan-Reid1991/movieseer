@@ -3,23 +3,24 @@ from __future__ import annotations
 import logging
 from datetime import UTC, datetime, timedelta
 
-from movieseer.aggregator.services.models.arr_models import ArrHistory, ArrQueue
-from movieseer.aggregator.services.radarr import (
+from movieseer.config import HISTORY_WINDOW_DAYS
+from movieseer.services.data_structures.arr_models import ArrHistory, ArrQueue
+from movieseer.services.data_structures.radarr_models import (
     Movie,
     RadarrHistory,
     RadarrQueue,
 )
-from movieseer.aggregator.services.sonarr import (
+from movieseer.services.data_structures.sonarr_models import (
     Series,
     SonarrHistory,
     SonarrQueue,
 )
-from movieseer.aggregator.types import (
+
+from .types import (
     ArrStatus,
     HistoryEvent,
     RequestItem,
 )
-from movieseer.config import HISTORY_WINDOW_DAYS
 
 logger = logging.getLogger(__name__)
 

@@ -15,27 +15,30 @@ from movieseer.aggregator._utils import (
     movie_requests,
     series_requests,
 )
-from movieseer.aggregator.services.jellyseer import JellyseerClient
-from movieseer.aggregator.services.models.jellyseer_models import MediaRequest
-from movieseer.aggregator.services.prowlarr import ProwlarrClient
-from movieseer.aggregator.services.qbittorrent import QBittorrentClient
-from movieseer.aggregator.services.radarr import (
+from movieseer.config import CACHE_TTL
+from movieseer.services import (
+    JellyseerClient,
+    ProwlarrClient,
+    QBittorrentClient,
     RadarrClient,
+    SABnzbdClient,
+    SonarrClient,
+)
+from movieseer.services.data_structures.jellyseer_models import MediaRequest
+from movieseer.services.data_structures.radarr_models import (
     RadarrHistory,
     RadarrQueue,
 )
-from movieseer.aggregator.services.sabnzbd import SABnzbdClient
-from movieseer.aggregator.services.sonarr import (
-    SonarrClient,
+from movieseer.services.data_structures.sonarr_models import (
     SonarrHistory,
     SonarrQueue,
 )
-from movieseer.aggregator.types import (
+
+from .types import (
     RequestItem,
     StatusResult,
     SystemStatus,
 )
-from movieseer.config import CACHE_TTL
 
 logger = logging.getLogger(__name__)
 
