@@ -10,6 +10,11 @@ _LIBRARY_SCAN_KEY = "RefreshLibrary"
 
 
 class JellyfinClient(_BaseServiceClient):
+    """Jellyfin API client. 
+
+    Only required to trigger library refreshes and to track the status.
+    """    
+
     BASE_URL = JELLYFIN_URL
     _API_PREFIX = ""
 
