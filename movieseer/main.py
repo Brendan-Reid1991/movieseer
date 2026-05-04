@@ -90,7 +90,7 @@ event_collector = EventCollector(
     prowlarr=aggregator._prowlarr,
 )
 
-# SSE subscriber queues — one per connected client
+# Server sent event subscriber queues — one per connected client
 _sse_subscribers: set[asyncio.Queue[LogEvent]] = set()
 
 
@@ -455,6 +455,7 @@ async def _emit(source: str, event_type: str, detail: str) -> None:
 async def _sync_jellyfin() -> None:
     try:
         await _emit("jellyfin", "sync_started", "Jellyfin library refresh started")
+        
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.post(
                 f"{JELLYFIN_URL}/Library/Refresh",
