@@ -2,21 +2,20 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from movieseer.aggregator.services.base import _BaseServiceClient
+from .client_api import _BaseClient
 from movieseer.config import JELLYFIN_API_KEY, JELLYFIN_URL
 
 TaskState = Literal["Idle", "Running", "Cancelling"]
 _LIBRARY_SCAN_KEY = "RefreshLibrary"
 
 
-class JellyfinClient(_BaseServiceClient):
+class JellyfinClient(_BaseClient):
     """Jellyfin API client.
 
     Only required to trigger library refreshes and to track the status.
     """
 
-    BASE_URL = JELLYFIN_URL
-    _API_PREFIX = ""
+    SERVICE_URL = JELLYFIN_URL
 
     def __init__(self) -> None:
         super().__init__(headers={"X-Emby-Token": JELLYFIN_API_KEY})
