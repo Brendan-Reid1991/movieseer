@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import ClassVar, TypeVar
 
 import httpx
+
+_C = TypeVar("_C", bound="_BaseClient")
 
 
 def gateway(url: str):
@@ -14,7 +16,7 @@ def gateway(url: str):
     Added solely to avoid muddying the subclass definitions.
     """
 
-    def decorator(cls: type[_BaseClient]):
+    def decorator(cls: type[_C]) -> type[_C]:
         cls._API_PREFIX = url
         return cls
 
