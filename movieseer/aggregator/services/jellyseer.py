@@ -1,6 +1,6 @@
 from typing import Literal
 
-from movieseer.aggregator.services.base import _ArrClient
+from movieseer.aggregator.services.base import _ApiKeyClient
 from movieseer.aggregator.services.models.jellyseer_models import (
     MediaDetail,
     MediaRequest,
@@ -8,7 +8,7 @@ from movieseer.aggregator.services.models.jellyseer_models import (
 from movieseer.config import JELLYSEERR_API_KEY, JELLYSEERR_URL
 
 
-class JellyseerClient(_ArrClient):
+class JellyseerClient(_ApiKeyClient):
     """Jellyseer API client.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via

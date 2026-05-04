@@ -6,7 +6,7 @@ from typing import Literal, cast
 
 from pydantic import Field
 
-from movieseer.aggregator.services.base import _ArrClient
+from movieseer.aggregator.services.base import _ApiKeyClient
 from movieseer.aggregator.services.models.arr_models import (
     ArrHistory,
     ArrHistoryEventType,
@@ -68,7 +68,7 @@ class RadarrHistory(ArrHistory):
 # ---------------------------------------------------------------------------
 
 
-class RadarrClient(_ArrClient):
+class RadarrClient(_ApiKeyClient):
     """Radarr API v3 client.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via

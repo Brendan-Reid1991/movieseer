@@ -56,20 +56,13 @@ class _BaseServiceClient:
         r.raise_for_status()
 
 
-class _ArrClient(_BaseServiceClient):
-    """Base client for arr-compatible services (Radarr, Sonarr, Prowlarr, etc.).
+class _ApiKeyClient(_BaseServiceClient):
+    """Base client for services that accept the API key via the header.
 
     Bakes the X-Api-Key header into the underlying httpx.AsyncClient so that
     all requests inherit it automatically — no per-request auth handling needed.
-
-    Adding support for a new arr service requires:
-
-        class NewArrClient(_ArrClient):
-            _API_PREFIX = "/api/vN"
-
-            def __init__(self) -> None:
-                super().__init__(NEW_ARR_URL, NEW_ARR_API_KEY)
     """
+    API_KEY: ClassVar[str]
 
     def __init__(self) -> None:
         super().__init__(headers={"X-Api-Key": self.API_KEY})

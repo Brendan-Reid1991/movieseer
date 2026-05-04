@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import Literal, TypedDict, cast
 
-from movieseer.aggregator.services.base import _ArrClient
+from movieseer.aggregator.services.base import _ApiKeyClient
 from movieseer.config import PROWLARR_API_KEY, PROWLARR_URL
 
 
@@ -37,7 +37,7 @@ class ProwlarrStatus(TypedDict):
     indexers: list[IndexerDetail]
 
 
-class ProwlarrClient(_ArrClient):
+class ProwlarrClient(_ApiKeyClient):
     """Prowlarr API v1 client.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
