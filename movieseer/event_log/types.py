@@ -29,6 +29,7 @@ class LogEvent(TypedDict):
     detail: str  # pre-formatted human-readable one-liner
     at: str  # ISO 8601 — when the event occurred in the source system
 
+
 class SabnzbdSlotStatus(StrEnum):
     COMPLETED = "Completed"
     FAILED = "Failed"
