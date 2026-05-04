@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from movieseer.aggregator.services.models._base import _CamelBase
+from ._base import _CamelBase
 
 type QueueStatus = Literal[
     "queued",
