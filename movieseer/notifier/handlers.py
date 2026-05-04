@@ -13,7 +13,7 @@ from movieseer.notifier.webhooks import (
     grab,
     health,
     import_failure,
-    manual_interaction_required,
+    manual_interaction_required,test_webhook,
 )
 
 
@@ -35,7 +35,7 @@ async def _dispatch(payload: ArrPayload, service: Services) -> None:
         case ArrWebhookEvent.Health:
             await health(payload, service)
         case "Test":
-            pass
+            await test_webhook(payload, service)
         case _ as unknown:
             raise ValueError(f"Unknown event type: {unknown}")
 

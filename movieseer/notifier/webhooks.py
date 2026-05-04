@@ -91,3 +91,11 @@ def health(payload: HealthPayload, service: Services) -> Awaitable[None]:
     level = payload.get("level", "warning").lower()
     priority: Priority = "high" if level == "error" else "default"
     return _send_message(msg, f"Health issue from {service}", priority=priority, tags="warning")
+
+
+def test_webhook(payload: HealthPayload, service: Services) -> Awaitable[None]:
+    """Notify of a health issue reported by Radarr or Sonarr."""
+    msg = payload.get("message", "No message provided.")
+    level = payload.get("level", "warning").lower()
+    priority: Priority = "high" if level == "error" else "default"
+    return _send_message(msg, f"Webhook test from {service}", priority=priority, tags="warning")
