@@ -4,16 +4,16 @@ import logging
 from datetime import UTC, datetime, timedelta
 
 from movieseer.config import HISTORY_WINDOW_DAYS
-from movieseer.services.data_structures.arr_models import ArrHistory, ArrQueue
+from movieseer.services.data_structures.arr_models import ArrHistoryEntry, ArrQueueEntry
 from movieseer.services.data_structures.radarr_models import (
     Movie,
-    RadarrHistory,
-    RadarrQueue,
+    RadarrHistoryEntry,
+    RadarrQueueEntry,
 )
 from movieseer.services.data_structures.sonarr_models import (
     Series,
-    SonarrHistory,
-    SonarrQueue,
+    SonarrHistoryEntry,
+    SonarrQueueEntry,
 )
 
 from .types import (
@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__)
 def movie_requests(
     ids: list[int],
     details: list[Movie | BaseException],
-    queue: list[RadarrQueue],
-    hist: list[RadarrHistory],
+    queue: list[RadarrQueueEntry],
+    hist: list[RadarrHistoryEntry],
 ) -> list[RequestItem]:
     """Assemble RequestItems from the three async Radarr data sources.
 
@@ -74,8 +74,8 @@ def movie_requests(
 def series_requests(
     ids: list[int],
     details: list[Series | BaseException],
-    queue: list[SonarrQueue],
-    hist: list[SonarrHistory],
+    queue: list[SonarrQueueEntry],
+    hist: list[SonarrHistoryEntry],
 ) -> list[RequestItem]:
     """Assemble RequestItems from the three async Sonarr data sources.
 
@@ -117,8 +117,8 @@ def series_requests(
 
 def build_request_from_radarr(
     media: Movie,
-    queue_item: RadarrQueue | None,
-    hist_events: list[RadarrHistory],
+    queue_item: RadarrQueueEntry | None,
+    hist_events: list[RadarrHistoryEntry],
 ) -> RequestItem:
     """Build a RequestItem for a movie sourced directly from Radarr.
 
@@ -168,8 +168,8 @@ def build_request_from_radarr(
 
 def build_request_from_sonarr(
     media: Series,
-    queue_items: list[SonarrQueue],
-    hist_events: list[SonarrHistory],
+    queue_items: list[SonarrQueueEntry],
+    hist_events: list[SonarrHistoryEntry],
 ) -> RequestItem:
     """Build a RequestItem for a series sourced directly from Sonarr.
 
@@ -278,7 +278,7 @@ def jellyseerr_status(req_status: int | None, media_status: int | None) -> str:
     return {1: "pending", 2: "approved", 3: "declined", 4: "completed"}.get(req_status, "unknown")
 
 
-def arr_queue_status(queue_item: ArrQueue) -> ArrStatus:
+def arr_queue_status(queue_item: ArrQueueEntry) -> ArrStatus:
     """Derive an ArrStatus from a live queue entry.
 
     Any tracked download state other than Warning or Error is normalised to
@@ -310,7 +310,7 @@ def arr_queue_status(queue_item: ArrQueue) -> ArrStatus:
     }
 
 
-def arr_history_status(history: list[ArrHistory], media_status: int | None = None) -> ArrStatus:
+def arr_history_status(history: list[ArrHistoryEntry], media_status: int | None = None) -> ArrStatus:
     """Derive an ArrStatus from the arr history log for an item not in the active queue.
 
     An empty history means arr accepted the item but has not attempted a download yet,
@@ -348,7 +348,7 @@ def arr_history_status(history: list[ArrHistory], media_status: int | None = Non
     return {"status": status, "error": error, "at": latest.date.isoformat()}
 
 
-def format_history(events: list[ArrHistory]) -> list[HistoryEvent]:
+def format_history(events: list[ArrHistoryEntry]) -> list[HistoryEvent]:
     """Flatten arr history records into the HistoryEvent shape expected by the template.
 
     Strips the full ArrHistory model down to the four fields the template actually

@@ -62,7 +62,7 @@ class StatusMessage(_CamelBase):
     messages: list[str] = Field(default_factory=list)
 
 
-class ArrQueue(_CamelBase):
+class ArrQueueEntry(_CamelBase):
     """Shared fields across Radarr and Sonarr queue records.
 
     The aggregator's helpers (_arr_queue_status, _resolve_download) operate
@@ -85,7 +85,7 @@ class ArrQueue(_CamelBase):
     indexer: str | None = None
 
 
-class ArrHistory(_CamelBase):
+class ArrHistoryEntry(_CamelBase):
     """Shared fields across Radarr and Sonarr history records.
 
     The aggregator's helpers (_arr_history_status, _format_history) operate

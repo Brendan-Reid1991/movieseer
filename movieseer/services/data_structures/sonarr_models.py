@@ -3,9 +3,9 @@ from typing import Literal
 from pydantic import Field
 
 from .arr_models import (
-    ArrHistory,
+    ArrHistoryEntry,
     ArrHistoryEventType,
-    ArrQueue,
+    ArrQueueEntry,
     _CamelBase,
 )
 
@@ -47,16 +47,16 @@ class Series(_CamelBase):
     statistics: SeriesStatistics | None = None
 
 
-class SonarrQueue(ArrQueue):
-    """Sonarr queue record — extends ArrQueue with episode-specific fields."""
+class SonarrQueueEntry(ArrQueueEntry):
+    """Sonarr queue record — extends ArrQueueEntry with episode-specific fields."""
 
     series_id: int | None = None
     episode_id: int | None = None
     series: Series | None = None  # populated when includeSeries=True
 
 
-class SonarrHistory(ArrHistory):
-    """Sonarr history record — extends ArrHistory with episode-specific fields."""
+class SonarrHistoryEntry(ArrHistoryEntry):
+    """Sonarr history record — extends ArrHistoryEntry with episode-specific fields."""
 
     series_id: int
     episode_id: int

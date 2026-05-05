@@ -26,12 +26,12 @@ from movieseer.services import (
 )
 from movieseer.services.data_structures.jellyseer_models import MediaRequest
 from movieseer.services.data_structures.radarr_models import (
-    RadarrHistory,
-    RadarrQueue,
+    RadarrHistoryEntry,
+    RadarrQueueEntry,
 )
 from movieseer.services.data_structures.sonarr_models import (
-    SonarrHistory,
-    SonarrQueue,
+    SonarrHistoryEntry,
+    SonarrQueueEntry,
 )
 
 from .types import (
@@ -191,8 +191,8 @@ class Aggregator:
     async def _build_jellyseerr_request(
         self,
         request: MediaRequest,
-        radarr_queue: list[RadarrQueue],
-        sonarr_queue: list[SonarrQueue],
+        radarr_queue: list[RadarrQueueEntry],
+        sonarr_queue: list[SonarrQueueEntry],
     ) -> RequestItem:
         """Build a normalised RequestItem from a single Jellyseerr request.
 
@@ -244,7 +244,7 @@ class Aggregator:
         self,
         item: RequestItem,
         arr_id: int,
-        radarr_queue: list[RadarrQueue],
+        radarr_queue: list[RadarrQueueEntry],
         media_status: int | None,
     ) -> None:
         """Populate ``item`` with Radarr queue or history data for a movie.
@@ -274,7 +274,7 @@ class Aggregator:
         self,
         item: RequestItem,
         arr_id: int,
-        sonarr_queue: list[SonarrQueue],
+        sonarr_queue: list[SonarrQueueEntry],
         media_status: int | None,
     ) -> None:
         """Populate ``item`` with Sonarr queue or history data for a TV series.
@@ -308,8 +308,8 @@ class Aggregator:
         self,
         js_movie_ids: set[int],
         js_series_ids: set[int],
-        radarr_queue: list[RadarrQueue],
-        sonarr_queue: list[SonarrQueue],
+        radarr_queue: list[RadarrQueueEntry],
+        sonarr_queue: list[SonarrQueueEntry],
     ) -> list[RequestItem]:
         """Fetch items added directly in Radarr/Sonarr with no Jellyseerr request.
 
@@ -317,8 +317,8 @@ class Aggregator:
         then subtracting the IDs already accounted for by Jellyseerr requests. Detail
         fetches for all candidates run in parallel.
         """
-        radarr_hist: list[RadarrHistory] | Exception
-        sonarr_hist: list[SonarrHistory] | Exception
+        radarr_hist: list[RadarrHistoryEntry] | Exception
+        sonarr_hist: list[SonarrHistoryEntry] | Exception
 
         radarr_hist, sonarr_hist = await asyncio.gather(
             self._radarr.history(),

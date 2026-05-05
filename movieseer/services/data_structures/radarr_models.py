@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from .arr_models import ArrHistory, ArrHistoryEventType, ArrQueue, _CamelBase
+from .arr_models import ArrHistoryEntry, ArrHistoryEventType, ArrQueueEntry, _CamelBase
 
 type MovieHistoryEventType = (
     ArrHistoryEventType
@@ -33,15 +33,15 @@ class Movie(_CamelBase):
     is_excluded: bool | None = None
 
 
-class RadarrQueue(ArrQueue):
-    """Radarr queue record — extends ArrQueue with movie-specific fields."""
+class RadarrQueueEntry(ArrQueueEntry):
+    """Radarr queue record — extends ArrQueueEntry with movie-specific fields."""
 
     movie_id: int | None = None
     movie: Movie | None = None  # populated when includeMovie=True
 
 
-class RadarrHistory(ArrHistory):
-    """Radarr history record — extends ArrHistory with movie-specific fields."""
+class RadarrHistoryEntry(ArrHistoryEntry):
+    """Radarr history record — extends ArrHistoryEntry with movie-specific fields."""
 
     movie_id: int
     event_type: MovieHistoryEventType  # type: ignore[assignment]
