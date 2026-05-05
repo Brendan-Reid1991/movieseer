@@ -23,7 +23,6 @@ class JellyfinClient(_BaseClient):
 
     async def _task_id(self, key: str) -> str:
         tasks = await self._get("/ScheduledTasks")
-        assert isinstance(tasks, list)
         for task in tasks:
             if isinstance(task, dict) and task.get("Key") == key:
                 return str(task["Id"])
@@ -36,5 +35,4 @@ class JellyfinClient(_BaseClient):
 
     async def refresh_state(self, task_id: str) -> TaskState:
         data = await self._get(f"/ScheduledTasks/{task_id}")
-        assert isinstance(data, dict)
         return cast("TaskState", data["State"])
