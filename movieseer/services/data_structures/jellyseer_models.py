@@ -47,8 +47,8 @@ class MediaRequest(_CamelBase):
 
 class MediaDetail(_CamelBase):
     """Simple dataclass to capture the title/name of a piece of media.
-    
-    The output from the API call `jellyseer/api/v_/movie/xxxxx` contains a huge amount 
+
+    The output from the API call `jellyseer/api/v_/movie/xxxxx` contains a huge amount
     of information, very little of which we care about.
     """
 
