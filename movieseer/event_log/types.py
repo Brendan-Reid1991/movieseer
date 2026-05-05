@@ -40,7 +40,6 @@ class ArrHistoryEvent(StrEnum):
     GRABBED = "grabbed"
     DOWNLOAD_FAILED = "downloadFailed"
     DOWNLOAD_FOLDER_IMPORTED = "downloadFolderImported"
-    MOVIE_FOLDER_IMPORTED = "movieFolderImported"
 
 
 class Event(StrEnum):
@@ -52,6 +51,5 @@ class Event(StrEnum):
 EVENT_MAP: dict[ArrHistoryEvent, Event] = {
     ArrHistoryEvent.GRABBED: Event.GRABBED,
     ArrHistoryEvent.DOWNLOAD_FOLDER_IMPORTED: Event.IMPORTED,
-    ArrHistoryEvent.MOVIE_FOLDER_IMPORTED: Event.IMPORTED,
     ArrHistoryEvent.DOWNLOAD_FAILED: Event.FAILED,
 }

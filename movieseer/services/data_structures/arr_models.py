@@ -25,7 +25,6 @@ type ArrHistoryEventType = Literal[
     "unknown",
     "grabbed",
     "downloadFolderImported",
-    "movieFolderImported",
     "downloadFailed",
     "downloadIgnored",
 ]
@@ -103,3 +102,4 @@ class ArrHistoryEntry(_CamelBase, Generic[ArrEventT]):
     date: datetime
     download_id: str | None = None
     event_type: ArrEventT
+    data: dict[str, str | None] = Field(default_factory=dict)

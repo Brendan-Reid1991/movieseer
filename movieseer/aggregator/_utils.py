@@ -342,7 +342,6 @@ def arr_history_status(
         "grabbed": "grabbed",
         "downloadFailed": "failed",
         "downloadFolderImported": "imported",
-        "movieFolderImported": "imported",
         "downloadIgnored": "ignored",
     }
     status = event_map.get(latest.event_type, latest.event_type)
