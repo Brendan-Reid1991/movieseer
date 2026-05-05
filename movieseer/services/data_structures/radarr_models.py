@@ -40,8 +40,6 @@ class RadarrQueueEntry(ArrQueueEntry):
     movie: Movie | None = None  # populated when includeMovie=True
 
 
-class RadarrHistoryEntry(ArrHistoryEntry):
+class RadarrHistoryEntry(ArrHistoryEntry[MovieHistoryEventType]):
     """Radarr history record — extends ArrHistoryEntry with movie-specific fields."""
-
     movie_id: int
-    event_type: MovieHistoryEventType  # type: ignore[assignment]

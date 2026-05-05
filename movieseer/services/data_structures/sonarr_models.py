@@ -55,9 +55,8 @@ class SonarrQueueEntry(ArrQueueEntry):
     series: Series | None = None  # populated when includeSeries=True
 
 
-class SonarrHistoryEntry(ArrHistoryEntry):
+class SonarrHistoryEntry(ArrHistoryEntry[EpisodeHistoryEventType]):
     """Sonarr history record — extends ArrHistoryEntry with episode-specific fields."""
 
     series_id: int
     episode_id: int
-    event_type: EpisodeHistoryEventType  # type: ignore[assignment]

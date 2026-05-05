@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Generic, TypeVar
 
 from pydantic import Field
 
@@ -85,7 +85,8 @@ class ArrQueueEntry(_CamelBase):
     indexer: str | None = None
 
 
-class ArrHistoryEntry(_CamelBase):
+ArrEventT = TypeVar("ArrEventT", bound=str)
+class ArrHistoryEntry(Generic[ArrEventT], _CamelBase):
     """Shared fields across Radarr and Sonarr history records.
 
     The aggregator's helpers (_arr_history_status, _format_history) operate
@@ -99,5 +100,5 @@ class ArrHistoryEntry(_CamelBase):
     quality_cutoff_not_met: bool
     date: datetime
     download_id: str | None = None
-    event_type: ArrHistoryEventType
+    event_type: ArrEventT
     data: dict[str, str | None] = Field(default_factory=dict)
