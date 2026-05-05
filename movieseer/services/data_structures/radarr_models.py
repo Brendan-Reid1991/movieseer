@@ -40,4 +40,5 @@ class RadarrQueueEntry(ArrQueueEntry):
 
 class RadarrHistoryEntry(ArrHistoryEntry[MovieHistoryEventType]):
     """Radarr history record — extends ArrHistoryEntry with movie-specific fields."""
+
     movie_id: int

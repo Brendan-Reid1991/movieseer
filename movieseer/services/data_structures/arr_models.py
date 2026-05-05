@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Generic, TypeVar
+from typing import Generic, Literal, TypeVar
 
 from pydantic import Field
 
@@ -86,6 +86,8 @@ class ArrQueueEntry(_CamelBase):
 
 
 ArrEventT = TypeVar("ArrEventT", bound=str)
+
+
 class ArrHistoryEntry(_CamelBase, Generic[ArrEventT]):
     """Shared fields across Radarr and Sonarr history records.
 

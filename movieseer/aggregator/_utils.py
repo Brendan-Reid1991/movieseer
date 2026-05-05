@@ -310,7 +310,9 @@ def arr_queue_status(queue_item: ArrQueueEntry) -> ArrStatus:
     }
 
 
-def arr_history_status(history: list[ArrHistoryEntry], media_status: int | None = None) -> ArrStatus:
+def arr_history_status(
+    history: list[ArrHistoryEntry], media_status: int | None = None
+) -> ArrStatus:
     """Derive an ArrStatus from the arr history log for an item not in the active queue.
 
     An empty history means arr accepted the item but has not attempted a download yet,

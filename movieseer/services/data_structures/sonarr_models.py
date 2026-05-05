@@ -20,6 +20,7 @@ type EpisodeHistoryEventType = (
 
 type SeriesStatusType = Literal["continuing", "ended", "upcoming", "deleted"]
 
+
 class Series(_CamelBase):
     """A Sonarr series record."""
 
@@ -47,4 +48,3 @@ class SonarrHistoryEntry(ArrHistoryEntry[EpisodeHistoryEventType]):
 
     series_id: int
     episode_id: int
-
