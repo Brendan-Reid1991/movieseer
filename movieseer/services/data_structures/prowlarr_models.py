@@ -1,29 +1,33 @@
-from typing import Literal, TypedDict
+from typing import Literal
+
+from pydantic import Field
+
+from ._base import _CamelBase
 
 
-class ProwlarrIssue(TypedDict):
+class ProwlarrIssue(_CamelBase):
     """A single health-check issue reported by Prowlarr."""
 
     name: str
     message: str
 
 
-class IndexerDetail(TypedDict, total=False):
+class ProwlarrIndexer(_CamelBase):
     """Per-indexer status joined from /indexer and /indexerstatus."""
 
     id: int
     name: str
     protocol: Literal["usenet", "torrent"]
-    enabled: bool
+    enabled: bool = Field(alias="enable")
     failing: bool
-    error: str | None  # message from /indexerstatus if failing, else None
+    error: str | None
 
 
-class ProwlarrStatus(TypedDict):
+class ProwlarrStatus(_CamelBase):
     """Aggregated indexer health from Prowlarr."""
 
     total: int
     failing: int
     healthy: int
     issues: list[ProwlarrIssue]
-    indexers: list[IndexerDetail]
+    indexers: list[ProwlarrIndexer]

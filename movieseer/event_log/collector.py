@@ -19,7 +19,7 @@ from datetime import UTC, datetime
 from typing import Literal
 
 from movieseer.services import ProwlarrClient, RadarrClient, SABnzbdClient, SonarrClient
-from movieseer.services.data_structures.prowlarr_models import IndexerDetail
+from movieseer.services.data_structures.prowlarr_models import ProwlarrIndexer
 from movieseer.services.data_structures.sabnzbd_models import HistorySlot
 
 from .db import EventStore
@@ -325,7 +325,7 @@ class EventCollector:
             self._prowlarr_initialised = True
             return []
 
-        indexers_by_id: dict[int, IndexerDetail] = {i["id"]: i for i in indexers}
+        indexers_by_id: dict[int, ProwlarrIndexer] = {i["id"]: i for i in indexers}
 
         # Newly failing
         for indexer_id in current_failing - self._failing_indexers:
