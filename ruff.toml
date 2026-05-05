@@ -4,7 +4,7 @@ fix = true
 
 [lint]
 select = ["E", "F", "I", "B", "UP", "N", "S", "TCH"]
-ignore=["TC001", "TC003"]
+ignore=["TC001", "TC003", "UP046"]
 exclude = [
     "tests/*", 
     "scripts/*", 
