@@ -55,7 +55,7 @@ class HistorySlot(BaseModel):
 class History(BaseModel):
     """Top-level history object from the SABnzbd history API."""
 
-    total_size: int = Field(alias="noofslots")
+    count: int = Field(alias="noofslots")
     slots: list[HistorySlot]
 
 
@@ -67,6 +67,33 @@ class RawServerStat(BaseModel):
 
     articles_tried: dict[str, int]
     articles_success: dict[str, int]
+
+    @property
+    def total_tried(self) -> int:
+        """Return the total number of articles tried by the server."""
+        return sum(self.articles_tried.values())
+
+    @property
+    def total_success(self) -> int:
+        """Return the total number of articles successfully downloaded by the server."""
+        return sum(self.articles_success.values())
+
+    @property
+    def hit_rate(self) -> float:
+        """Return the success rate of the server."""
+        if self.total_tried == 0:
+            return 0.0
+        return round(self.total_success / self.total_tried, 4)
+
+    def summarise(self, name: str, ssl: bool) -> ServerStat:
+        """Return a summary of this servers performance, given a name and ssl status."""
+        return ServerStat(
+            name=name,
+            ssl=ssl,
+            articles_tried=self.total_tried,
+            articles_success=self.total_success,
+            hit_rate=self.hit_rate,
+        )
 
 
 class ServerStatsData(BaseModel):
@@ -93,6 +120,6 @@ class ServerStat(TypedDict):
 
     name: str
     ssl: bool
-    articles_tried: int  # total download attempts (all-time sum of per-day counts)
-    articles_success: int  # successful downloads (all-time sum of per-day counts)
-    hit_rate: float  # articles_success / articles_tried, or 0.0 if zero
+    articles_tried: int
+    articles_success: int
+    hit_rate: float

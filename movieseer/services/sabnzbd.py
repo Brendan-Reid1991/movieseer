@@ -96,14 +96,19 @@ class SABnzbdClient(_BaseClient):
         return await self._mode(model=Queue, mode="queue", retrieve="queue")
 
     async def history(self) -> History:
-        """Fetch the SABnzbd download history (completed and failed jobs)."""
+        """Fetch the SABnzbd download history (completed and failed jobs).
+
+        NB: At present we continuously clear history, moving completed jobs and deleting
+        failed jobs.
+        """
         return await self._mode(model=History, mode="history", retrieve="history")
 
     async def server_stats(self) -> ServerStatsData:
         """Fetch raw per-server download statistics, keyed by server hostname.
 
         Article counts are broken down by date (YYYY-MM-DD). Use ``server_health``
-        to get aggregated hit-rate statistics instead.
+        to get aggregated hit-rate statistics instead. This will only be populated
+        while there are active downloads occurring.
         """
         return await self._mode(model=ServerStatsData, mode="server_stats")
 
@@ -150,18 +155,7 @@ class SABnzbdClient(_BaseClient):
             self.get_config(section="servers"),
         )
         ssl_map = {server.host: server.ssl for server in config.servers}
-        result: list[ServerStat] = []
-        for name, server in stats.servers.items():
-            tried = sum(server.articles_tried.values())
-            success = sum(server.articles_success.values())
-            hit_rate = round(success / tried, 4) if tried > 0 else 0.0
-            result.append(
-                ServerStat(
-                    name=name,
-                    ssl=ssl_map.get(name, False),
-                    articles_tried=tried,
-                    articles_success=success,
-                    hit_rate=hit_rate,
-                )
-            )
-        return result
+        return [
+            server.summarise(name, ssl_map.get(name, False))
+            for name, server in stats.servers.items()
+        ]
