@@ -28,9 +28,7 @@ class Movie(_CamelBase):
     size_on_disk: int | None = None
     genres: list[str] = Field(default_factory=list)
     runtime: int
-    grabbed: bool | None = None
     is_available: bool
-    is_excluded: bool | None = None
 
 
 class RadarrQueueEntry(ArrQueueEntry):
