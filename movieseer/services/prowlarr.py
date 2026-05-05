@@ -3,32 +3,30 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Literal, cast
+from typing import cast
 
 from movieseer.config import PROWLARR_API_KEY, PROWLARR_URL
 
 from .client_api import _ApiKeyClient, gateway
-from .data_structures.prowlarr_models import IndexerDetail, ProwlarrIssue, ProwlarrStatus
+from .data_structures.prowlarr_models import ProwlarrIndexer, ProwlarrIssue, ProwlarrStatus
 
 
 @gateway("/api/v1")
 class ProwlarrClient(_ApiKeyClient):
     """Prowlarr API client."""
 
-    BASE_URL = PROWLARR_URL
+    SERVICE_URL = PROWLARR_URL
     API_KEY = PROWLARR_API_KEY
 
-    async def indexers(self) -> list[IndexerDetail]:
+    async def indexers(self) -> list[ProwlarrIndexer]:
         """Return per-indexer status joined from /indexer and /indexerstatus.
 
-        Fetches both endpoints concurrently and joins on indexer ID so each
-        result carries both the static config (name, protocol, enabled) and
-        the current failure state.
+        - /indexer call gets static information about all indexers in prowlarr
+        - /indexerstatus retrieves real time information about the status of the indexers.
+            If all indexers are healthy, the return type is an empty list.
+            https://github.com/Prowlarr/Prowlarr/blob/develop/src/Prowlarr.Api.V1/Indexers/IndexerStatusController.cs
 
-        Raises
-        ------
-        httpx.HTTPStatusError
-            If either API call returns a non-2xx response.
+        We cross reference by indexer ID and return a combined set of information.
         """
         _failing, _all = await asyncio.gather(
             self._get("/indexerstatus"),
@@ -40,32 +38,21 @@ class ProwlarrClient(_ApiKeyClient):
         # Build a map of indexer_id → error message for fast lookup
         failing_map: dict[int, str] = {i["indexerId"]: i.get("message", "") for i in failing_raw}
 
-        result: list[IndexerDetail] = []
-        for idx in all_raw:
-            idx_id: int = idx["id"]
-            protocol_raw: str = idx.get("protocol", "usenet").lower()
-            protocol: Literal["usenet", "torrent"] = (
-                "torrent" if protocol_raw == "torrent" else "usenet"
-            )
-            failing = idx_id in failing_map
+        result: list[ProwlarrIndexer] = []
+        for indexer in all_raw:
+            failing: bool = indexer["id"] in failing_map
+            error: str = failing_map.get(indexer["id"], None)
+
             result.append(
-                IndexerDetail(
-                    id=idx_id,
-                    name=idx.get("name", "?"),
-                    protocol=protocol,
-                    enabled=idx.get("enable", True),
-                    failing=failing,
-                    error=failing_map[idx_id] if failing else None,
-                )
+                ProwlarrIndexer.model_validate(indexer | {"failing": failing, "error": error})
             )
 
         return result
 
     async def status(self) -> ProwlarrStatus:
-        """Query Prowlarr for indexer health.
+        """Get a quick-glance of the current status of Prowlarr indexers.
 
-        Delegates to ``indexers()`` for the actual fetch so both methods
-        share a single pair of API calls.
+        Calls `indexers`, so this method also queries the API.
 
         Raises
         ------
@@ -73,11 +60,11 @@ class ProwlarrClient(_ApiKeyClient):
             If either API call returns a non-2xx response.
         """
         all_indexers = await self.indexers()
-        failing = [i for i in all_indexers if i["failing"]]
+        failing = [i for i in all_indexers if i.failing]
         return ProwlarrStatus(
             total=len(all_indexers),
             failing=len(failing),
             healthy=len(all_indexers) - len(failing),
-            issues=[ProwlarrIssue(name=i["name"], message=i.get("error") or "") for i in failing],
+            issues=[ProwlarrIssue(name=i.name, message=i.error or "") for i in failing],
             indexers=all_indexers,
         )
