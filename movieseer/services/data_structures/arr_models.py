@@ -86,7 +86,7 @@ class ArrQueueEntry(_CamelBase):
 
 
 ArrEventT = TypeVar("ArrEventT", bound=str)
-class ArrHistoryEntry(Generic[ArrEventT], _CamelBase):
+class ArrHistoryEntry(_CamelBase, Generic[ArrEventT]):
     """Shared fields across Radarr and Sonarr history records.
 
     The aggregator's helpers (_arr_history_status, _format_history) operate
@@ -101,4 +101,3 @@ class ArrHistoryEntry(Generic[ArrEventT], _CamelBase):
     date: datetime
     download_id: str | None = None
     event_type: ArrEventT
-    data: dict[str, str | None] = Field(default_factory=dict)
