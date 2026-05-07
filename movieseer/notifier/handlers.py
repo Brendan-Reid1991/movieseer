@@ -1,5 +1,5 @@
 from typing import cast
-
+import logging
 from movieseer.notifier.types import (
     ArrPayload,
     ArrWebhookEvent,
@@ -7,38 +7,41 @@ from movieseer.notifier.types import (
     Services,
     SonarrPayload,
 )
-from movieseer.notifier.webhooks import (
-    download,
-    download_failure,
-    grab,
-    health,
-    import_failure,
-    manual_interaction_required,
-    test_webhook,
-)
+from movieseer.notifier.webhooks import Dispatcher
+
+logger = logging.getLogger(__name__)
 
 
 async def _dispatch(payload: ArrPayload, service: Services) -> None:
     """Given a payload from either Radarr or Sonarr, dispatch to the appropriate handler
     based on the event type."""
+    dispatch = Dispatcher()
     label = labeller(payload, service)
     match payload.get("eventType", ""):
         case ArrWebhookEvent.Grab:
-            await grab(payload, label)
+            await dispatch.grab(payload, label)
+            logger.info("%s ||  Grabbed: %s", service, label)
         case ArrWebhookEvent.Download:
-            await download(label)
+            await dispatch.download(label)
+            logger.info("%s ||  Download beginning: %s", service, label)
         case ArrWebhookEvent.DownloadFailure:
-            await download_failure(payload, label)
+            await dispatch.download_failure(payload, label)
+            logger.info("%s ||  Download failure: %s", service, label)
         case ArrWebhookEvent.ImportFailure:
-            await import_failure(payload, label)
+            await dispatch.import_failure(payload, label)
+            logger.info("%s ||  Import failure: %s", service, label)
         case ArrWebhookEvent.ManualInteractionRequired:
-            await manual_interaction_required(payload, label)
+            await dispatch.manual_interaction_required(payload, label)
+            logger.info("%s ||  Manual interaction required: %s", service, label)
         case ArrWebhookEvent.Health:
-            await health(payload, service)
+            await dispatch.health(payload, service)
+            logger.info("%s ||  Broadcasting health status.", service)
         case "Test":
-            await test_webhook(payload, service)
+            await dispatch.test_webhook(payload, service)
+            logger.info("%s ||  Webhook test.", service)
         case _ as unknown:
-            raise ValueError(f"Unknown event type: {unknown}")
+            logger.debug("Skipping unknown event type: %s", unknown)
+            
 
 
 async def handle_radarr(payload: RadarrPayload) -> None:
