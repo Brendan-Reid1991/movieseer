@@ -17,17 +17,11 @@ Services = Literal["radarr", "sonarr"]
 Priority = Literal["low", "default", "high", "urgent"]
 
 
-# --- Shared ---
-
-
 class ReleaseInfo(TypedDict, total=False):
     """Release metadata included in grab events."""
 
     indexer: str
     quality: str
-
-
-# --- Webhook handler payloads ---
 
 
 class GrabPayload(TypedDict, total=False):
@@ -47,9 +41,6 @@ class HealthPayload(TypedDict, total=False):
 
     message: str
     level: str
-
-
-# --- Service-specific payloads ---
 
 
 class MovieInfo(TypedDict, total=False):
