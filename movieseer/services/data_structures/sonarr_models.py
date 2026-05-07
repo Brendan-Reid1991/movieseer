@@ -20,6 +20,15 @@ type EpisodeHistoryEventType = (
 
 type SeriesStatusType = Literal["continuing", "ended", "upcoming", "deleted"]
 
+class SeriesStatistics(_CamelBase):
+    """Episode and file counts for a Sonarr series."""
+
+    season_count: int = 0
+    episode_count: int = 0
+    episode_file_count: int = 0
+    total_episode_count: int = 0
+    size_on_disk: int = 0
+    percent_of_episodes: float = 0.0
 
 class Series(_CamelBase):
     """A Sonarr series record."""
@@ -33,7 +42,7 @@ class Series(_CamelBase):
     monitored: bool
     runtime: int
     genres: list[str] = Field(default_factory=list)
-
+    statistics: SeriesStatistics | None = None
 
 class SonarrQueueEntry(ArrQueueEntry):
     """Sonarr queue record — extends ArrQueueEntry with episode-specific fields."""
