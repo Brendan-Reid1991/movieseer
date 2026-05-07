@@ -136,7 +136,7 @@ class EventCollector:
             if isinstance(result, Exception):
                 logger.warning(
                     f"Event collection failed for {name}. "
-                    f"Exception class {type(results)}, message: {str(result)}"
+                    f"Exception class {type(result)}, message: {str(result)}"
                 )
             else:
                 new_events.extend(result)
@@ -314,7 +314,7 @@ class EventCollector:
             Returns an empty list on the first call (baseline capture only).
         """
         indexers = await self._prowlarr.indexers()
-        current_failing: set[int] = {i["id"] for i in indexers if i["failing"]}
+        current_failing: set[int] = {i.id for i in indexers if i.failing}
 
         new_events: list[LogEvent] = []
         now = datetime.now(UTC).isoformat()
@@ -325,7 +325,7 @@ class EventCollector:
             self._prowlarr_initialised = True
             return []
 
-        indexers_by_id: dict[int, ProwlarrIndexer] = {i["id"]: i for i in indexers}
+        indexers_by_id: dict[int, ProwlarrIndexer] = {i.id: i for i in indexers}
 
         # Newly failing
         for indexer_id in current_failing - self._failing_indexers:
@@ -335,9 +335,9 @@ class EventCollector:
                     id=0,
                     source="prowlarr",
                     event_type="indexer_failing",
-                    title=indexer["name"],
-                    detail=f"{indexer['name']} is failing: "
-                    f"{indexer['error'] or 'No failure reason found.'}",
+                    title=indexer.name,
+                    detail=f"{indexer.name} is failing: "
+                    f"{indexer.error or 'No failure reason found.'}",
                     at=now,
                 )
             )
@@ -350,8 +350,8 @@ class EventCollector:
                     id=0,
                     source="prowlarr",
                     event_type="indexer_recovered",
-                    title=indexer["name"],
-                    detail=f"{indexer['name']} recovered",
+                    title=indexer.name,
+                    detail=f"{indexer.name} recovered",
                     at=now,
                 )
             )
