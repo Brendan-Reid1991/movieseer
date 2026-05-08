@@ -56,7 +56,6 @@ from movieseer.docker_manager import (
     stop_container,
 )
 from movieseer.event_log import EventCollector, EventStore, LogEvent
-from movieseer.notifier import handle_radarr, handle_sonarr
 
 
 def _configure_logging() -> None:
@@ -174,30 +173,15 @@ async def api_status():
 
 
 @app.post("/webhook/radarr")
-async def radarr_webhook(request: Request):
+@app.post("/webhook/radarr")
+async def arr_webhook(request: Request):
     """
     Receive Radarr webhook events.
 
     Invalidates the aggregator cache and dispatches a push notification so
     the dashboard reflects the new state on next poll.
     """
-    payload = await request.json()
     aggregator.invalidate_cache()
-    await handle_radarr(payload)
-    return {"ok": True}
-
-
-@app.post("/webhook/sonarr")
-async def sonarr_webhook(request: Request):
-    """
-    Receive Sonarr webhook events.
-
-    Invalidates the aggregator cache and dispatches a push notification so
-    the dashboard reflects the new state on next poll.
-    """
-    payload = await request.json()
-    aggregator.invalidate_cache()
-    await handle_sonarr(payload)
     return {"ok": True}
 
 
