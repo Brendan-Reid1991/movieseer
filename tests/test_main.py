@@ -32,7 +32,6 @@ class TestApiConfig:
             "sonarr_url",
             "radarr_url",
             "sabnzbd_url",
-            "qbittorrent_url",
             "plex_url",
             "prowlarr_url",
         }

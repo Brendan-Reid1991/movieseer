@@ -19,7 +19,6 @@ from movieseer.config import CACHE_TTL
 from movieseer.services import (
     JellyseerClient,
     ProwlarrClient,
-    QBittorrentClient,
     RadarrClient,
     SABnzbdClient,
     SonarrClient,
@@ -58,7 +57,6 @@ class Aggregator:
         self._sonarr = SonarrClient()
         self._prowlarr = ProwlarrClient()
         self._sabnzbd = SABnzbdClient()
-        self._qbit = QBittorrentClient()
 
         self._cache: StatusResult | None = None
         self._cache_time: float = 0.0
@@ -108,28 +106,20 @@ class Aggregator:
         Failures are passed through as ``{"error": "..."}`` rather than raising,
         so a single unreachable service does not blank the whole dashboard.
         """
-        prowlarr, sabnzbd, qbit = await asyncio.gather(
+        prowlarr, sabnzbd = await asyncio.gather(
             self._prowlarr.status(),
             self._sabnzbd.queue(),
-            self._qbit.torrents(),
             return_exceptions=True,
         )
 
         if not isinstance(sabnzbd, Exception):
             sabnzbd = sabnzbd.model_copy(update={"slots": sabnzbd.slots[:5]})
-        if not isinstance(qbit, Exception):
-            qbit = sorted(
-                [t for t in qbit.values() if "download" in t.state.lower()],
-                key=lambda t: t.progress,
-                reverse=True,
-            )[:5]
 
         return {
             "prowlarr": prowlarr
             if not isinstance(prowlarr, Exception)
             else {"error": str(prowlarr)},
             "sabnzbd": sabnzbd if not isinstance(sabnzbd, Exception) else {"error": str(sabnzbd)},
-            "qbittorrent": qbit if not isinstance(qbit, Exception) else {"error": str(qbit)},
         }
 
     # ── requests ───────────────────────────────────────────────────────────────
