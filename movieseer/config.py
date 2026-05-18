@@ -45,14 +45,6 @@ SABNZBD_URL: str = os.getenv("SABNZBD_URL", "http://sabnzbd:8085")
 SABNZBD_API_KEY: str = os.getenv("SABNZBD_API_KEY", "")
 
 # ---------------------------------------------------------------------------
-# qBittorrent
-# ---------------------------------------------------------------------------
-
-QBITTORRENT_URL: str = os.getenv("QBITTORRENT_URL", "http://gluetun:8080")
-QBITTORRENT_USER: str = os.getenv("QBITTORRENT_USER", "")
-QBITTORRENT_PASS: str = os.getenv("QBITTORRENT_PASS", "")
-
-# ---------------------------------------------------------------------------
 # Jellyfin
 # ---------------------------------------------------------------------------
 
@@ -66,12 +58,6 @@ JELLYFIN_API_KEY: str = os.getenv("JELLYFIN_API_KEY", "")
 PLEX_URL: str = os.getenv("PLEX_URL", "http://plex:32400")
 PLEX_TOKEN: str = os.getenv("PLEX_TOKEN", "")
 
-# ---------------------------------------------------------------------------
-# Ntfy (push notifications)
-# ---------------------------------------------------------------------------
-
-NTFY_URL: str = os.getenv("NTFY_URL", "http://ntfy:80")
-NTFY_TOPIC: str = os.getenv("NTFY_TOPIC", "movieseer")
 
 # ---------------------------------------------------------------------------
 # External access (browser-facing URLs)
@@ -89,7 +75,6 @@ SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
 RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
 PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
 SABNZBD_PORT: int = int(os.getenv("SABNZBD_PORT", "8085"))
-QBITTORRENT_PORT: int = int(os.getenv("QBITTORRENT_PORT", "8080"))
 
 # ---------------------------------------------------------------------------
 # Aggregator tuning

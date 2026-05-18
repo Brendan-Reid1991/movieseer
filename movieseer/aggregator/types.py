@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Literal, TypedDict
 
 from movieseer.services.data_structures.prowlarr_models import ProwlarrStatus
-from movieseer.services.data_structures.qbittorrent_models import Torrent
 from movieseer.services.data_structures.sabnzbd_models import Queue, ServerStat
 
 
@@ -18,7 +17,6 @@ class SystemStatus(TypedDict):
 
     prowlarr: ProwlarrStatus | ServiceError
     sabnzbd: Queue | ServiceError
-    qbittorrent: list[Torrent] | ServiceError
 
 
 class _ArrStatusBase(TypedDict):

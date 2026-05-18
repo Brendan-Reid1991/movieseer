@@ -10,6 +10,7 @@ fi
 
 NUM_ARGS=$#
 REBUILD=false
+ISOLATE=false
 
 # Load .env to get DATA_PATH and port variables
 source "$PATH_TO_ROOT/.env"
@@ -31,6 +32,9 @@ if [[ $NUM_ARGS -gt 0 ]]; then
         docker desktop stop
         diskutil eject "$(dirname "$DATA_PATH")"
         exit 0
+        ;;
+      --isolate)
+        ISOLATE=true
         ;;
       *)
         echo "Unknown argument: $var"
@@ -73,14 +77,21 @@ else
 fi
 
 # 3. Spin up containers
-echo "Starting containers..."
-cd "$PATH_TO_ROOT"
-docker network create movieseer 2>/dev/null || true
-if [[ "$REBUILD" == true ]]; then
-  docker compose build movieseer
-fi
-docker compose up -d
+start_containers() {
+  echo "Starting containers..."
+  cd "$PATH_TO_ROOT"
+  docker network create movieseer 2>/dev/null || true
+  if [[ "$REBUILD" == true ]]; then
+    docker compose build movieseer
+  fi
+  if [[ "$ISOLATE" == true ]]; then
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+  else
+    docker compose up -d
+  fi
+}
 
+start_containers()
 
 # 5. Wait for each service to be reachable
 # Polls URL every 2s, gives up after max_attempts (default 30 = 60s timeout)
@@ -111,8 +122,6 @@ wait_for "Plex"           "http://localhost:${PLEX_PORT}/identity"
 wait_for "Sonarr"         "http://localhost:${SONARR_PORT}/ping"
 wait_for "Radarr"         "http://localhost:${RADARR_PORT}/ping"
 wait_for "Prowlarr"       "http://localhost:${PROWLARR_PORT}/ping"
-# qBittorrent's port is exposed via Gluetun
-wait_for "qBittorrent"    "http://localhost:${QBITTORRENT_PORT}/"
 wait_for "SABnzbd"        "http://localhost:${SABNZBD_PORT}/"
 wait_for "Jellyseerr"     "http://localhost:${JELLYSEERR_PORT}/"
 wait_for "Flaresolverr"   "http://localhost:${FLARESOLVERR_PORT}/"

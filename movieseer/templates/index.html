@@ -402,7 +402,6 @@
           <span class="card-title">Downloads</span>
           <div class="card-links">
             <a href="#" id="link-sabnzbd"     class="btn btn-ghost">SABnzbd</a>
-            <a href="#" id="link-qbittorrent" class="btn btn-ghost">qBit</a>
           </div>
         </div>
         <div class="card-body" id="downloads-body">
@@ -533,7 +532,6 @@
         'link-radarr-hdr':  cfg.radarr_url,
         'link-sonarr-hdr':  cfg.sonarr_url,
         'link-sabnzbd':     cfg.sabnzbd_url,
-        'link-qbittorrent': cfg.qbittorrent_url,
         'link-prowlarr':    cfg.prowlarr_url,
       };
       for (const [id, url] of Object.entries(map)) {
@@ -763,19 +761,17 @@
         const res  = await fetch('/api/status');
         const data = await res.json();
         const sabSlots  = data.system?.sabnzbd?.slots  || [];
-        const qbitItems = Array.isArray(data.system?.qbittorrent) ? data.system.qbittorrent : [];
-        renderDownloads(sabSlots, qbitItems);
+        renderDownloads(sabSlots);
       } catch (e) { console.error('Downloads fetch failed:', e); }
     }
     fetch_();
     setInterval(fetch_, 10000);
   }
 
-  function renderDownloads(sabSlots, qbitItems) {
+  function renderDownloads(sabSlots) {
     const body  = document.getElementById('downloads-body');
     const items = [
       ...sabSlots.map(s => ({ name: s.filename || s.name, progress: s.percentage, eta: s.timeleft, status: s.status, client: 'SABnzbd' })),
-      ...qbitItems.map(t => ({ name: t.name, progress: Math.round(t.progress * 1000) / 10, eta: t.eta ? t.eta + 's' : '', status: t.state, client: 'qBittorrent' })),
     ];
     if (!items.length) {
       body.innerHTML = '<div class="empty-state">No active downloads.</div>';

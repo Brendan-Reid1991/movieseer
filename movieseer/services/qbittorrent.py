@@ -3,13 +3,23 @@
 from __future__ import annotations
 
 from typing import cast
+from warnings import warn
 
 import httpx
 
-from movieseer.config import QBITTORRENT_PASS, QBITTORRENT_URL, QBITTORRENT_USER
-
 from .client_api import _BaseClient
 from .data_structures.qbittorrent_models import QbitSummary, Torrent
+
+warn(
+    """Qbittorrent has been removed from the server as of 2026/05/18. 
+    QBittorrentClient, as well as environment variables, are not currently 
+     supported or maintained.""",
+    stacklevel=2,
+)
+
+QBITTORRENT_URL = None
+QBITTORRENT_USER = None
+QBITTORRENT_PASS = None
 
 
 class QBittorrentClient(_BaseClient):

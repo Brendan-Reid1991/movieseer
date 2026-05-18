@@ -42,7 +42,6 @@ from movieseer.config import (
     PLEX_TOKEN,
     PLEX_URL,
     PROWLARR_PORT,
-    QBITTORRENT_PORT,
     RADARR_PORT,
     SABNZBD_PORT,
     SONARR_PORT,
@@ -156,7 +155,6 @@ async def api_config():
         "sonarr_url": f"{base}:{SONARR_PORT}",
         "radarr_url": f"{base}:{RADARR_PORT}",
         "sabnzbd_url": f"{base}:{SABNZBD_PORT}",
-        "qbittorrent_url": f"{base}:{QBITTORRENT_PORT}",
         "prowlarr_url": f"{base}:{PROWLARR_PORT}",
     }
 
