@@ -85,15 +85,15 @@ start_containers() {
     docker compose build movieseer
   fi
   if [[ "$ISOLATE" == true ]]; then
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
   else
     docker compose up -d
   fi
 }
 
-start_containers()
+start_containers
 
-# 5. Wait for each service to be reachable
+# 4. Wait for each service to be reachable
 # Polls URL every 2s, gives up after max_attempts (default 30 = 60s timeout)
 wait_for() {
   local name=$1
@@ -113,12 +113,11 @@ wait_for() {
   echo " ready"
 }
 
-echo "\nWaiting for services to be ready..."
+echo ""
+echo "Waiting for services to be ready..."
 
-# Jellyfin runs in Docker, exposes /health
 wait_for "Jellyfin"       "http://localhost:${JELLYFIN_PORT}/health"
 wait_for "Plex"           "http://localhost:${PLEX_PORT}/identity"
-# *arr services expose /ping without requiring auth
 wait_for "Sonarr"         "http://localhost:${SONARR_PORT}/ping"
 wait_for "Radarr"         "http://localhost:${RADARR_PORT}/ping"
 wait_for "Prowlarr"       "http://localhost:${PROWLARR_PORT}/ping"
@@ -127,6 +126,7 @@ wait_for "Jellyseerr"     "http://localhost:${JELLYSEERR_PORT}/"
 wait_for "Flaresolverr"   "http://localhost:${FLARESOLVERR_PORT}/"
 wait_for "Movieseer"      "http://localhost:${MOVIESEER_PORT}/"
 
-# 6. Open Movieseer
-echo "\nAll services ready. Opening Movieseer..."
+# 5. Open Movieseer
+echo ""
+echo "All services ready. Opening Movieseer..."
 open "http://localhost:${MOVIESEER_PORT}"
