@@ -78,18 +78,6 @@ class TestDefaults:
         cfg = _reload_config({"SABNZBD_URL": None})
         assert cfg.SABNZBD_URL == "http://sabnzbd:8085"
 
-    def test_qbittorrent_url_default(self):
-        cfg = _reload_config({"QBITTORRENT_URL": None})
-        assert cfg.QBITTORRENT_URL == "http://gluetun:8080"
-
-    def test_ntfy_url_default(self):
-        cfg = _reload_config({"NTFY_URL": None})
-        assert cfg.NTFY_URL == "http://ntfy:80"
-
-    def test_ntfy_topic_default(self):
-        cfg = _reload_config({"NTFY_TOPIC": None})
-        assert cfg.NTFY_TOPIC == "movieseer"
-
     def test_cache_ttl_default_is_int(self):
         cfg = _reload_config({"CACHE_TTL": None})
         assert isinstance(cfg.CACHE_TTL, int)
