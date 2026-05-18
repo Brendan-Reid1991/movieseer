@@ -1,11 +1,15 @@
 from typing import Any, Literal
-
-from movieseer.config import NTFY_TOPIC, NTFY_URL
+from warnings import warn
 
 from .client_api import _BaseClient
 
+warn("""ntfy has been removed from the server as of 2026/05/18. 
+    NtfyClient, as well as environment variables, are not currently supported or maintained.""")
+
 Priority = Literal["low", "default", "high", "urgent"]
 
+NTFY_URL = None
+NTFY_TOPIC = None
 
 class NtfyClient(_BaseClient):
     """A client for NTFY - pushing notifications to external devices."""

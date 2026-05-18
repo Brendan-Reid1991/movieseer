@@ -382,7 +382,7 @@ def _radarr_sonarr_detail(event_type: ArrHistoryEvent, title: str) -> str:
     match event_type:
         case ArrHistoryEvent.GRABBED:
             return f"Grabbed {title}"
-        case ArrHistoryEvent.DOWNLOAD_FOLDER_IMPORTED | ArrHistoryEvent.MOVIE_FOLDER_IMPORTED:
+        case ArrHistoryEvent.DOWNLOAD_FOLDER_IMPORTED:
             return f"Imported {title}"
         case ArrHistoryEvent.DOWNLOAD_FAILED:
             return f"Failed — {title}"

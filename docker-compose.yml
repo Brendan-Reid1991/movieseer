@@ -1,6 +1,4 @@
 include:
-  - services/gluetun.yml
-  - services/qbittorrent.yml
   - services/sonarr.yml
   - services/radarr.yml
   - services/prowlarr.yml
@@ -8,7 +6,6 @@ include:
   - services/jellyseerr.yml
   - services/jellyfin.yml
   - services/sabnzbd.yml
-  - services/ntfy.yml
   - services/plex.yml
   - services/movieseer.yml
 

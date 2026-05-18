@@ -99,16 +99,6 @@ _STATUS = {
                 },
             ],
         },
-        "qbittorrent": [
-            {
-                "hash": "a1b2c3d4e5f67890abcdef1234567890abcdef12",
-                "name": "The.Bear.S03.1080p.WEB-DL.DD5.1.H.264",
-                "state": "downloading",
-                "progress": 0.34,
-                "eta": 7200,
-                "size": 14_123_456_789,
-            }
-        ],
     },
     "requests": [
         {
@@ -228,14 +218,11 @@ _STATUS = {
 
 _CONTAINERS = [
     {"name": "flaresolverr", "status": "running", "uptime": "12d 4h"},
-    {"name": "gluetun", "status": "running", "uptime": "12d 4h"},
     {"name": "jellyfin", "status": "running", "uptime": "12d 3h"},
     {"name": "jellyseerr", "status": "running", "uptime": "12d 3h"},
     {"name": "movieseer", "status": "running", "uptime": "12d 4h"},
-    {"name": "ntfy", "status": "running", "uptime": "12d 4h"},
     {"name": "plex", "status": "running", "uptime": "12d 3h"},
     {"name": "prowlarr", "status": "running", "uptime": "11d 22h"},
-    {"name": "qbittorrent", "status": "running", "uptime": "12d 4h"},
     {"name": "radarr", "status": "running", "uptime": "11d 22h"},
     {"name": "sabnzbd", "status": "running", "uptime": "12d 4h"},
     {"name": "sonarr", "status": "running", "uptime": "11d 22h"},
@@ -397,7 +384,6 @@ async def api_config():
             "sonarr_url",
             "radarr_url",
             "sabnzbd_url",
-            "qbittorrent_url",
             "prowlarr_url",
         ]
     }
