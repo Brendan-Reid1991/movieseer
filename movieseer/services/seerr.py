@@ -1,30 +1,30 @@
 from typing import Literal
 
-from movieseer.config import JELLYSEERR_API_KEY, JELLYSEERR_URL
+from movieseer.config import SEERR_API_KEY, SEERR_URL
 
 from .client_api import _ApiKeyClient, gateway
-from .data_structures.jellyseer_models import (
+from .data_structures.seerr_models import (
     MediaDetail,
     MediaRequest,
 )
 
 
 @gateway("/api/v1")
-class JellyseerClient(_ApiKeyClient):
-    """Jellyseer API client.
+class SeerrClient(_ApiKeyClient):
+    """Seerr API client.
 
     Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
     the Aggregator's lifespan) to release connections on shutdown.
 
     Example
     -------
-    jelly = JellyseerClient()
-    requests = await jelly.requests()
-    await jelly.aclose()
+    seerr = SeerrClient()
+    requests = await seerr.requests()
+    await seerr.aclose()
     """
 
-    SERVICE_URL = JELLYSEERR_URL
-    API_KEY = JELLYSEERR_API_KEY
+    SERVICE_URL = SEERR_URL
+    API_KEY = SEERR_API_KEY
 
     async def requests(self, take: int = 10) -> list[MediaRequest]:
         """Get recent requests."""

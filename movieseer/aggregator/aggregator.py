@@ -11,19 +11,19 @@ from movieseer.aggregator._utils import (
     arr_queue_status,
     format_history,
     is_recent,
-    jellyseerr_status,
+    seerr_status,
     movie_requests,
     series_requests,
 )
 from movieseer.config import CACHE_TTL
 from movieseer.services import (
-    JellyseerClient,
+    SeerrClient,
     ProwlarrClient,
     RadarrClient,
     SABnzbdClient,
     SonarrClient,
 )
-from movieseer.services.data_structures.jellyseer_models import MediaRequest
+from movieseer.services.data_structures.seerr_models import MediaRequest
 from movieseer.services.data_structures.radarr_models import (
     RadarrHistoryEntry,
     RadarrQueueEntry,
@@ -43,8 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 class Aggregator:
-    """Aggregates status data from Jellyseerr, Radarr, Sonarr, Prowlarr, SABnzbd,
-    and qBittorrent.
+    """Aggregates status data from Seerr, Radarr, Sonarr, Prowlarr, and SABnzbd.
 
     Each downstream service has its own long-lived HTTP client, created at
     construction and reused across all poll cycles. Call ``aclose()`` on
@@ -52,7 +51,7 @@ class Aggregator:
     """
 
     def __init__(self) -> None:
-        self._jellyseer = JellyseerClient()
+        self._seerr = SeerrClient()
         self._radarr = RadarrClient()
         self._sonarr = SonarrClient()
         self._prowlarr = ProwlarrClient()
@@ -65,12 +64,11 @@ class Aggregator:
     async def aclose(self) -> None:
         """Close all service clients and release their connections."""
         await asyncio.gather(
-            self._jellyseer.aclose(),
+            self._seerr.aclose(),
             self._radarr.aclose(),
             self._sonarr.aclose(),
             self._prowlarr.aclose(),
             self._sabnzbd.aclose(),
-            self._qbit.aclose(),
         )
 
     def invalidate_cache(self) -> None:
@@ -127,14 +125,14 @@ class Aggregator:
     async def _get_requests(self) -> list[RequestItem]:
         """Build the full list of in-progress media requests.
 
-        Fetches Jellyseerr requests and Radarr/Sonarr queues in parallel, enriches
-        each Jellyseerr item with queue/history data, then appends items that were
+        Fetches Seerr requests and Radarr/Sonarr queues in parallel, enriches
+        each Seerr item with queue/history data, then appends items that were
         added directly in Radarr or Sonarr. Results are sorted newest-first.
         """
-        radarr_queue, sonarr_queue, js_requests = await asyncio.gather(
+        radarr_queue, sonarr_queue, seerr_requests = await asyncio.gather(
             self._radarr.queue(),
             self._sonarr.queue(),
-            self._jellyseer.requests(take=10),
+            self._seerr.requests(take=10),
             return_exceptions=True,
         )
         if isinstance(radarr_queue, Exception):
@@ -143,29 +141,29 @@ class Aggregator:
         if isinstance(sonarr_queue, Exception):
             logger.warning("Sonarr queue fetch failed: %s", sonarr_queue)
             sonarr_queue = []
-        if isinstance(js_requests, Exception):
-            logger.warning("Jellyseerr requests fetch failed: %s", js_requests)
-            js_requests = []
+        if isinstance(seerr_requests, Exception):
+            logger.warning("Seerr requests fetch failed: %s", seerr_requests)
+            seerr_requests = []
 
         results: list[RequestItem] = []
-        js_movie_ids: set[int] = set()
-        js_series_ids: set[int] = set()
+        seerr_movie_ids: set[int] = set()
+        seerr_series_ids: set[int] = set()
 
         req: MediaRequest
-        for req in js_requests:
+        for req in seerr_requests:
             try:
-                item = await self._build_jellyseerr_request(req, radarr_queue, sonarr_queue)
+                item = await self._build_seerr_request(req, radarr_queue, sonarr_queue)
                 results.append(item)
                 if req.media.external_service_id:
                     if req.type == "movie":
-                        js_movie_ids.add(req.media.external_service_id)
+                        seerr_movie_ids.add(req.media.external_service_id)
                     else:
-                        js_series_ids.add(req.media.external_service_id)
+                        seerr_series_ids.add(req.media.external_service_id)
             except Exception as exc:
-                logger.warning("Jellyseerr item %s build failed: %s", req.id, exc)
+                logger.warning("Seerr item %s build failed: %s", req.id, exc)
 
         direct = await self._get_direct_items(
-            js_movie_ids, js_series_ids, radarr_queue, sonarr_queue
+            seerr_movie_ids, seerr_series_ids, radarr_queue, sonarr_queue
         )
         results.extend(direct)
 
@@ -178,17 +176,17 @@ class Aggregator:
         )
         return results[:10]
 
-    async def _build_jellyseerr_request(
+    async def _build_seerr_request(
         self,
         request: MediaRequest,
         radarr_queue: list[RadarrQueueEntry],
         sonarr_queue: list[SonarrQueueEntry],
     ) -> RequestItem:
-        """Build a normalised RequestItem from a single Jellyseerr request.
+        """Build a normalised RequestItem from a single Seerr request.
 
         When ``external_service_id`` is absent the request hasn't reached Radarr/Sonarr
-        yet (still pending approval or queued in Jellyseerr), so we fall back to
-        Jellyseerr's own media detail for title enrichment and return early regardless
+        yet (still pending approval or queued in Seerr), so we fall back to
+        Seerr's own media detail for title enrichment and return early regardless
         of whether that lookup succeeds.
 
         When an arr ID is present, queue data is preferred over history because it
@@ -199,10 +197,10 @@ class Aggregator:
             "id": request.id,
             "title": request.media.original_title or request.media.title or "Unknown",
             "type": request.type,
-            "source": "jellyseerr",
+            "source": "seerr",
             "requested_by": request.requested_by.display_name or "?",
             "requested_at": request.created_at.isoformat(),
-            "jellyseerr_status": jellyseerr_status(request.status, request.media.status),
+            "seerr_status": seerr_status(request.status, request.media.status),
             "arr": None,
             "history": [],
         }
@@ -210,11 +208,11 @@ class Aggregator:
         arr_id = request.media.external_service_id
         if not arr_id:
             try:
-                detail = await self._jellyseer.media_detail(request.type, request.media.tmdb_id)
+                detail = await self._seerr.media_detail(request.type, request.media.tmdb_id)
                 item["title"] = detail.title or detail.name or item["title"]
             except Exception as e:
                 logger.warning(
-                    "Jellyseerr title lookup failed for %s %s: %s",
+                    "Seerr title lookup failed for %s %s: %s",
                     request.type,
                     request.media.tmdb_id,
                     e,
@@ -301,10 +299,10 @@ class Aggregator:
         radarr_queue: list[RadarrQueueEntry],
         sonarr_queue: list[SonarrQueueEntry],
     ) -> list[RequestItem]:
-        """Fetch items added directly in Radarr/Sonarr with no Jellyseerr request.
+        """Fetch items added directly in Radarr/Sonarr with no Seerr request.
 
         Candidates are identified by unioning the active queue with recent history,
-        then subtracting the IDs already accounted for by Jellyseerr requests. Detail
+        then subtracting the IDs already accounted for by Seerr requests. Detail
         fetches for all candidates run in parallel.
         """
         radarr_hist: list[RadarrHistoryEntry] | Exception

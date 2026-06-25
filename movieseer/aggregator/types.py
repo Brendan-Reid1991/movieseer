@@ -49,10 +49,10 @@ class RequestItem(TypedDict):
     id: int | None
     title: str
     type: Literal["movie", "tv"]
-    source: Literal["jellyseerr", "radarr", "sonarr"]
+    source: Literal["seerr", "radarr", "sonarr"]
     requested_by: str
     requested_at: str | None
-    jellyseerr_status: str | None
+    seerr_status: str | None
     arr: ArrStatus | None
     history: list[HistoryEvent]
 

@@ -53,14 +53,14 @@ def _reload_config(env_overrides: dict) -> object:
 class TestDefaults:
     """Config defaults are applied when no env vars are set."""
 
-    def test_jellyseerr_url_default(self):
+    def test_seerr_url_default(self):
         cfg = _reload_config(
             {
-                "JELLYSEERR_URL": None,
-                "JELLYSEERR_API_KEY": None,
+                "SEERR_URL": None,
+                "SEERR_API_KEY": None,
             }
         )
-        assert cfg.JELLYSEERR_URL == "http://jellyseerr:5055"
+        assert cfg.SEERR_URL == "http://seerr:5055"
 
     def test_radarr_url_default(self):
         cfg = _reload_config({"RADARR_URL": None})
@@ -92,9 +92,9 @@ class TestDefaults:
 class TestOverrides:
     """Env var overrides are picked up correctly."""
 
-    def test_jellyseerr_url_override(self):
-        cfg = _reload_config({"JELLYSEERR_URL": "http://custom:1234"})
-        assert cfg.JELLYSEERR_URL == "http://custom:1234"
+    def test_seerr_url_override(self):
+        cfg = _reload_config({"SEERR_URL": "http://custom:1234"})
+        assert cfg.SEERR_URL == "http://custom:1234"
 
     def test_cache_ttl_override(self):
         cfg = _reload_config({"CACHE_TTL": "60"})
@@ -104,11 +104,11 @@ class TestOverrides:
     def test_api_keys_default_to_empty_string(self):
         cfg = _reload_config(
             {
-                "JELLYSEERR_API_KEY": None,
+                "SEERR_API_KEY": None,
                 "RADARR_API_KEY": None,
                 "SONARR_API_KEY": None,
             }
         )
-        assert cfg.JELLYSEERR_API_KEY == ""
+        assert cfg.SEERR_API_KEY == ""
         assert cfg.RADARR_API_KEY == ""
         assert cfg.SONARR_API_KEY == ""

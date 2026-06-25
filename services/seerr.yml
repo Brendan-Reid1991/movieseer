@@ -1,15 +1,15 @@
 services:
-  jellyseerr:
-    image: fallenbagel/jellyseerr
-    container_name: jellyseerr
+  seerr:
+    image: seerr/seerr
+    container_name: seerr
     restart: unless-stopped
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
     ports:
-      - "${JELLYSEERR_PORT}:5055"
+      - "${SEERR_PORT}:5055"
     volumes:
-      - ./config/jellyseerr:/app/config
+      - ./config/seerr:/app/config
     networks:
       - movieseer
 

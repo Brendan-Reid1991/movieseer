@@ -123,7 +123,7 @@ def build_request_from_radarr(
     """Build a RequestItem for a movie sourced directly from Radarr.
 
     ``id`` is ``None`` and ``requested_by`` is hardcoded to "Radarr" because items
-    added directly in Radarr have no Jellyseerr request ID or named requester.
+    added directly in Radarr have no Seerr request ID or named requester.
     Status priority: active queue entry > file already on disk > history fallback.
     History is capped at five events; deeper history is noise at the UI level.
     ``requested_at`` is derived from the first history event because direct Radarr
@@ -150,7 +150,7 @@ def build_request_from_radarr(
         "source": "radarr",
         "requested_by": "Radarr",
         "requested_at": None,
-        "jellyseerr_status": None,
+        "seerr_status": None,
         "arr": None,
         "history": [],
     }
@@ -203,7 +203,7 @@ def build_request_from_sonarr(
         "source": "sonarr",
         "requested_by": "Sonarr",
         "requested_at": None,
-        "jellyseerr_status": None,
+        "seerr_status": None,
         "arr": None,
         "history": [],
     }
@@ -250,8 +250,8 @@ def is_recent(dt: datetime) -> bool:
     )
 
 
-def jellyseerr_status(req_status: int | None, media_status: int | None) -> str:
-    """Derive a display status string from Jellyseerr's request and media status codes.
+def seerr_status(req_status: int | None, media_status: int | None) -> str:
+    """Derive a display status string from Seerr's request and media status codes.
 
     ``media_status`` takes precedence because it reflects actual content availability
     in the library independently of the request workflow. Request status codes: 1 =
@@ -324,7 +324,7 @@ def arr_history_status(
     history : list[ArrHistory]
         History events for the item, newest first.
     media_status : int or None, optional
-        Jellyseerr media status code. ``5`` (available) short-circuits the history
+        Seerr media status code. ``5`` (available) short-circuits the history
         lookup and returns immediately.
 
     Returns

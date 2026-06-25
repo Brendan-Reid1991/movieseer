@@ -5,18 +5,18 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal, TypedDict
 
-EventSource = Literal["radarr", "sonarr", "sabnzbd", "prowlarr", "jellyseerr", "jellyfin", "plex"]
+EventSource = Literal["radarr", "sonarr", "sabnzbd", "prowlarr", "seerr", "plex"]
 
 EventType = Literal[
     "grabbed",  # Radarr/Sonarr: grabbed a release and sent to download client
     "imported",  # Radarr/Sonarr: download complete, file imported to library
     "failed",  # Radarr/Sonarr/SABnzbd: download or import failed
     "completed",  # SABnzbd: job finished successfully
-    "request",  # Jellyseerr: new media request submitted
+    "request",  # Seerr: new media request submitted
     "indexer_failing",  # Prowlarr: indexer newly entered failing state
     "indexer_recovered",  # Prowlarr: indexer recovered from failing state
-    "sync_started",  # Jellyfin/Plex/Jellyseerr: library sync initiated
-    "sync_complete",  # Jellyfin/Plex/Jellyseerr: library sync finished
+    "sync_started",  # Plex/Seerr: library sync initiated
+    "sync_complete",  # Plex/Seerr: library sync finished
 ]
 
 

@@ -27,8 +27,7 @@ class TestApiConfig:
         assert response.status_code == 200
         data = response.json()
         expected_keys = {
-            "jellyseerr_url",
-            "jellyfin_url",
+            "seerr_url",
             "sonarr_url",
             "radarr_url",
             "sabnzbd_url",
@@ -40,10 +39,10 @@ class TestApiConfig:
     def test_urls_constructed_from_host_ip(self, client):
         with (
             patch("movieseer.main.HOST_IP", "10.0.0.1"),
-            patch("movieseer.main.JELLYSEERR_PORT", 5055),
+            patch("movieseer.main.SEERR_PORT", 5055),
         ):
             response = client.get("/api/config")
-        assert response.json()["jellyseerr_url"] == "http://10.0.0.1:5055"
+        assert response.json()["seerr_url"] == "http://10.0.0.1:5055"
 
     def test_all_urls_start_with_http(self, client):
         response = client.get("/api/config")
@@ -92,7 +91,7 @@ class TestApiSearch:
         assert response.status_code == 422
 
     def test_valid_query_returns_results(self, client):
-        jellyseerr_response = {
+        seerr_response = {
             "results": [
                 {
                     "mediaType": "movie",
@@ -105,7 +104,7 @@ class TestApiSearch:
             ]
         }
         mock_response = MagicMock()
-        mock_response.json.return_value = jellyseerr_response
+        mock_response.json.return_value = seerr_response
         mock_response.raise_for_status = MagicMock()
 
         mock_client = AsyncMock()
@@ -173,13 +172,13 @@ class TestActionRebuild:
     """POST /actions/rebuild pulls images and restarts all non-self containers."""
 
     def test_successful_rebuild_returns_ok(self, client):
-        with patch("movieseer.main.rebuild_all", return_value=["jellyfin"]):
+        with patch("movieseer.main.rebuild_all", return_value=["plex"]):
             response = client.post("/actions/rebuild")
 
         assert response.status_code == 200
         data = response.json()
         assert data["ok"] is True
-        assert data["rebuilt"] == ["jellyfin"]
+        assert data["rebuilt"] == ["plex"]
 
     def test_docker_error_returns_503(self, client):
         with patch("movieseer.main.rebuild_all", side_effect=RuntimeError("socket error")):

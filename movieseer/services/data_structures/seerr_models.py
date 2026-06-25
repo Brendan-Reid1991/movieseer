@@ -1,7 +1,4 @@
-"""Pydantic models for the Jellyseerr API.
-
-The primary dataclass is MediaRequest,
-"""
+"""Pydantic models for the Seerr API."""
 
 from __future__ import annotations
 
@@ -32,10 +29,7 @@ class MediaInfo(_CamelBase):
 
 
 class MediaRequest(_CamelBase):
-    """A dataclass replicating this object:
-    https://github.com/Fallenbagel/jellyseerr/blob/main/server/entity/MediaRequest.ts
-
-    """
+    """A dataclass replicating the MediaRequest entity."""
 
     id: int
     status: int
@@ -48,7 +42,7 @@ class MediaRequest(_CamelBase):
 class MediaDetail(_CamelBase):
     """Simple dataclass to capture the title/name of a piece of media.
 
-    The output from the API call `jellyseer/api/v_/movie/xxxxx` contains a huge amount
+    The output from the API call `seerr/api/v1/movie/xxxxx` contains a huge amount
     of information, very little of which we care about.
     """
 
