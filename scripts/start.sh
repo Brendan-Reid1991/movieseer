@@ -116,13 +116,12 @@ wait_for() {
 echo ""
 echo "Waiting for services to be ready..."
 
-wait_for "Jellyfin"       "http://localhost:${JELLYFIN_PORT}/health"
 wait_for "Plex"           "http://localhost:${PLEX_PORT}/identity"
 wait_for "Sonarr"         "http://localhost:${SONARR_PORT}/ping"
 wait_for "Radarr"         "http://localhost:${RADARR_PORT}/ping"
 wait_for "Prowlarr"       "http://localhost:${PROWLARR_PORT}/ping"
 wait_for "SABnzbd"        "http://localhost:${SABNZBD_PORT}/"
-wait_for "Jellyseerr"     "http://localhost:${JELLYSEERR_PORT}/"
+wait_for "Seerr"     "http://localhost:${SEERR_PORT}/"
 wait_for "Flaresolverr"   "http://localhost:${FLARESOLVERR_PORT}/"
 wait_for "Movieseer"      "http://localhost:${MOVIESEER_PORT}/"
 
