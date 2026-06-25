@@ -105,10 +105,10 @@ _STATUS = {
             "id": 101,
             "title": "Dune: Part Two",
             "type": "movie",
-            "source": "jellyseerr",
+            "source": "seerr",
             "requested_by": "brendan",
             "requested_at": "2026-04-25T14:32:00+00:00",
-            "jellyseerr_status": "Downloading",
+            "seerr_status": "Downloading",
             "arr": {"status": "downloading", "error": None, "at": "2026-04-25T15:05:00+00:00"},
             "history": [
                 {
@@ -123,10 +123,10 @@ _STATUS = {
             "id": 102,
             "title": "Severance",
             "type": "tv",
-            "source": "jellyseerr",
+            "source": "seerr",
             "requested_by": "brendan",
             "requested_at": "2026-04-24T09:10:00+00:00",
-            "jellyseerr_status": "Downloading",
+            "seerr_status": "Downloading",
             "arr": {
                 "status": "downloading",
                 "error": None,
@@ -146,10 +146,10 @@ _STATUS = {
             "id": 99,
             "title": "The Brutalist",
             "type": "movie",
-            "source": "jellyseerr",
+            "source": "seerr",
             "requested_by": "brendan",
             "requested_at": "2026-04-20T18:44:00+00:00",
-            "jellyseerr_status": "Available",
+            "seerr_status": "Available",
             "arr": {"status": "imported", "error": None, "at": "2026-04-20T22:15:00+00:00"},
             "history": [
                 {
@@ -173,7 +173,7 @@ _STATUS = {
             "source": "sonarr",
             "requested_by": "brendan",
             "requested_at": None,
-            "jellyseerr_status": None,
+            "seerr_status": None,
             "arr": {
                 "status": "downloading",
                 "error": None,
@@ -193,10 +193,10 @@ _STATUS = {
             "id": 95,
             "title": "Conclave",
             "type": "movie",
-            "source": "jellyseerr",
+            "source": "seerr",
             "requested_by": "brendan",
             "requested_at": "2026-04-15T21:00:00+00:00",
-            "jellyseerr_status": "Available",
+            "seerr_status": "Available",
             "arr": {"status": "imported", "error": None, "at": "2026-04-15T23:45:00+00:00"},
             "history": [
                 {
@@ -218,8 +218,8 @@ _STATUS = {
 
 _CONTAINERS = [
     {"name": "flaresolverr", "status": "running", "uptime": "12d 4h"},
-    {"name": "jellyfin", "status": "running", "uptime": "12d 3h"},
-    {"name": "jellyseerr", "status": "running", "uptime": "12d 3h"},
+    {"name": "plex", "status": "running", "uptime": "12d 3h"},
+    {"name": "seerr", "status": "running", "uptime": "12d 3h"},
     {"name": "movieseer", "status": "running", "uptime": "12d 4h"},
     {"name": "plex", "status": "running", "uptime": "12d 3h"},
     {"name": "prowlarr", "status": "running", "uptime": "11d 22h"},
@@ -268,7 +268,7 @@ _EVENTS = [
     },
     {
         "id": 9,
-        "source": "jellyseerr",
+        "source": "seerr",
         "event_type": "request",
         "title": "Dune: Part Two",
         "detail": "brendan requested Dune: Part Two",
@@ -284,7 +284,7 @@ _EVENTS = [
     },
     {
         "id": 7,
-        "source": "jellyseerr",
+        "source": "seerr",
         "event_type": "request",
         "title": "Severance",
         "detail": "brendan requested Severance S02",
@@ -308,7 +308,7 @@ _EVENTS = [
     },
     {
         "id": 4,
-        "source": "jellyseerr",
+        "source": "seerr",
         "event_type": "request",
         "title": "The Brutalist",
         "detail": "brendan requested The Brutalist",
@@ -332,7 +332,7 @@ _EVENTS = [
     },
     {
         "id": 1,
-        "source": "jellyseerr",
+        "source": "seerr",
         "event_type": "request",
         "title": "Conclave",
         "detail": "brendan requested Conclave",
@@ -378,8 +378,8 @@ async def api_config():
     return {
         k: None
         for k in [
-            "jellyseerr_url",
-            "jellyfin_url",
+            "seerr_url",
+            "plex_url",
             "plex_url",
             "sonarr_url",
             "radarr_url",

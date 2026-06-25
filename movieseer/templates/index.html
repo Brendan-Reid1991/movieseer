@@ -112,7 +112,6 @@
     }
     .nav-btn:hover { opacity: 0.82; }
     .nav-btn-browse   { background: #1e3a5f; color: #60a5fa; }
-    .nav-btn-jellyfin { background: #1a1f3a; color: #a78bfa; }
     .nav-btn-plex     { background: #e5a00d; color: #000; }
     .nav-btn-ghost    { background: transparent; color: #9ca3af; border: 1px solid #2a2a2a; }
 
@@ -203,8 +202,7 @@
     .eb-sonarr   { background: #1a2e1a; color: #4ade80; }
     .eb-sabnzbd  { background: #2a1f00; color: #fbbf24; }
     .eb-prowlarr { background: #2a1a2a; color: #c084fc; }
-    .eb-jellyseerr { background: #1a1a2a; color: #818cf8; }
-    .eb-jellyfin { background: #00211a; color: #34d399; }
+    .eb-seerr { background: #1a1a2a; color: #818cf8; }
     .event-msg { font-size: 0.75rem; color: #6b7280; line-height: 1.35; overflow-wrap: break-word; min-width: 0; }
     .event-msg .hi   { color: #d1d5db; font-weight: 500; }
     .event-msg .ok   { color: #10b981; }
@@ -344,8 +342,7 @@
 <div class="header-row2">
   <span class="nav-label">Media</span>
   <div class="nav-group">
-    <a href="#" id="link-jellyseerr" class="nav-btn nav-btn-browse">Browse</a>
-    <a href="#" id="link-jellyfin"   class="nav-btn nav-btn-jellyfin">Jellyfin</a>
+    <a href="#" id="link-seerr" class="nav-btn nav-btn-browse">Browse</a>
     <a href="#" id="link-plex"       class="nav-btn nav-btn-plex">Plex</a>
   </div>
   <div class="nav-divider"></div>
@@ -524,8 +521,7 @@
   function initConfig() {
     fetch('/api/config').then(r => r.json()).then(cfg => {
       const map = {
-        'link-jellyseerr':  cfg.jellyseerr_url,
-        'link-jellyfin':    cfg.jellyfin_url,
+        'link-seerr':  cfg.seerr_url,
         'link-plex':        cfg.plex_url,
         'link-sonarr':      cfg.sonarr_url,
         'link-radarr':      cfg.radarr_url,
@@ -609,9 +605,9 @@
         setError(); return;
       }
 
-      // Watch the SSE stream for sync_complete (jellyseerr) or any failed event
+      // Watch the SSE stream for sync_complete (seerr) or any failed event
       _listener = (ev) => {
-        if (ev.source === 'jellyseerr' && ev.event_type === 'sync_complete') {
+        if (ev.source === 'seerr' && ev.event_type === 'sync_complete') {
           _sseListeners.splice(_sseListeners.indexOf(_listener), 1);
           _listener = null;
           state = 'synced';
@@ -619,8 +615,7 @@
           icon.textContent  = '✓';
           label.textContent = 'Sync complete';
           setTimeout(reset, 10000);
-        } else if (ev.event_type === 'failed' &&
-                   (ev.source === 'jellyfin' || ev.source === 'jellyseerr')) {
+        } else if (ev.event_type === 'failed' && ev.source === 'seerr') {
           setError();
         }
       };
@@ -635,8 +630,7 @@
     sonarr:     'eb-sonarr',
     sabnzbd:    'eb-sabnzbd',
     prowlarr:   'eb-prowlarr',
-    jellyseerr: 'eb-jellyseerr',
-    jellyfin:   'eb-jellyfin',
+    seerr: 'eb-seerr',
   };
 
   const EVENT_COLOUR = {
@@ -724,7 +718,7 @@
   function updatePendingCount(requests) {
     const done  = ['available', 'imported', 'partial'];
     const count = requests.filter(r => {
-      const s = (r.arr && r.arr.status) || r.jellyseerr_status || '';
+      const s = (r.arr && r.arr.status) || r.seerr_status || '';
       return !done.includes(s);
     }).length;
     document.getElementById('pending-count').textContent = count;
@@ -737,7 +731,7 @@
       return;
     }
     body.innerHTML = requests.map(r => {
-      const status    = (r.arr && r.arr.status) || r.jellyseerr_status || 'unknown';
+      const status    = (r.arr && r.arr.status) || r.seerr_status || 'unknown';
       const typeLabel = r.type === 'tv' ? 'TV' : 'Movie';
       const meta      = r.requested_by ? typeLabel + ' · ' + r.requested_by : typeLabel;
       const label     = status.charAt(0).toUpperCase() + status.slice(1);

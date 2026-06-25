@@ -3,8 +3,7 @@ include:
   - services/radarr.yml
   - services/prowlarr.yml
   - services/flaresolverr.yml
-  - services/jellyseerr.yml
-  - services/jellyfin.yml
+  - services/seerr.yml
   - services/sabnzbd.yml
   - services/plex.yml
   - services/movieseer.yml

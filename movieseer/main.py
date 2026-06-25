@@ -29,12 +29,6 @@ from movieseer.config import (
     EVENT_POLL_INTERVAL,
     EVENT_RETENTION_DAYS,
     HOST_IP,
-    JELLYFIN_API_KEY,
-    JELLYFIN_PORT,
-    JELLYFIN_URL,
-    JELLYSEERR_API_KEY,
-    JELLYSEERR_PORT,
-    JELLYSEERR_URL,
     LOG_FILE,
     LOG_LEVEL,
     MEDIA_MOUNT,
@@ -44,6 +38,9 @@ from movieseer.config import (
     PROWLARR_PORT,
     RADARR_PORT,
     SABNZBD_PORT,
+    SEERR_API_KEY,
+    SEERR_PORT,
+    SEERR_URL,
     SONARR_PORT,
 )
 from movieseer.docker_manager import (
@@ -149,8 +146,7 @@ async def api_config():
     """
     base = f"http://{HOST_IP}"
     return {
-        "jellyseerr_url": f"{base}:{JELLYSEERR_PORT}",
-        "jellyfin_url": f"{base}:{JELLYFIN_PORT}",
+        "seerr_url": f"{base}:{SEERR_PORT}",
         "plex_url": f"{base}:{PLEX_PORT}",
         "sonarr_url": f"{base}:{SONARR_PORT}",
         "radarr_url": f"{base}:{RADARR_PORT}",
@@ -203,9 +199,9 @@ async def api_search(q: str = Query(..., min_length=1)):
     """
     async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(
-            f"{JELLYSEERR_URL}/api/v1/search",
+            f"{SEERR_URL}/api/v1/search",
             params={"query": q, "page": 1},
-            headers={"X-Api-Key": JELLYSEERR_API_KEY},
+            headers={"X-Api-Key": SEERR_API_KEY},
         )
         response.raise_for_status()
 
@@ -218,15 +214,15 @@ async def api_search(q: str = Query(..., min_length=1)):
         poster_path = item.get("posterPath")
         poster_url = f"https://image.tmdb.org/t/p/w92{poster_path}" if poster_path else None
 
-        browser_base = f"http://{HOST_IP}:{JELLYSEERR_PORT}"
+        browser_base = f"http://{HOST_IP}:{SEERR_PORT}"
         if media_type == "tv":
             title = item.get("name") or item.get("originalName", "Unknown")
             year = (item.get("firstAirDate") or "")[:4]
-            jellyseerr_link = f"{browser_base}/tv/{tmdb_id}"
+            seerr_link = f"{browser_base}/tv/{tmdb_id}"
         else:
             title = item.get("title") or item.get("originalTitle", "Unknown")
             year = (item.get("releaseDate") or "")[:4]
-            jellyseerr_link = f"{browser_base}/movie/{tmdb_id}"
+            seerr_link = f"{browser_base}/movie/{tmdb_id}"
 
         results.append(
             {
@@ -234,7 +230,7 @@ async def api_search(q: str = Query(..., min_length=1)):
                 "type": media_type,
                 "year": year,
                 "poster_url": poster_url,
-                "link": jellyseerr_link,
+                "link": seerr_link,
             }
         )
 
@@ -434,38 +430,6 @@ async def _emit(source: str, event_type: str, detail: str) -> None:
     _broadcast(events)
 
 
-async def _sync_jellyfin() -> None:
-    try:
-        await _emit("jellyfin", "sync_started", "Jellyfin library refresh started")
-
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            r = await client.post(
-                f"{JELLYFIN_URL}/Library/Refresh",
-                headers={"X-Emby-Token": JELLYFIN_API_KEY},
-            )
-            r.raise_for_status()
-        logger.info("Jellyfin library refresh triggered")
-
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            for _ in range(90):
-                await asyncio.sleep(10)
-                r = await client.get(
-                    f"{JELLYFIN_URL}/ScheduledTasks",
-                    headers={"X-Emby-Token": JELLYFIN_API_KEY},
-                )
-                r.raise_for_status()
-                scan_task = next((t for t in r.json() if t.get("Key") == "RefreshLibrary"), None)
-                if scan_task is not None and scan_task.get("State") == "Idle":
-                    break
-
-        await _emit("jellyfin", "sync_complete", "Jellyfin library refresh complete")
-        logger.info("Jellyfin library refresh complete")
-    except Exception as exc:
-        logger.exception("Jellyfin sync failed")
-        await _emit("jellyfin", "failed", f"Jellyfin sync failed — {exc}")
-        raise
-
-
 async def _sync_plex() -> None:
     try:
         await _emit("plex", "sync_started", "Plex library refresh started")
@@ -499,37 +463,37 @@ async def _sync_plex() -> None:
 
 async def _run_library_sync() -> None:
     try:
-        await asyncio.gather(_sync_jellyfin(), _sync_plex())
+        await _sync_plex()
     except Exception:
         return
 
     try:
-        await _emit("jellyseerr", "sync_started", "Jellyseerr library sync started")
+        await _emit("seerr", "sync_started", "Seerr library sync started")
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.post(
-                f"{JELLYSEERR_URL}/api/v1/settings/jellyfin/sync",
+                f"{SEERR_URL}/api/v1/settings/plex/sync",
                 json={"start": True},
-                headers={"X-Api-Key": JELLYSEERR_API_KEY},
+                headers={"X-Api-Key": SEERR_API_KEY},
             )
             r.raise_for_status()
-        logger.info("Jellyseerr library sync triggered")
+        logger.info("Seerr library sync triggered")
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             for _ in range(60):
                 await asyncio.sleep(10)
                 r = await client.get(
-                    f"{JELLYSEERR_URL}/api/v1/settings/jellyfin/sync",
-                    headers={"X-Api-Key": JELLYSEERR_API_KEY},
+                    f"{SEERR_URL}/api/v1/settings/plex/sync",
+                    headers={"X-Api-Key": SEERR_API_KEY},
                 )
                 r.raise_for_status()
                 if not r.json().get("running", False):
                     break
 
-        await _emit("jellyseerr", "sync_complete", "Jellyseerr library sync complete")
-        logger.info("Jellyseerr library sync complete")
+        await _emit("seerr", "sync_complete", "Seerr library sync complete")
+        logger.info("Seerr library sync complete")
     except Exception as exc:
-        logger.exception("Jellyseerr sync failed")
-        await _emit("jellyseerr", "failed", f"Jellyseerr sync failed — {exc}")
+        logger.exception("Seerr sync failed")
+        await _emit("seerr", "failed", f"Seerr sync failed — {exc}")
 
 
 @app.post("/actions/sync-libraries")

@@ -130,13 +130,13 @@ class TestRestartAll:
         assert "sonarr" in restarted
 
     def test_all_other_containers_restarted(self):
-        containers = [self._make_container(n) for n in ["radarr", "sonarr", "jellyfin"]]
+        containers = [self._make_container(n) for n in ["radarr", "sonarr", "plex"]]
         mock_client = MagicMock()
         mock_client.containers.list.return_value = containers
 
         with patch("movieseer.docker_manager._client", return_value=mock_client):
             restarted = restart_all()
 
-        assert set(restarted) == {"radarr", "sonarr", "jellyfin"}
+        assert set(restarted) == {"radarr", "sonarr", "plex"}
         for c in containers:
             c.restart.assert_called_once()

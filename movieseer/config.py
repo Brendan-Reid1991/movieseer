@@ -10,11 +10,11 @@ drift across files.
 import os
 
 # ---------------------------------------------------------------------------
-# Jellyseerr
+# Seerr
 # ---------------------------------------------------------------------------
 
-JELLYSEERR_URL: str = os.getenv("JELLYSEERR_URL", "http://jellyseerr:5055")
-JELLYSEERR_API_KEY: str = os.getenv("JELLYSEERR_API_KEY", "")
+SEERR_URL: str = os.getenv("SEERR_URL", "http://seerr:5055")
+SEERR_API_KEY: str = os.getenv("SEERR_API_KEY", "")
 
 # ---------------------------------------------------------------------------
 # Radarr
@@ -45,13 +45,6 @@ SABNZBD_URL: str = os.getenv("SABNZBD_URL", "http://sabnzbd:8085")
 SABNZBD_API_KEY: str = os.getenv("SABNZBD_API_KEY", "")
 
 # ---------------------------------------------------------------------------
-# Jellyfin
-# ---------------------------------------------------------------------------
-
-JELLYFIN_URL: str = os.getenv("JELLYFIN_URL", "http://jellyfin:8096")
-JELLYFIN_API_KEY: str = os.getenv("JELLYFIN_API_KEY", "")
-
-# ---------------------------------------------------------------------------
 # Plex
 # ---------------------------------------------------------------------------
 
@@ -68,9 +61,8 @@ PLEX_TOKEN: str = os.getenv("PLEX_TOKEN", "")
 # ---------------------------------------------------------------------------
 
 HOST_IP: str = os.getenv("HOST_IP", "localhost")
-JELLYFIN_PORT: int = int(os.getenv("JELLYFIN_PORT", "8096"))
 PLEX_PORT: int = int(os.getenv("PLEX_PORT", "32400"))
-JELLYSEERR_PORT: int = int(os.getenv("JELLYSEERR_PORT", "5055"))
+SEERR_PORT: int = int(os.getenv("SEERR_PORT", "5055"))
 SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
 RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
 PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
