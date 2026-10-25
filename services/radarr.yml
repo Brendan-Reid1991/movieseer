@@ -1,0 +1,26 @@
+services:
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${RADARR_PORT}:7878"
+    volumes:
+      - ./config/radarr:/config
+      - ${MEDIA_PATH}:/media
+    depends_on:
+       prowlarr:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl -fsS --max-time 4 http://127.0.0.1:7878/ping | grep -Fq '"status": "OK"'
+      timeout: 5s
+      interval: 6s
+      retries: 3
+      start_period: 4s
+          

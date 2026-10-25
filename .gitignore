@@ -1,0 +1,11 @@
+.*/
+*/*.env
+*.conf
+.DS_Store
+.env
+**/cache
+services/config/
+test-data/
+.env.test
+*.pyc
+logs/*

@@ -1,0 +1,3 @@
+networks:
+  movieseer:
+    internal: true

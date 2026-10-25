@@ -1,0 +1,24 @@
+services:
+  prowlarr:
+    image: linuxserver/prowlarr
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${PROWLARR_PORT}:9696"
+    volumes:
+      - ./config/prowlarr:/config
+    depends_on:
+        flaresolverr:
+          condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl -fsS --max-time 4 http://127.0.0.1:9696/ping | grep -Fq '"status": "OK"'
+      timeout: 5s
+      interval: 6s
+      retries: 3
+      start_period: 4s

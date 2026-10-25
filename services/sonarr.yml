@@ -1,0 +1,26 @@
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    ports:
+      - "${SONARR_PORT}:8989"
+    volumes:
+      - ./config/sonarr:/config
+      - ${MEDIA_PATH}:/${MEDIA_MOUNT}
+    depends_on:
+       prowlarr:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl -fsS --max-time 4 http://127.0.0.1:8989/ping | grep -Fq '"status": "OK"'
+      timeout: 5s
+      interval: 6s
+      retries: 3
+      start_period: 4s
+          
