@@ -1,0 +1,13 @@
+include:
+  - services/flaresolverr.yml
+  - services/prowlarr.yml
+  - services/radarr.yml
+  - services/sonarr.yml
+  - services/seerr.yml
+  - services/plex.yml
+  - services/sabnzbd.yml
+
+networks:
+  default:
+    name: garfield
+    driver: bridge
