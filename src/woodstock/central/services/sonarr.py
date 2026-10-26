@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from central.config import SONARR_API_KEY, SONARR_URL
+from woodstock.central.config import SONARR_API_KEY, SONARR_URL
 
 from .client_api import _ApiKeyClient, gateway
 from .data_structures.sonarr_models import Series, SonarrHistoryEntry, SonarrQueueEntry

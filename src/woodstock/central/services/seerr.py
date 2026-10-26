@@ -1,6 +1,6 @@
 from typing import Literal
 
-from central.config import SEERR_API_KEY, SEERR_URL
+from woodstock.central.config import SEERR_API_KEY, SEERR_URL
 
 from .client_api import _ApiKeyClient, gateway
 from .data_structures.seerr_models import (

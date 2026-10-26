@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import cast
 
-from central.config import PROWLARR_API_KEY, PROWLARR_URL
+from woodstock.central.config import PROWLARR_API_KEY, PROWLARR_URL
 
 from .client_api import _ApiKeyClient, gateway
 from .data_structures.prowlarr_models import ProwlarrIndexer, ProwlarrIssue, ProwlarrStatus
