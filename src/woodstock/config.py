@@ -1,8 +1,8 @@
 """
-Configuration module for Movieseer.
+Configuration module for Woodstock.
 
 All environment variable reads are centralised here. No other module should
-call ``os.getenv`` directly — import from this module instead. This ensures
+call `os.getenv` directly — import from this module instead. This ensures
 that configuration is always found in one place and that env var names never
 drift across files.
 """
@@ -68,31 +68,6 @@ RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
 PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
 SABNZBD_PORT: int = int(os.getenv("SABNZBD_PORT", "8085"))
 
-# ---------------------------------------------------------------------------
-# Aggregator tuning
-# ---------------------------------------------------------------------------
-
-MEDIA_MOUNT: str = os.getenv("MEDIA_MOUNT", "/data")
-
-CACHE_TTL: int = int(os.getenv("CACHE_TTL", "30"))
-"""Seconds before the aggregator cache is considered stale."""
-
-HISTORY_WINDOW_DAYS: int = int(os.getenv("HISTORY_WINDOW_DAYS", "7"))
-"""How many days back to look when surfacing direct Radarr/Sonarr activity."""
-
-# ---------------------------------------------------------------------------
-# Event log
-# ---------------------------------------------------------------------------
-
-EVENT_DB_PATH: str = os.getenv("EVENT_DB_PATH", "/var/log/movieseer/events.db")
-"""Absolute path for the SQLite event log database."""
-
-EVENT_POLL_INTERVAL: int = int(os.getenv("EVENT_POLL_INTERVAL", "30"))
-"""Seconds between event collector poll cycles."""
-
-EVENT_RETENTION_DAYS: int = int(os.getenv("EVENT_RETENTION_DAYS", "7"))
-"""How many days of events to retain in the database. Older rows are pruned on
-each collector cycle."""
 
 # ---------------------------------------------------------------------------
 # Logging

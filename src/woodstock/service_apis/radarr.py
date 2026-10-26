@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal, cast
 
-from woodstock.central.config import RADARR_API_KEY, RADARR_URL
+from woodstock.config import RADARR_API_KEY, RADARR_URL
 
 from .client_api import _ApiKeyClient, gateway
 from .data_structures.radarr_models import (

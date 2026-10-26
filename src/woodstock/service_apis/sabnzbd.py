@@ -11,7 +11,7 @@ from typing import ClassVar, Literal, TypeVar, cast, overload
 
 from pydantic import BaseModel
 
-from woodstock.central.config import SABNZBD_API_KEY, SABNZBD_URL
+from woodstock.config import SABNZBD_API_KEY, SABNZBD_URL
 
 from .client_api import _BaseClient, gateway
 from .data_structures.sabnzbd_models import (
