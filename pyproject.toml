@@ -1,7 +1,7 @@
 [project]
-name = "movieseer"
+name = "woodstock"
 version = "0.1.0"
-description = "An in-house media server using the *arr stack, Jellyfin and a bespoke dashboard."
+description = "A media server built on the *arr stack."
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "Brendan Reid" }]
@@ -28,4 +28,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["movieseer"]
+packages = ["src/woodstock"]
