@@ -8,19 +8,33 @@ drift across files.
 """
 
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
+
+HOST_IP: str = os.getenv("HOST_IP", "localhost")
+PLEX_PORT: int = int(os.getenv("PLEX_PORT", "32400"))
+SEERR_PORT: int = int(os.getenv("SEERR_PORT", "5055"))
+SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
+RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
+PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
+SABNZBD_PORT: int = int(os.getenv("SABNZBD_PORT", "8085"))
+
 
 # ---------------------------------------------------------------------------
 # Seerr
 # ---------------------------------------------------------------------------
 
-SEERR_URL: str = os.getenv("SEERR_URL", "http://seerr:5055")
+SEERR_URL: str = os.getenv("SEERR_URL", f"http://{HOST_IP}:{SEERR_PORT}")
 SEERR_API_KEY: str = os.getenv("SEERR_API_KEY", "")
 
 # ---------------------------------------------------------------------------
 # Radarr
 # ---------------------------------------------------------------------------
 
-RADARR_URL: str = os.getenv("RADARR_URL", "http://radarr:7878")
+RADARR_URL: str = os.getenv("RADARR_URL", f"http://{HOST_IP}:{RADARR_PORT}")
 RADARR_API_KEY: str = os.getenv("RADARR_API_KEY", "")
 
 # ---------------------------------------------------------------------------
@@ -59,14 +73,6 @@ PLEX_TOKEN: str = os.getenv("PLEX_TOKEN", "")
 # The port vars mirror the values in .env and are used by /api/config to build
 # the links shown on the dashboard.
 # ---------------------------------------------------------------------------
-
-HOST_IP: str = os.getenv("HOST_IP", "localhost")
-PLEX_PORT: int = int(os.getenv("PLEX_PORT", "32400"))
-SEERR_PORT: int = int(os.getenv("SEERR_PORT", "5055"))
-SONARR_PORT: int = int(os.getenv("SONARR_PORT", "8989"))
-RADARR_PORT: int = int(os.getenv("RADARR_PORT", "7878"))
-PROWLARR_PORT: int = int(os.getenv("PROWLARR_PORT", "9696"))
-SABNZBD_PORT: int = int(os.getenv("SABNZBD_PORT", "8085"))
 
 
 # ---------------------------------------------------------------------------
