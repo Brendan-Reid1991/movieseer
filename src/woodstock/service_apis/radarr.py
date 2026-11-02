@@ -18,8 +18,7 @@ from .data_structures.radarr_models import (
 class RadarrClient(_ApiKeyClient):
     """Radarr API v3 client.
 
-    Constructs and owns its httpx.AsyncClient. Call ``aclose()`` (or use via
-    the Aggregator's lifespan) to release connections on shutdown.
+    Constructs and owns its httpx.AsyncClient. Call ``aclose()`` to release connections on shutdown.
 
     Example
     -------
