@@ -19,7 +19,7 @@ PY ?= python
 UV ?= uv
 RUFF ?= ruff
 
-CODE := movieseer scripts
+CODE := src scripts
 TESTS := tests
 
 .PHONY: install lint lint-check format fmt-check test ci lock clean help
