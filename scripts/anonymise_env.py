@@ -4,13 +4,15 @@ from pathlib import Path
 import re
 import os
 
+
 def read(path: Path) -> list[str]:
-    with open(path,"r") as f:
+    with open(path, "r") as f:
         environment = f.readlines()
     return environment
 
+
 def parse_line(line: str) -> str:
-    if match:=re.match(r"(\w+)=.*", line):
+    if match := re.match(r"(\w+)=.*", line):
         name = match.groups()[0]
         return f"{name}=...\n"
     return line
@@ -28,6 +30,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
